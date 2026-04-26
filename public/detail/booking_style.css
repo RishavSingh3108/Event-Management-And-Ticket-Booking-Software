@@ -1,0 +1,253 @@
+:root {
+    --gold: #d4af37;
+    --dark-gold: #aa8922;
+    --soft-white: #fdfdfd;
+    --charcoal: #2c3e50;
+    --shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #1a1a1a; /* Dark elegant background */
+    color: var(--charcoal);
+    overflow-x: hidden;
+}
+
+/* Luxury Background Animation */
+.luxury-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2c3e50 100%);
+    z-index: -1;
+}
+
+.luxury-bg::after {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+    opacity: 0.1;
+}
+
+/* Wrapper and Envelope (The Card) */
+.invitation-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.envelope {
+    background: var(--soft-white);
+    width: 100%;
+    max-width: 650px;
+    padding: 50px;
+    border-radius: 4px;
+    position: relative;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    overflow: hidden;
+    animation: fadeInCard 1s ease-out;
+}
+
+/* Elegant Borders */
+.envelope::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    bottom: 15px;
+    border: 1px solid var(--gold);
+    pointer-events: none;
+}
+
+@keyframes fadeInCard {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Header Section */
+.invitation-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.seal {
+    font-size: 2.5rem;
+    color: var(--gold);
+    margin-bottom: 10px;
+    animation: heartPulse 2s infinite;
+}
+
+@keyframes heartPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.subtitle {
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    font-size: 0.8rem;
+    color: var(--gold);
+    font-weight: 600;
+}
+
+h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    margin: 10px 0;
+    color: #1a1a1a;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.divider span {
+    height: 1px;
+    width: 60px;
+    background: var(--gold);
+}
+
+.divider i {
+    color: var(--gold);
+    font-size: 0.7rem;
+}
+
+/* Main Content Section */
+.guest-hero {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.guest-hero label {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: #888;
+}
+
+.guest-hero h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--charcoal);
+    margin-top: 5px;
+}
+
+/* Info Grid Layout */
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.info-item i {
+    font-size: 1.5rem;
+    color: var(--gold);
+    margin-top: 5px;
+}
+
+.info-item label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #999;
+}
+
+.info-item p {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* Purpose Tag */
+.purpose-tag {
+    text-align: center;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--dark-gold);
+    padding: 8px 20px;
+    border-radius: 50px;
+    width: fit-content;
+    margin: 0 auto 30px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+/* Note/Requirements Section */
+.note-section {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 3px solid var(--gold);
+}
+
+.note-section label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--gold);
+    display: block;
+    margin-bottom: 8px;
+}
+
+.note-section p {
+    font-style: italic;
+    color: #555;
+    line-height: 1.6;
+}
+
+/* Footer & Button */
+.invitation-footer {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.btn-back {
+    background: var(--charcoal);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 4px;
+    font-family: 'Poppins', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: 0.3s all;
+    text-decoration: none;
+}
+
+.btn-back:hover {
+    background: var(--gold);
+    transform: translateX(-5px);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 500px) {
+    .envelope { padding: 30px 20px; }
+    .info-grid { grid-template-columns: 1fr; }
+    h1 { font-size: 2rem; }
+}

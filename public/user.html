@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Venues | EventFlow</title>
+    <link rel="stylesheet" href="user.css">
+    <link rel="stylesheet" href="common_style.css">
+    <link rel="stylesheet" href="venue.css">
+    <link rel="stylesheet" href="view_booking.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+
+    <nav class="premium-nav">
+        <div class="logo">Event<span>Flow</span></div>
+        <div class="nav-right">
+            <a href="#" class="nav-link" onclick="openTrackModal()" >My Bookings</a>
+            <div class="profile-chip">
+                <span id="NameDisplay">Guest</span>
+                <button class="icon-logout"><i class='bx bx-power-off'></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero-blur"></div>
+
+    <main class="app-shell">
+        <header class="hero-text">
+            <h1>Choose your's <span>Atmosphere.</span></h1>
+            <div class="search-glass">
+                <input type="text" placeholder="Search by venue name or address...">
+                <button class="search-trigger"><i class='bx bx-right-arrow-alt'></i></button>
+            </div>
+        </header>
+
+        <section class="venue-showcase">
+
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Event Managers</h3>
+                <p>It is a professional administrative dashboard designed to centralize venue management, enabling real-time monitoring of event locations, capacities, and booking schedules through a clean, data-driven interface.</p>
+            </div>
+
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="/nav/about.html" class="foot-link">About Us</a></li>
+                    <li><a href="#" class="foot-link">Upcoming Events</a></li>
+                    <li><a href="/nav/privacy.html" class="foot-link">Privacy Policy</a></li>
+                    <li><a href="/nav/terms.html" class="foot-link">Terms and Conditions</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <p>Email: supportBCEevent@gmail.com</p>
+                <p>Phone: +91 9842xx41xx</p>
+                <p>Location: Aryabhatta Hostel, BCE Bhagalpur</p>
+            </div>
+
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <div class="social-icons">
+                    <span><a style="color: aquamarine;" href="#">Instagram</a></span>  |
+                    <span><a style="color: aquamarine;" href="#">Twitter</a></span>  |
+                    <span><a style="color: aquamarine;" href="#">LinkedIn</a></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 EventFlow Management System. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- BOOKING POPUP MODAL -->
+    <div id="bookingModal" class="modal">
+
+        <div class="modal-content">
+
+            <span class="close" onclick="closeBookingModal()">&times;</span>
+
+            <h2>Book Venue</h2>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Booking Date</label>
+                    <input type="date" id="bookingDate" required> </div>
+
+                <div class="form-group">
+                    <label>Number of Guests</label>
+                    <input type="number" id="guests" placeholder="Enter guests"> </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Booked By</label>
+                    <input type="text" id="bookedBy" placeholder="Enter your name"> </div>
+
+                <div class="form-group">
+                    <label>Contact Number</label>
+                    <input type="tel" id="contact" placeholder="Enter phone number"> </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="Enter email"> </div>
+
+                <div class="form-group">
+                    <label>Purpose of Booking</label>
+                    <input type="text" id="purpose" placeholder="Wedding / Party / Corporate Event"> </div>
+            </div>
+
+            <div class="form-group">
+                <label>Special Requirements</label>
+                <textarea id="requirements" placeholder="Decoration, Catering, Sound System, etc."></textarea> 
+            </div>
+
+            <p class="note">
+            Note: Additional services like decoration, catering, sound system, or other special arrangements may involve extra charges.
+            </p>
+
+            <p class="important-note">
+            Important: After submitting the booking request, please visit the venue or contact the venue owner within 24 hours to make the advance payment. Booking will be confirmed only after advance payment.
+            </p>
+
+            <button class="book-btn" onclick="confirmBooking()">Confirm Booking</button>
+
+        </div>
+    </div>
+
+<!-- for user to search about their booking -->
+
+    <div id="trackModal" class="modal-overlay" >
+        <div class="track-card">
+            <div class="track-header">
+                <i class='bx bxs-user-pin'></i>
+                <h2>Find Your Reservations</h2>
+                <p>Please provide your registration details</p>
+            </div>
+            
+            <div class="track-body">
+                <div class="input-group">
+                    <label>Registered Name</label>
+                    <input type="text" id="trackName" placeholder="Enter name used during booking">
+                </div>
+                <div class="input-group">
+                    <label>Mobile Number</label>
+                    <input type="text" id="trackPhone" placeholder="Enter 10-digit number">
+                </div>
+                <button class="btn-track-submit" onclick="fetchMyBookings()">Search Reservations</button>
+                <button class="btn-track-close" onclick="closeTrackModal()">Close</button>
+            </div>
+
+            <div id="trackResults" class="track-results-container">
+                </div>
+        </div>
+    </div>
+
+    <!-- for view booking button -->
+
+    <div id="calendarModal" class="modal-overlay">
+        <div class="calendar-card modern-view">
+            <div class="calendar-header">
+                <div class="header-text">
+                    <h2 id="calVenueName">Select Date</h2>
+                    <div class="controls-row">
+                        <div class="year-badge">2026</div>
+                        <select id="monthSelect" class="month-dropdown"></select>
+                    </div>
+                </div>
+                <button class="close-cal" onclick="closeCalendar()">&times;</button>
+            </div>
+            
+            <div id="calendarGrid" class="days-container"></div>
+
+            <div class="calendar-footer">
+                <div class="status-legend">
+                    <div class="status-item"><span class="status-dot free"></span> Available</div>
+                    <div class="status-item"><span class="status-dot busy"></span> Occupied</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script src="user_script.js"></script>
+    <script src="header.js"></script>
+</body>
+</html>

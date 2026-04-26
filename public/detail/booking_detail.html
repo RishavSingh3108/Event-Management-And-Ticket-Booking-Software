@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reservation Dossier | EventFlow</title>
+    <link rel="stylesheet" href="booking_style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+
+    <div class="luxury-bg"></div>
+
+    <main class="invitation-wrapper">
+        <div class="envelope">
+            <header class="invitation-header">
+                <div class="seal"><i class='bx bxs-heart'></i></div>
+                <span class="subtitle">Exclusive Reservation</span>
+                <h1 id="detVenueName">Grand Ballroom</h1>
+                <div class="divider"><span></span><i class='bx bxs-star'></i><span></span></div>
+            </header>
+
+            <section class="main-content">
+                <div class="guest-hero">
+                    <label>In Honor of</label>
+                    <h2 id="detGuestName">---</h2>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-item">
+                        <i class='bx bx-calendar-heart'></i>
+                        <div class="text">
+                            <label>The Date</label>
+                            <p id="detDate">---</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class='bx bx-group'></i>
+                        <div class="text">
+                            <label>Guest Count</label>
+                            <p id="detGuests">---</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class='bx bx-phone-call'></i>
+                        <div class="text">
+                            <label>Contact Info</label>
+                            <p id="detPhone">---</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class='bx bx-envelope'></i>
+                        <div class="text">
+                            <label>Email Address</label>
+                            <p id="detEmail">---</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="purpose-tag" id="detPurpose">Wedding Reception</div>
+
+                <div class="note-section">
+                    <label>Special Visions & Requests</label>
+                    <p id="detRequirements">"No special requirements provided."</p>
+                </div>
+            </section>
+
+            <footer class="invitation-footer">
+                <button class="btn-back" onclick="history.back()">
+                    <i class='bx bx-left-arrow-alt'></i> Return to Dashboard
+                </button>
+            </footer>
+        </div>
+    </main>
+
+    <script src="booking_script.js"></script>
+</body>
+</html>

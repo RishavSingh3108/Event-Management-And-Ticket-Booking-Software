@@ -1,0 +1,175 @@
+/* Card Container */
+.venue-card-horizontal {
+    display: flex;
+    background: #fff;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    margin-bottom: 30px;
+    border: 1px solid #f0e0e0; /* Soft rose border */
+    transition: transform 0.3s ease;
+}
+
+.venue-card-horizontal:hover {
+    transform: translateY(-5px);
+}
+
+/* Image Section */
+.card-image-section {
+    position: relative;
+    width: 350px;
+    min-width: 350px;
+}
+
+.card-image-section img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.venue-type-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 5px 15px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #d63384; /* Romantic pink/rose */
+    text-transform: uppercase;
+    backdrop-filter: blur(5px);
+}
+
+/* Info Section */
+.card-info-section {
+    padding: 30px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.venue-title {
+    font-size: 1.8rem;
+    color: #2d3436;
+    font-family: 'Playfair Display', serif; /* Suggesting a serif font for romantic feel */
+    margin: 0;
+}
+
+.price-tag {
+    background: #f8ecee;
+    color: #d63384;
+    padding: 8px 15px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.price-tag span {
+    font-size: 0.8rem;
+    font-weight: 400;
+    opacity: 0.8;
+}
+
+.venue-desc {
+    color: #636e72;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+/* Systematic Grid */
+.venue-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: #fff9f9;
+    border-radius: 15px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.detail-icon {
+    font-size: 1.2rem;
+}
+
+.detail-text strong {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: #b2bec3;
+    letter-spacing: 1px;
+}
+
+.detail-text span {
+    font-size: 0.9rem;
+    color: #2d3436;
+    font-weight: 500;
+}
+
+/* Buttons Section */
+.card-actions-row {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 15px;
+    border-top: 1px solid #fef1f1; /* Light divider */
+}
+
+/* Base style for ALL buttons to create uniformity */
+.view-bookings-btn, .edit-btn, .remove-btn {
+    border: none;
+    padding: 10px 22px;
+    border-radius: 50px; /* Perfect pill shape */
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white; /* All buttons now use white text */
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Hover effect for all buttons */
+.view-bookings-btn:hover, .edit-btn:hover, .remove-btn:hover {
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* 1. View Bookings - Purple Gradient */
+.view-bookings-btn {
+    background: linear-gradient(135deg, #4B0082, #FFD700);
+    box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+}
+
+/* 2. Edit Button - Teal/Emerald Gradient */
+.edit-btn {
+    background: linear-gradient(135deg, #2E8B57, #FF7F50);
+    box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
+}
+
+/* 3. Remove Button - Rose/Red Gradient */
+.remove-btn {
+    background: linear-gradient(135deg, #800000, #FFB6A3);
+    box-shadow: 0 4px 15px rgba(255, 118, 117, 0.3);
+}
+
+.right-actions {
+    display: flex;
+    gap: 12px;
+}

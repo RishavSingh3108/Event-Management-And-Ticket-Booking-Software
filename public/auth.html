@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Event Management</title>
+    <link rel="stylesheet" href="auth.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="background-overlay"></div>
+
+    <div class="main-card">
+        <div class="glass-header">
+            <h1>Event<span>Management</span></h1>
+            <p>Your Vision, Our Venue</p>
+        </div>
+        
+        <div class="role-selector">
+            <button id="userBtn" class="active" onclick="setRole('User')">User Portal</button>
+            <button id="adminBtn" onclick="setRole('Admin')">Admin Portal</button>
+        </div>
+
+        <div class="auth-container">
+            <h2 id="formTitle">User Login</h2>
+            
+            <form id="authForm">
+                <div id="regOnlyFields" class="hidden animate-fade">
+                    <input type="text" placeholder="Full Name" class="styled-input">
+                    <input type="tel" placeholder="Phone Number" class="styled-input">
+                </div>
+
+                <input type="email" placeholder="Email Address" required class="styled-input">
+                <input type="password" placeholder="Password" required class="styled-input">
+
+                <div class="forgot-pass-container" id="forgotPassWrapper">
+                    <a href="javascript:void(0)" id="forgotPassLink">Forgot Password?</a>
+                </div>
+
+                <button type="submit" id="submitBtn" class="gradient-btn">CONTINUE</button>
+            </form>
+
+            <div class="footer">
+                <span id="footerText">New User?</span> 
+                <a href="javascript:void(0)" onclick="toggleAuth()" id="toggleLink">Sign Up</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="auth_forgot.js"></script>
+</body>
+</html>

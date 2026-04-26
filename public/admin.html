@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | EventFlow</title>
+    <link rel="stylesheet" href="common_style.css">
+    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="modal.css">
+    <link rel="stylesheet" href="venue.css">
+    <link rel="stylesheet" href="view_booking.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+
+    <header class="top-nav">
+        <div class="logo">Event<span>Flow</span></div>
+        <div class="admin-actions">
+            <span class="admin-name" id="NameDisplay"><i class='bx bxs-user-circle'></i> Guest </span>
+            <button class="logout-btn" >Logout</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="page-intro">
+            <h1>Venue Management Portfolio</h1>
+            <p>Review, edit, and manage all registered event locations.</p>
+        </section>
+
+        <section class="admin-controls">
+            <div class="search-wrapper">
+                <i class='bx bx-search'></i>
+                <input type="text" id="venueSearch" placeholder="Search by venue name, location, or contact...">
+            </div>
+            
+            <div class="add-action-container">
+                <button class="add-venue-btn">
+                    <i class='bx bx-plus'></i> Add New Venue
+                </button>
+            </div>
+        </section>
+
+        <section class="venue-list">
+            <div id="venueContainer" class="venue-grid">
+                <p>Loading venues...</p>
+            </div>
+            
+        </section>
+    </main>
+   <div id="venueModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class='bx bx-building-house'></i> Register New Venue</h2>
+                <p>Enter the technical and contact specifications for the location.</p>
+            </div>
+            
+            <form id="addVenueForm">
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label>Venue Name</label>
+                        <input type="text" id="vName" placeholder="e.g. Royal Heritage Convention Center" required>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Full Address</label>
+                        <input type="text" id="vAddress" placeholder="Street, City, Landmark" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="vPhone" placeholder="+91 00000 00000" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="vEmail" placeholder="venue@example.com" required>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Image Link (URL)</label>
+                        <input type="url" id="vImage" placeholder="https://images.unsplash.com/..." required>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Description</label>
+                        <textarea id="vDesc" rows="3" placeholder="Briefly describe the venue features..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Venue Type</label>
+                        <select id="vType" required>
+                            <option value="">Select Category</option>
+                            <option value="Indoor">Indoor Hall</option>
+                            <option value="Outdoor">Outdoor / Lawn</option>
+                            <option value="Auditorium">Auditorium</option>
+                            <option value="Seminar">Seminar Room</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Cost of Venue (₹)</label>
+                        <input type="number" id="vCost" placeholder="Price per event" required>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Size (sq. ft.)</label>
+                        <input type="text" id="vSize" placeholder="e.g. 5000 sq ft" required>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Event Managers</h3>
+                <p>It is a professional administrative dashboard designed to centralize venue management, enabling real-time monitoring of event locations, capacities, and booking schedules through a clean, data-driven interface.</p>
+            </div>
+
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="/nav/about.html">About Us</a></li>
+                    <li><a href="#">Upcoming Events</a></li>
+                    <li><a href="/nav/privacy.html">Privacy Policy</a></li>
+                    <li><a href="/nav/terms.html">Terms and Conditions</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <p>Email: supportBCEevent@gmail.com</p>
+                <p>Phone: +91 9842xx41xx</p>
+                <p>Location: Aryabhatta Hostel, BCE Bhagalpur</p>
+            </div>
+
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <div class="social-icons">
+                    <span><a style="color: aquamarine;" href="#">Instagram</a></span>  |
+                    <span><a style="color: aquamarine;" href="#">Twitter</a></span>  |
+                    <span><a style="color: aquamarine;" href="#">LinkedIn</a></span>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 EventFlow Management System. All Rights Reserved.</p>
+        </div>
+    </footer>
+    
+<!-- Modal code of bookings calender for particular venue -->
+
+  <div id="calendarModal" class="modal-overlay">
+        <div class="calendar-card modern-view">
+            <div class="calendar-header">
+                <div class="header-text">
+                    <h2 id="calVenueName">Venue Name</h2>
+                    <div class="controls-row">
+                        <div class="year-badge">2026</div>
+                        <select id="monthSelect" class="month-dropdown">
+                            </select>
+                    </div>
+                </div>
+                <button class="close-cal" onclick="closeCalendar()"><i class='bx bx-x'></i></button>
+            </div>
+            
+            <div id="calendarGrid" class="days-container"></div>
+
+            <div class="calendar-footer">
+                <div class="status-legend">
+                    <div class="status-item">
+                        <span class="status-dot free"></span> Available
+                    </div>
+                    <div class="status-item">
+                        <span class="status-dot busy"></span> Booked
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+    <script src="header.js"></script>
+
+</body>
+</html>

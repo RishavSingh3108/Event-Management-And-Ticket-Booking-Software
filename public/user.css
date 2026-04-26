@@ -1,0 +1,446 @@
+:root {
+    --bg: #fff5f5;
+    --card-bg: #ffffff;
+    --accent: #d4a373; /* Champagne Gold */
+    --text: #4a3737;
+    --text-dim: #8d7777;
+    --glass: rgba(212, 163, 115, 0.1);
+}
+
+body {
+    background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), 
+                url('https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2074');
+    
+    background-size: cover;      
+    background-position: center;  
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    margin: 0;
+    overflow-x: hidden;
+    padding-top: 80px; 
+}
+
+/* Background Decoration */
+.hero-blur {
+    position: fixed;
+    top: -10%; left: -10%;
+    width: 50%; height: 50%;
+    background: radial-gradient(circle, rgba(0, 255, 170, 0.1) 0%, transparent 70%);
+    z-index: -1;
+    filter: blur(80px);
+}
+
+/* Navigation */
+
+.premium-nav {
+    /* 1. Fix to top and fill width correctly */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 75px;
+    
+    /* 2. Glassmorphism Design */
+    background: rgba(255, 255, 255, 0.8); 
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    
+    /* 3. Alignment Logic - This fixes the 'off-screen' issue */
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    padding: 0 4%; /* Responsive side spacing */
+    box-sizing: border-box; /* Essential: keeps padding inside the 100% width */
+    z-index: 2000;
+}
+
+/* Right side container for Link + Profile */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 30px; /* Space between 'My Bookings' and the Profile chip */
+}
+
+/* Logo styling */
+.logo {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #333;
+    letter-spacing: -0.5px;
+}
+
+.logo span {
+    color: #d4a373; /* Gold/Tan accent */
+}
+
+/* Nav Link (My Bookings) */
+.nav-link {
+    text-decoration: none;
+    color: #555;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #d4a373;
+}
+
+/* Sexy Profile Chip */
+.profile-chip {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #fff;
+    padding: 6px 16px;
+    border-radius: 50px;
+    border: 1px solid #eee;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+#NameDisplay {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+/* Logout Button */
+.icon-logout {
+    background: none;
+    border: none;
+    color: #ff4b2b;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    transition: transform 0.2s ease;
+}
+
+.icon-logout:hover {
+    transform: scale(1.1);
+}
+
+
+.logo { font-size: 2rem; font-weight: 700; letter-spacing: -2px; }
+.logo span { color: var(--accent); }
+
+.nav-right { display: flex; align-items: center; gap: 3rem; }
+.nav-link { color: var(--text-dim); text-decoration: none; transition: 0.3s; }
+.nav-link:hover { color: var(--accent); }
+
+.profile-chip {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--glass);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.icon-logout { background: transparent; border: none; color: #ff4d4d; cursor: pointer; font-size: 1.2rem; }
+
+/* Search Header */
+.app-shell { max-width: 1200px; margin: 0 auto; padding: 0 5%; }
+.hero-text { margin: 4rem 0; }
+.hero-text h1 { font-size: 4rem; margin: 0; }
+.hero-text span { display: block; color: var(--accent); font-weight: 300; font-style: italic; }
+
+.search-glass {
+    margin-top: 2rem;
+    display: flex;
+    background: var(--glass);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 0.5rem;
+    border-radius: 15px;
+    max-width: 600px;
+    backdrop-filter: blur(10px);
+}
+
+.search-glass input {
+    background: transparent; border: none; outline: none;
+    color: black; padding: 1rem; width: 100%; font-size: 1.1rem;
+}
+
+.search-trigger {
+    background: var(--accent); border: none;
+    width: 50px; border-radius: 12px; cursor: pointer;
+    font-size: 1.5rem; display: flex; align-items: center; justify-content: center;
+}
+/* Update your venue-details-grid to handle more items */
+.venue-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two items per row */
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05); /* Soft background for glass effect */
+    border-radius: 12px;
+}
+
+/* Ensure the Book Now button stays aligned to the right */
+.card-actions-row {
+    display: flex;
+    justify-content: flex-end; /* Aligns button to the right side */
+    width: 100%;
+}
+
+.book-now-btn, .btn-view-availability {
+    padding: 12px 35px;
+    font-size: 1rem;
+    background: linear-gradient(135deg, #28A745, #ff6b81);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+/* Booking form Stylesheet */
+/* Modal background */
+.modal{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
+    z-index:1000;
+}
+
+/* Modal box */
+.modal-content{
+    background:#ffffff;
+    width:520px;
+    padding:32px;
+    border-radius:14px;
+
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+
+    box-shadow:0 15px 40px rgba(0,0,0,0.25);
+    font-family:'Space Grotesk', sans-serif;
+
+    max-height:85vh;
+    overflow-y:auto;
+}
+
+/* Heading */
+.modal-content h2{
+    margin-bottom:18px;
+    font-weight:600;
+}
+
+/* Form row (2 inputs in one row) */
+.form-row{
+    display:flex;
+    gap:16px;
+    margin-bottom:5px;
+}
+
+/* Each input container */
+.form-group{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+}
+
+/* Labels */
+.modal-content label{
+    font-size:14px;
+    font-weight:500;
+    margin-bottom:4px;
+}
+
+/* Inputs */
+.modal-content input,
+.modal-content textarea{
+    width:100%;
+    padding:10px 12px;
+    margin-bottom:14px;
+    border-radius:6px;
+    border:1px solid #ddd;
+    font-size:14px;
+    transition:0.3s;
+    box-sizing:border-box;
+}
+
+/* Input focus */
+.modal-content input:focus,
+.modal-content textarea:focus{
+    outline:none;
+    border-color:#4B0082;
+}
+
+/* Textarea height */
+.modal-content textarea{
+    min-height:85px;
+    resize:none;
+}
+
+/* Confirm booking button */
+.book-btn{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:6px;
+    background:#4B0082;
+    color:#fff;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    transition:0.3s;
+    margin-top:10px;
+}
+
+.book-btn:hover{
+    background:#360060;
+}
+
+/* Close button */
+.close{
+    float:right;
+    font-size:22px;
+    cursor:pointer;
+    color:#555;
+}
+
+/* Note text */
+.note{
+    font-size:12px;
+    color:#666;
+    font-style:italic;
+    margin-bottom:10px;
+}
+
+/* Important note */
+.important-note{
+    font-size:13px;
+    color:#b22222;
+    font-weight:600;
+    margin-bottom:14px;
+}
+
+/* for user to search for his/her booking */
+
+/* 1. The Full-Screen Overlay (The dark background) */
+.modal-overlay {
+    position: fixed;      /* Stays in place even if you scroll */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Dark semi-transparent color */
+    backdrop-filter: blur(5px);      /* Modern blur effect for the background */
+    display: none;                  /* Hidden by default, JS will change this to 'flex' */
+    justify-content: center;        /* Centers card horizontally */
+    align-items: center;            /* Centers card vertically */
+    z-index: 10000;                 /* Ensures it is above the navbar and everything else */
+    transition: all 0.3s ease;
+}
+
+/* 2. The Tracking Card (The white box) */
+.track-card {
+    background: #ffffff;
+    width: 90%;
+    max-width: 450px;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    text-align: center;
+    position: relative;
+    animation: slideUp 0.4s ease-out; /* Smooth entrance animation */
+}
+
+/* 3. Entrance Animation */
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* 4. Form Elements */
+.track-header i {
+    font-size: 50px;
+    color: #ff4757;
+    margin-bottom: 10px;
+}
+
+.track-header h2 {
+    font-family: 'Playfair Display', serif;
+    margin-bottom: 5px;
+    color: #2d3436;
+}
+
+.input-group {
+    margin-top: 20px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #636e72;
+    margin-bottom: 5px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #dfe6e9;
+    border-radius: 10px;
+    background: #f9f9f9;
+    outline: none;
+    transition: 0.3s;
+}
+
+.input-group input:focus {
+    border-color: #ff4757;
+    background: #fff;
+}
+
+/* 5. Buttons */
+.btn-track-submit {
+    width: 100%;
+    background: #2d3436;
+    color: white;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    margin-top: 25px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-track-submit:hover {
+    background: #ff4757;
+    transform: translateY(-2px);
+}
+
+.btn-track-close {
+    background: none;
+    border: none;
+    color: #b2bec3;
+    margin-top: 15px;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 14px;
+}
+
+/* 6. Results Container */
+.track-results-container {
+    margin-top: 20px;
+    max-height: 250px;
+    overflow-y: auto; /* Adds a scrollbar if there are many bookings */
+}

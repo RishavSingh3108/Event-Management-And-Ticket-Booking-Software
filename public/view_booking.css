@@ -1,0 +1,150 @@
+/* --- 1. MODAL OVERLAY --- */
+#calendarModal.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    /* display: none; Toggle to 'flex' via JS */
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    backdrop-filter: blur(5px);
+}
+
+/* --- 2. THE CALENDAR CARD --- */
+#calendarModal .calendar-card.modern-view {
+    background: #fff;
+    width: 420px;
+    border-radius: 24px;
+    padding: 25px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+/* --- 3. HEADER: ROW ALIGNMENT --- */
+#calendarModal .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+#calendarModal .header-text h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #333;
+    text-transform: capitalize;
+}
+
+/* Horizontal Row for Year and Dropdown */
+#calendarModal .controls-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+#calendarModal .year-badge {
+    background: #d4a373;
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-weight: bold;
+    font-size: 0.85rem;
+}
+
+#calendarModal .month-dropdown {
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: #fdfdfd;
+    cursor: pointer;
+    outline: none;
+}
+
+#calendarModal .close-cal {
+    background: #f0f0f0;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#calendarModal .close-cal:hover {
+    background: #ff4b2b;
+    color: #fff;
+}
+
+/* --- 4. THE CALENDAR GRID: CIRCULAR DATES --- */
+#calendarModal .days-container {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important; /* 7 Columns across */
+    gap: 10px;
+    padding: 15px 0;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+}
+
+#calendarModal .day-box {
+    aspect-ratio: 1 / 1;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%; /* Perfect Circle */
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+/* Default Green Style */
+#calendarModal .day-box.free {
+    background: #f0fff4;
+    color: #276749;
+    border: 1px solid #c6f6d5;
+}
+
+/* Booked Red Style */
+#calendarModal .day-box.busy {
+    background: #fff5f5;
+    color: #c53030;
+    border: 1px solid #feb2b2;
+}
+
+#calendarModal .day-box:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* --- 5. FOOTER & LEGEND: HORIZONTAL --- */
+#calendarModal .calendar-footer {
+    padding-top: 15px;
+}
+
+#calendarModal .status-legend {
+    display: flex;
+    gap: 25px; /* Spacing between legend items */
+}
+
+#calendarModal .status-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: #555;
+}
+
+#calendarModal .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+#calendarModal .status-dot.free { background: #48bb78; }
+#calendarModal .status-dot.busy { background: #f56565; }
