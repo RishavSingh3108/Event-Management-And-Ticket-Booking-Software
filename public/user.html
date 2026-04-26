@@ -144,6 +144,10 @@
                 <h2 >My Reservations</h2>
                 <span class="close" onclick="closeTrackModal()">&times;</span>
             </header>
+            <div class="filter-bar">
+                <button id="btnUpcoming" class="filter-btn active" onclick="filterBy('upcoming')">Upcoming Events</button>
+                <button id="btnPassed" class="filter-btn" onclick="filterBy('passed')">Passed Events</button>
+            </div>
             <div id="trackBookingsList" class="bookings-display-container">
                 </div>
         </div>

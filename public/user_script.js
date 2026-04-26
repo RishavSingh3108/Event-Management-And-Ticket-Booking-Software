@@ -237,12 +237,11 @@ window.onclick = function(event) {
     }
 }
 
-// Function to show the Tracking Modal with dynamic cards
+let allBookingsData = []; // Global variable to hold the fetched data
+
 async function openTrackModal() {
     const modal = document.getElementById("trackModal");
     const container = document.getElementById("trackBookingsList");
-    
-    // 1. Pull the userId we saved during login
     const savedId = localStorage.getItem('userId');
 
     if (!savedId || savedId === "undefined" || savedId === "null") {
@@ -254,48 +253,70 @@ async function openTrackModal() {
     container.innerHTML = "<div class='loading'>Loading your dossier...</div>";
 
     try {
-        // 2. Fetch using the ID route
         const response = await fetch(`/api/my-bookings-by-id/${savedId}`);
         const data = await response.json();
 
         if (data.success && data.bookings.length > 0) {
-            container.innerHTML = ""; 
-            const now = new Date();
-            now.setHours(0, 0, 0, 0);
-
-            data.bookings.forEach(book => {
-                const eventDate = new Date(book.bookingDate);
-                const isPast = eventDate < now;
-                const venue = book.venueId || { name: "Grand Venue", imgUrl: "default.jpg" };
-
-                const card = document.createElement('div');
-                card.className = `mini-booking-card ${isPast ? 'past' : 'upcoming'}`;
-                
-                card.innerHTML = `
-                    <div class="card-status-badge ${isPast ? 'completed' : 'upcoming'}">
-                        ${isPast ? 'Event Completed' : 'Upcoming Event'}
-                    </div>
-                    <div class="card-inner">
-                        <img src="${venue.imgUrl}" class="card-venue-img">
-                        <div class="card-content">
-                            <h3>${venue.name}</h3>
-                            <div class="meta-info">
-                                <p><i class='bx bx-calendar'></i> <strong>Date:</strong> ${book.bookingDate}</p>
-                                <p><i class='bx bx-group'></i> <strong>Guests:</strong> ${book.guests}</p>
-                                <p><i class='bx bx-group'></i> <strong>Address:</strong> ${venue.address}</p>
-                                <p><i class='bx bx-group'></i> <strong>Contacts:</strong> ${venue.phone}</p>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
+            allBookingsData = data.bookings; // Store data globally
+            filterBy('upcoming'); // Show upcoming by default
         } else {
             container.innerHTML = "<p class='empty-msg'>No reservations found.</p>";
         }
     } catch (err) {
         container.innerHTML = "<p class='error-msg'>Connection failed.</p>";
     }
+}
+
+function filterBy(type) {
+    const container = document.getElementById("trackBookingsList");
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    // 1. Update button styles (Toggle 'active' class)
+    document.getElementById('btnUpcoming').classList.toggle('active', type === 'upcoming');
+    document.getElementById('btnPassed').classList.toggle('active', type === 'passed');
+
+    // 2. Filter the data
+    const filtered = allBookingsData.filter(book => {
+        const eventDate = new Date(book.bookingDate);
+        return type === 'upcoming' ? eventDate >= now : eventDate < now;
+    });
+
+    // 3. Clear container and render
+    container.innerHTML = "";
+
+    if (filtered.length === 0) {
+        container.innerHTML = `<p class='empty-msg'>No ${type} reservations found.</p>`;
+        return;
+    }
+
+    filtered.forEach(book => {
+        const eventDate = new Date(book.bookingDate);
+        const isPast = eventDate < now;
+        const venue = book.venueId || { name: "Grand Venue", imgUrl: "default.jpg" };
+
+        const card = document.createElement('div');
+        card.className = `mini-booking-card ${isPast ? 'past' : 'upcoming'}`;
+        
+        card.innerHTML = `
+            <div class="card-status-badge ${isPast ? 'completed' : 'upcoming'}">
+                ${isPast ? 'Event Completed' : 'Upcoming Event'}
+            </div>
+            <div class="card-inner">
+                <img src="${venue.imgUrl}" class="card-venue-img">
+                <div class="card-content">
+                    <h3>${venue.name}</h3>
+                    <div class="meta-info">
+                        <p><i class='bx bx-calendar'></i> <strong>Date:</strong> ${book.bookingDate}</p>
+                        <p><i class='bx bx-group'></i> <strong>Guests:</strong> ${book.guests || 'N/A'}</p>
+                        <p><i class='bx bx-map-pin'></i> <strong>Address:</strong> ${venue.address || 'N/A'}</p>
+                        <p><i class='bx bx-phone'></i> <strong>Contacts:</strong> ${venue.phone || 'N/A'}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+    });
 }
 // Function to hide the Tracking Modal
 function closeTrackModal() {
