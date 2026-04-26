@@ -282,59 +282,100 @@ async function openCalendar(venueId, venueName) {
 }
 
 function setupMonthDropdown() {
-    const select = document.getElementById('monthSelect');
-    select.innerHTML = ''; 
-    const now = new Date();
+    const monthSelect = document.getElementById('monthSelect');
+    const yearSelect = document.getElementById('yearSelect'); // Grab the new year dropdown
+    if (!monthSelect || !yearSelect) return;
+    
+    monthSelect.innerHTML = ''; 
+    yearSelect.innerHTML = ''; 
 
-    for (let i = 0; i < 6; i++) {
-        const date = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonthIndex = now.getMonth();
+
+    // 1. Populate Year Dropdown (Current Year and Next Year)
+    [currentYear, currentYear + 1].forEach(yr => {
+        const option = document.createElement('option');
+        option.value = yr;
+        option.innerText = yr;
+        yearSelect.appendChild(option);
+    });
+
+    // 2. Populate Month Dropdown (All 12 Months)
+    for (let i = 0; i < 12; i++) {
+        const date = new Date(currentYear, i, 1);
         const option = document.createElement('option');
         
-        // Value format: "YYYY-MM" (e.g., 2026-04)
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        
-        option.value = `${year}-${month}`;
+        // Value is just the month number "01", "02", etc.
+        const monthNum = String(i + 1).padStart(2, '0');
+        option.value = monthNum;
         option.innerText = date.toLocaleString('default', { month: 'long' });
-        select.appendChild(option);
+        
+        // Auto-select current month
+        if (i === currentMonthIndex) {
+            option.selected = true;
+        }
+        monthSelect.appendChild(option);
     }
 
-    // Default: Render the first month (Current)
-    renderCalendarGrid(select.value);
+    // 3. Helper to combine Year and Month for the grid
+    const refreshAdminGrid = () => {
+        const year = yearSelect.value;
+        const month = monthSelect.value;
+        // Reconstructs the "YYYY-MM" format your grid needs
+        renderCalendarGrid(`${year}-${month}`);
+    };
 
-    // Event: Update grid when dropdown changes
-    select.onchange = (e) => renderCalendarGrid(e.target.value);
+    // 4. Update grid when either selection changes
+    yearSelect.onchange = refreshAdminGrid;
+    monthSelect.onchange = refreshAdminGrid;
+
+    // Initial Render
+    refreshAdminGrid();
 }
 
 function renderCalendarGrid(yearMonth) {
     const grid = document.getElementById('calendarGrid');
-    grid.innerHTML = ''; // Clear previous days
+    grid.innerHTML = ''; 
 
     const [year, month] = yearMonth.split('-').map(Number);
-    
-    // Get total days in selected month (Date with day 0 of next month)
     const daysInMonth = new Date(year, month, 0).getDate();
+
+    // Get today's date and set to midnight for accurate comparison
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     for (let i = 1; i <= daysInMonth; i++) {
         const dayStr = String(i).padStart(2, '0');
         const formattedDate = `${year}-${String(month).padStart(2, '0')}-${dayStr}`;
 
-        // Find if this date exists in the bookings array
+        // Create a date object for the current day in the loop
+        const loopDate = new Date(year, month - 1, i);
+        
         const booking = venueBookings.find(b => b.bookingDate === formattedDate);
+        const isPast = loopDate < today;
 
         const day = document.createElement('div');
-        
-        // CLASSES: 'free' = Green, 'busy' = Red (Matches the final CSS)
-        day.className = `day-box ${booking ? 'busy' : 'free'}`;
         day.innerText = i;
 
-        // Interaction Logic
+        // --- Logic Branching ---
+        
         if (booking) {
+            // 1. Date is Booked (Red)
+            day.className = "day-box busy";
             day.onclick = () => {
                 window.location.href = `detail/booking_detail.html?id=${booking._id}`;
             };
-        } else {
-            day.onclick = () => alert(`Date ${formattedDate} is available.`);
+        } 
+        else if (isPast) {
+            // 2. Date is in the PAST and was EMPTY (Grey/Neutral)
+            day.className = "day-box past-empty"; 
+            day.onclick = () => alert(`No bookings were recorded on ${formattedDate} by any client.`);
+        } 
+        else {
+            // 3. Date is in the FUTURE and EMPTY (Green)
+            day.className = "day-box free";
+            day.onclick = () => alert(`Date ${formattedDate} is available now for Further Bookings.`);
         }
 
         grid.appendChild(day);

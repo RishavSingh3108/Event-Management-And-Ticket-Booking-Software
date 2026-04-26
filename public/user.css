@@ -449,3 +449,11 @@ body {
 .filter-btn:hover:not(.active) {
     background: #ffe4e1;
 }
+
+/* Styling for past/disabled calendar dates */
+.day-box.past-disabled {
+    background-color: #f0f0f0; /* Greyish background */
+    color: #bbb; /* Faded text */
+    border: 1px solid #ddd;
+    text-decoration: line-through; /* Optional: put a line through the number */
+}
