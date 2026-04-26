@@ -159,10 +159,20 @@ function closeBookingModal(){
 // CONFIRM BOOKING FUNCTION
 // =============================
 
-
 async function confirmBooking() {
-    // 1. Collect data from your Modal Inputs
+    // 1. Get the logged-in User ID from localStorage
+    const savedUserId = localStorage.getItem('userId');
+
+    // 2. Validate session
+    if (!savedUserId) {
+        alert("Authentication required. Please log in again.");
+        window.location.href = 'auth.html';
+        return;
+    }
+
+    // 3. Collect data including the userId
     const bookingData = {
+        userId: savedUserId, // <--- THIS LINKS THE BOOKING TO YOUR ACCOUNT
         venueId: selectedVenue, 
         bookingDate: document.getElementById('bookingDate').value,
         guests: document.getElementById('guests').value,
@@ -173,39 +183,38 @@ async function confirmBooking() {
         requirements: document.getElementById('requirements').value
     };
 
-    // 2. Basic Validation
+    // 4. Basic Validation
     if (!bookingData.bookingDate || !bookingData.bookedBy || !bookingData.contact) {
         alert("Please fill in the required fields: Date, Name, and Contact Number.");
         return;
     }
 
     try {
-        // 3. Send data to the Backend API
+        // 5. Send to API
         const response = await fetch('/api/bookings', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(bookingData)
         });
 
         const result = await response.json();
 
         if (response.ok) {
-            // 4. Success Actions
-            alert("✨ Perfect! Your reservation has been recorded. \n\nImportant: Please visit the venue or contact the owner within 24 hours for advance payment.");
-            
+            alert("✨ Perfect! Your reservation has been recorded.");
             clearBookingForm();
             closeBookingModal();
+            
+            // Refresh venues or redirect if needed
+            if(window.location.pathname.includes('user.html')) {
+                // Optional: refresh the view
+            }
         } else {
-            // UPDATED: This now catches the "Already Booked" message from server.js
-            // result.message comes from your: res.status(400).json({ message: "..." })
-            alert("❌ " + (result.message || result.error || "Failed to submit booking request."));
+            alert("❌ " + (result.message || "Failed to submit booking request."));
         }
 
     } catch (err) {
         console.error("Booking Error:", err);
-        alert("Could not connect to the server. Please check if your backend is running.");
+        alert("Server Error. Please check if your backend is running.");
     }
 }
 
@@ -228,15 +237,66 @@ window.onclick = function(event) {
     }
 }
 
-// Function to show the Tracking Modal
-function openTrackModal() {
+// Function to show the Tracking Modal with dynamic cards
+async function openTrackModal() {
     const modal = document.getElementById("trackModal");
-    modal.style.display = "flex"; // Changes from 'none' to 'flex' to show it
+    const container = document.getElementById("trackBookingsList");
     
-    // Prevent the background page from scrolling while the popup is open
-    document.body.style.overflow = "hidden";
-}
+    // 1. Pull the userId we saved during login
+    const savedId = localStorage.getItem('userId');
 
+    if (!savedId || savedId === "undefined" || savedId === "null") {
+        alert("Please log in to view your bookings.");
+        return;
+    }
+
+    modal.style.display = "flex";
+    container.innerHTML = "<div class='loading'>Loading your dossier...</div>";
+
+    try {
+        // 2. Fetch using the ID route
+        const response = await fetch(`/api/my-bookings-by-id/${savedId}`);
+        const data = await response.json();
+
+        if (data.success && data.bookings.length > 0) {
+            container.innerHTML = ""; 
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+
+            data.bookings.forEach(book => {
+                const eventDate = new Date(book.bookingDate);
+                const isPast = eventDate < now;
+                const venue = book.venueId || { name: "Grand Venue", imgUrl: "default.jpg" };
+
+                const card = document.createElement('div');
+                card.className = `mini-booking-card ${isPast ? 'past' : 'upcoming'}`;
+                
+                card.innerHTML = `
+                    <div class="card-status-badge ${isPast ? 'completed' : 'upcoming'}">
+                        ${isPast ? 'Event Completed' : 'Upcoming Event'}
+                    </div>
+                    <div class="card-inner">
+                        <img src="${venue.imgUrl}" class="card-venue-img">
+                        <div class="card-content">
+                            <h3>${venue.name}</h3>
+                            <div class="meta-info">
+                                <p><i class='bx bx-calendar'></i> <strong>Date:</strong> ${book.bookingDate}</p>
+                                <p><i class='bx bx-group'></i> <strong>Guests:</strong> ${book.guests}</p>
+                                <p><i class='bx bx-group'></i> <strong>Address:</strong> ${venue.address}</p>
+                                <p><i class='bx bx-group'></i> <strong>Contacts:</strong> ${venue.phone}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        } else {
+            container.innerHTML = "<p class='empty-msg'>No reservations found.</p>";
+        }
+    } catch (err) {
+        container.innerHTML = "<p class='error-msg'>Connection failed.</p>";
+    }
+}
 // Function to hide the Tracking Modal
 function closeTrackModal() {
     const modal = document.getElementById("trackModal");

@@ -138,28 +138,13 @@
 
 <!-- for user to search about their booking -->
 
-    <div id="trackModal" class="modal-overlay" >
-        <div class="track-card">
-            <div class="track-header">
-                <i class='bx bxs-user-pin'></i>
-                <h2>Find Your Reservations</h2>
-                <p>Please provide your registration details</p>
-            </div>
-            
-            <div class="track-body">
-                <div class="input-group">
-                    <label>Registered Name</label>
-                    <input type="text" id="trackName" placeholder="Enter name used during booking">
-                </div>
-                <div class="input-group">
-                    <label>Mobile Number</label>
-                    <input type="text" id="trackPhone" placeholder="Enter 10-digit number">
-                </div>
-                <button class="btn-track-submit" onclick="fetchMyBookings()">Search Reservations</button>
-                <button class="btn-track-close" onclick="closeTrackModal()">Close</button>
-            </div>
-
-            <div id="trackResults" class="track-results-container">
+    <div id="trackModal" class="modal">
+        <div class="modal-content luxury-card">
+            <header>
+                <h2 >My Reservations</h2>
+                <span class="close" onclick="closeTrackModal()">&times;</span>
+            </header>
+            <div id="trackBookingsList" class="bookings-display-container">
                 </div>
         </div>
     </div>

@@ -74,37 +74,29 @@ const Booking = require('./models/Booking');
 
 
 // POST: Create a new booking with conflict check
+
 app.post('/api/bookings', async (req, res) => {
     try {
-        const { venueId, bookingDate } = req.body;
+        // Log the incoming body to your terminal
+        console.log("Incoming Booking Data:", req.body);
 
-        console.log(`Checking availability for Venue: ${venueId} on Date: ${bookingDate}`);
+        const { venueId, bookingDate, userId } = req.body;
 
-        // 1. THE CRITICAL CHECK
-        // We look for any booking that has the SAME venueId AND the SAME date
-        const existingBooking = await Booking.findOne({ 
-            venueId: venueId, 
-            bookingDate: bookingDate 
-        });
-
-        if (existingBooking) {
-            console.log("Match found! Blocking booking.");
-            // If a match is found, we send a 400 error and STOP here
-            return res.status(400).json({ 
-                success: false, 
-                message: "This date is already reserved for this venue. Please choose another date." 
-            });
+        if (!userId) {
+            return res.status(400).json({ success: false, message: "User ID is missing!" });
         }
 
-        // 2. SAVE ONLY IF NO MATCH
-        const newBooking = new Booking(req.body);
+        const existingBooking = await Booking.findOne({ venueId, bookingDate });
+        if (existingBooking) {
+            return res.status(400).json({ success: false, message: "Date already reserved." });
+        }
+
+        const newBooking = new Booking(req.body); 
         await newBooking.save();
         
-        console.log("No conflict. Booking saved successfully.");
         res.status(201).json({ success: true, message: "Booking successful!" });
-
     } catch (err) {
-        console.error("Server Error:", err);
+        console.error("SAVE ERROR:", err);
         res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 });

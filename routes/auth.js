@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const User = require('../models/User'); // Correct path based on your structure
+const Booking = require('../models/Booking'); // Adjust the path if your folders are different
 
 // 1. REGISTRATION ROUTE
 router.post('/register', async (req, res) => {
@@ -86,6 +87,21 @@ router.get('/user-by-id/:id', async (req, res) => {
         });
     } catch (err) {
         console.error("Error fetching by ID:", err);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+});
+
+// GET: Fetch bookings for a specific User ID
+// routes/auth.js
+router.get('/my-bookings-by-id/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        // Search the database for the userId field
+        const bookings = await Booking.find({ userId: id }).populate('venueId');
+        
+        console.log(`Found ${bookings.length} bookings for user ${id}`);
+        res.json({ success: true, bookings });
+    } catch (err) {
         res.status(500).json({ success: false, message: "Server Error" });
     }
 });
