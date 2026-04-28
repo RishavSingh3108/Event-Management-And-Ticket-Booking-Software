@@ -165,30 +165,57 @@ function closeBookingModal(){
 async function confirmBooking() {
     // 1. Get the logged-in User ID from localStorage
     const savedUserId = localStorage.getItem('userId');
+    const screenshotInput = document.getElementById('screenshot');
+    const isLocked = document.getElementById('paymentDisplay').classList.contains('blurred');
 
-    // 2. Validate session
+    // 2. Session & Payment Validation
     if (!savedUserId) {
         alert("Authentication required. Please log in again.");
         window.location.href = 'auth.html';
         return;
     }
 
-    // 3. Collect data including the userId
-    const bookingData = {
-        userId: savedUserId, // <--- THIS LINKS THE BOOKING TO YOUR ACCOUNT
-        venueId: selectedVenue, 
-        bookingDate: document.getElementById('bookingDate').value,
-        guests: document.getElementById('guests').value,
-        bookedBy: document.getElementById('bookedBy').value,
-        contact: document.getElementById('contact').value,
-        email: document.getElementById('email').value,
-        purpose: document.getElementById('purpose').value,
-        requirements: document.getElementById('requirements').value
-    };
+    if (isLocked) {
+        alert("Please click 'Pay Now' and complete the payment process first.");
+        return;
+    }
 
-    // 4. Basic Validation
-    if (!bookingData.bookingDate || !bookingData.bookedBy || !bookingData.contact) {
-        alert("Please fill in the required fields: Date, Name, and Contact Number.");
+    if (!screenshotInput.files[0]) {
+        alert("Please upload the payment screenshot as proof.");
+        return;
+    }
+
+    // 3. Collect data using FormData (Important for file uploads)
+    const formData = new FormData();
+    
+    // Standard Fields
+    formData.append('userId', savedUserId);
+    formData.append('venueId', selectedVenue.trim()); // trim to clean any whitespace
+    formData.append('bookingDate', document.getElementById('bookingDate').value);
+    formData.append('guests', document.getElementById('guests').value);
+    formData.append('bookedBy', document.getElementById('bookedBy').value);
+    formData.append('contact', document.getElementById('contact').value);
+    formData.append('email', document.getElementById('email').value);
+    formData.append('purpose', document.getElementById('purpose').value);
+    formData.append('requirements', document.getElementById('requirements').value);
+
+    // Payment Fields
+    formData.append('paymentType', selectedPaymentType);
+    
+    // Recalculate amount for the database
+    let finalAmount = 0;
+    if (selectedPaymentType === 'partial') finalAmount = basePrice * 0.25;
+    else if (selectedPaymentType === 'advance') finalAmount = basePrice * 0.50;
+    else finalAmount = basePrice;
+    
+    formData.append('paymentAmount', Math.round(finalAmount));
+
+    // The File (Matches 'screenshot' in upload.single('screenshot') in server.js)
+    formData.append('screenshot', screenshotInput.files[0]);
+
+    // 4. Basic Validation for required fields
+    if (!document.getElementById('bookingDate').value || !document.getElementById('bookedBy').value) {
+        alert("Please fill in the required fields: Date and Name.");
         return;
     }
 
@@ -196,20 +223,20 @@ async function confirmBooking() {
         // 5. Send to API
         const response = await fetch('/api/bookings', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(bookingData)
+            // DO NOT set headers for Content-Type here. 
+            // The browser will handle the boundary for FormData automatically.
+            body: formData 
         });
 
         const result = await response.json();
 
         if (response.ok) {
-            alert("✨ Perfect! Your reservation has been recorded.");
+            alert("✨ Perfect! Your reservation and payment proof have been sent for approval.");
             clearBookingForm();
             closeBookingModal();
-            
-            // Refresh venues or redirect if needed
             if(window.location.pathname.includes('user.html')) {
-                // Optional: refresh the view
+                // Optional: refresh page to update calendar/tracking
+                location.reload(); 
             }
         } else {
             alert("❌ " + (result.message || "Failed to submit booking request."));

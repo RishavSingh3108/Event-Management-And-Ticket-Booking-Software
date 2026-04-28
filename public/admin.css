@@ -50,6 +50,30 @@ body {
     align-items: center;
     gap: 20px;
 }
+.bookings-nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgb(40, 174, 231);
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.bookings-nav-btn:hover {
+    background: #ffffff;
+    color: #4B0082; /* Changes to your theme color on hover */
+    transform: translateY(-2px);
+}
+
+.bookings-nav-btn i {
+    font-size: 18px;
+}
 
 .admin-name {
     font-weight: 400;

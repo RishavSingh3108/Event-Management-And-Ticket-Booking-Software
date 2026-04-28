@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Details</title>
+    <link rel="stylesheet" href="allBookings.css">
+</head>
+<body>
+    <div class="admin-dashboard">
+        <div class="dashboard-header">
+            <h2><i class='bx bxs-receipt'></i> Booking & Payment Master List</h2>
+            <div class="header-actions">
+                <input type="text" id="adminSearch" placeholder="Search records..." onkeyup="filterTable()">
+                <button class="refresh-btn" onclick="fetchAdminBookings()"><i class='bx bx-refresh'></i> Sync Data</button>
+                <a href="../admin.html" class="back-btn">
+                    <i class='bx bx-arrow-back'></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="admin-table" id="bookingTable">
+                <thead>
+                    <tr>
+                        <th>Submitted</th>
+                        <th>User Name</th>
+                        <th>Email Address</th>
+                        <th>Phone Number</th>
+                        <th>Event Date</th>
+                        <th>Guests</th>
+                        <th>Purpose</th>
+                        <th>Total Price</th>
+                        <th>Amt Paid</th>
+                        <th>Balance</th>
+                        <th>Extra Needs</th>
+                        <th>Proof</th> 
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="bookingTableBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="proofModal" class="proof-modal" onclick="closeProof()">
+        <div class="proof-content">
+            <span class="close-proof">&times;</span>
+            <img id="proofImage" src="" alt="Payment Verification Screenshot">
+            <div class="proof-footer">
+                <p id="proofCaption"></p>
+                <a id="downloadProof" href="" download="PaymentProof.png" class="download-btn">Download Image</a>
+            </div>
+        </div>
+    </div>
+    <script src="allBookings.js"></script>
+</body>
+</html>

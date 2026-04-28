@@ -6,6 +6,13 @@ require('dotenv').config();
 
 const app = express();
 
+const multer = require('multer');
+const storage = multer.memoryStorage();
+const upload = multer({ 
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 } 
+});
+
 // 1. Middlewares
 app.use(cors()); 
 app.use(express.json());
@@ -69,38 +76,47 @@ app.get('/api/venues', async (req, res) => {
 // =======================================
 
 // Booking can be done by user for any venue
-
 const Booking = require('./models/Booking');
-
-
 // POST: Create a new booking with conflict check
 
-app.post('/api/bookings', async (req, res) => {
+app.post('/api/bookings', upload.single('screenshot'), async (req, res) => {
     try {
-        // Log the incoming body to your terminal
-        console.log("Incoming Booking Data:", req.body);
+        console.log("Incoming Body Text Data:", req.body);
+        console.log("Incoming File Data:", req.file);
 
-        const { venueId, bookingDate, userId } = req.body;
+        const { venueId, bookingDate, userId, paymentType, paymentAmount } = req.body;
 
+        // 1. Basic Validations
         if (!userId) {
             return res.status(400).json({ success: false, message: "User ID is missing!" });
         }
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: "Payment screenshot is required!" });
+        }
 
+        // 2. Check for duplicate bookings
         const existingBooking = await Booking.findOne({ venueId, bookingDate });
         if (existingBooking) {
             return res.status(400).json({ success: false, message: "Date already reserved." });
         }
 
-        const newBooking = new Booking(req.body); 
+        // 3. Create new booking with the file buffer
+        const newBooking = new Booking({
+            ...req.body, // Spreads all text fields (guests, bookedBy, etc.)
+            paymentScreenshot: {
+                data: req.file.buffer,        // Binary data from Multer
+                contentType: req.file.mimetype // e.g., image/png
+            }
+        });
+
         await newBooking.save();
         
-        res.status(201).json({ success: true, message: "Booking successful!" });
+        res.status(201).json({ success: true, message: "Booking and Payment submitted successfully!" });
     } catch (err) {
         console.error("SAVE ERROR:", err);
         res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 });
-
 
 // DELETE: Remove a venue by ID
 
@@ -168,6 +184,62 @@ app.get('/api/bookings/single/:id', async (req, res) => {
         res.json(booking);
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+});
+
+// =======================================
+// NEW ADMIN BOOKING ROUTES (ADD THESE)
+// =======================================
+
+// 1. GET ALL BOOKINGS (For the Admin Master Table)
+app.get('/api/admin/bookings', async (req, res) => {
+    try {
+        // Populate 'venueId' to get the venue name automatically
+        const bookings = await Booking.find()
+            .populate('venueId') 
+            .sort({ submittedAt: -1 });
+        
+        res.status(200).json({ success: true, bookings });
+    } catch (err) {
+        console.error("Admin Fetch Error:", err);
+        res.status(500).json({ success: false, message: "Error fetching all bookings" });
+    }
+});
+
+// 2. SERVE SCREENSHOT IMAGE (Streams the buffer to the <img> tag)
+app.get('/api/bookings/screenshot/:id', async (req, res) => {
+    try {
+        const booking = await Booking.findById(req.params.id);
+        if (!booking || !booking.paymentScreenshot || !booking.paymentScreenshot.data) {
+            return res.status(404).send('Image not found');
+        }
+        
+        // Set the header to image/png or image/jpeg
+        res.set('Content-Type', booking.paymentScreenshot.contentType);
+        // Send the raw binary data
+        res.send(booking.paymentScreenshot.data);
+    } catch (err) {
+        res.status(500).send('Error retrieving image');
+    }
+});
+
+// 3. UPDATE BOOKING STATUS (Approve/Reject)
+app.put('/api/bookings/status/:id', async (req, res) => {
+    try {
+        const { status } = req.body; // 'Approved' or 'Rejected'
+        const updatedBooking = await Booking.findByIdAndUpdate(
+            req.params.id, 
+            { status: status }, 
+            { new: true }
+        );
+
+        if (!updatedBooking) {
+            return res.status(404).json({ success: false, message: "Booking not found" });
+        }
+
+        res.json({ success: true, message: `Booking ${status} successfully!` });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Update failed" });
     }
 });
 

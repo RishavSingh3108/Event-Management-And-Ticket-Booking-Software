@@ -1,9 +1,7 @@
 const mongoose = require('mongoose');
 
 const bookingSchema = new mongoose.Schema({
-    // ADD THIS LINE BELOW
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, 
-    
     venueId: { type: mongoose.Schema.Types.ObjectId, ref: 'Venue' },
     bookingDate: String,
     guests: Number,
@@ -12,6 +10,19 @@ const bookingSchema = new mongoose.Schema({
     email: String,
     purpose: String,
     requirements: String,
+    paymentType: { 
+        type: String, 
+        enum: ['partial', 'advance', 'full'], 
+        required: true 
+    },
+    paymentAmount: { 
+        type: Number, 
+        required: true 
+    },
+    paymentScreenshot: {
+        data: Buffer,          
+        contentType: String    
+    },
     status: { type: String, default: 'Pending' },
     submittedAt: { type: Date, default: Date.now }
 });
