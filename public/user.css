@@ -201,135 +201,6 @@ body {
     transition: 0.3s ease;
 }
 
-/* Booking form Stylesheet */
-/* Modal background */
-.modal{
-    display:none;
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,0.6);
-    backdrop-filter: blur(6px);
-    z-index:1000;
-}
-
-/* Modal box */
-.modal-content{
-    background:#ffffff;
-    width:520px;
-    padding:32px;
-    border-radius:14px;
-
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translate(-50%, -50%);
-
-    box-shadow:0 15px 40px rgba(0,0,0,0.25);
-    font-family:'Space Grotesk', sans-serif;
-
-    max-height:85vh;
-    overflow-y:auto;
-}
-
-/* Heading */
-.modal-content h2{
-    margin-bottom:18px;
-    font-weight:600;
-}
-
-/* Form row (2 inputs in one row) */
-.form-row{
-    display:flex;
-    gap:16px;
-    margin-bottom:5px;
-}
-
-/* Each input container */
-.form-group{
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    min-width:0;
-}
-
-/* Labels */
-.modal-content label{
-    font-size:14px;
-    font-weight:500;
-    margin-bottom:4px;
-}
-
-/* Inputs */
-.modal-content input,
-.modal-content textarea{
-    width:100%;
-    padding:10px 12px;
-    margin-bottom:14px;
-    border-radius:6px;
-    border:1px solid #ddd;
-    font-size:14px;
-    transition:0.3s;
-    box-sizing:border-box;
-}
-
-/* Input focus */
-.modal-content input:focus,
-.modal-content textarea:focus{
-    outline:none;
-    border-color:#4B0082;
-}
-
-/* Textarea height */
-.modal-content textarea{
-    min-height:85px;
-    resize:none;
-}
-
-/* Confirm booking button */
-.book-btn{
-    width:100%;
-    padding:12px;
-    border:none;
-    border-radius:6px;
-    background:#4B0082;
-    color:#fff;
-    font-size:15px;
-    font-weight:600;
-    cursor:pointer;
-    transition:0.3s;
-    margin-top:10px;
-}
-
-.book-btn:hover{
-    background:#360060;
-}
-
-/* Close button */
-.close{
-    float:right;
-    font-size:22px;
-    cursor:pointer;
-    color:#555;
-}
-
-/* Note text */
-.note{
-    font-size:12px;
-    color:#666;
-    font-style:italic;
-    margin-bottom:10px;
-}
-
-/* Important note */
-.important-note{
-    font-size:13px;
-    color:#b22222;
-    font-weight:600;
-    margin-bottom:14px;
-}
 
 /* 1. The Full-Screen Overlay (The dark background) */
 .modal-overlay {
@@ -456,4 +327,340 @@ body {
     color: #bbb; /* Faded text */
     border: 1px solid #ddd;
     text-decoration: line-through; /* Optional: put a line through the number */
+}
+/* Modal background */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(6px);
+    z-index: 9999; 
+}
+
+/* Modal box - Now a flex container */
+.modal-content {
+    background: #FFF5F7;
+    width: 600px;
+    max-width: 90%;
+    border-radius: 14px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+    font-family: 'Space Grotesk', sans-serif;
+    max-height: 85vh;
+    
+    /* Flex setup to fix header */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Header stays, body scrolls */
+}
+
+/* --- FIXED HEADER SECTION --- */
+.modal-content header {
+    padding: 32px 32px 15px 32px;
+    background: #d478a8; /* Match card background */
+    border-bottom: 1px solid rgba(75, 0, 130, 0.1);
+    z-index: 10;
+}
+
+.modal-content h2 {
+    margin: 0;
+    font-weight: 600;
+    color: #4B0082;
+}
+
+.close {
+    float: right;
+    font-size: 24px;
+    cursor: pointer;
+    color: #555;
+    line-height: 1;
+}
+
+/* --- SCROLLABLE BODY --- */
+.modal-body {
+    padding: 25px 32px 32px 32px;
+    overflow-y: auto;
+    flex-grow: 1; /* Takes up remaining space */
+    
+    /* Standard scrollbar for Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: #d4af37 transparent;
+}
+
+/* --- CUSTOM GOLDEN SCROLLBAR (Targeting modal-body) --- */
+
+.modal-body::-webkit-scrollbar {
+    width: 10px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 10px 0;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: #d4af37;
+    border-radius: 10px;
+    /* Floating effect from the right edge */
+    border: 3px solid #FFF5F7; 
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: #b8860b;
+}
+
+/* --- FORM ELEMENTS (Unchanged logic) --- */
+
+.form-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 10px;
+}
+
+.form-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.modal-content label {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #444;
+}
+
+.modal-content input,
+.modal-content textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: #ffffff;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: 0.3s;
+}
+
+.modal-content input:focus,
+.modal-content textarea:focus {
+    outline: none;
+    border-color: #4B0082;
+}
+
+.modal-content textarea {
+    min-height: 90px;
+    resize: none;
+}
+
+.note, .important-note {
+    font-size: 12px;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.important-note {
+    color: #b22222;
+    font-weight: 600;
+}
+
+/* Label styling - matches your modal-content label */
+.payment-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    margin-top: 20px;
+    color: #444; /* Matching your existing label color */
+}
+
+/* Container for the cards */
+.payment-options {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+/* Individual Payment Cards */
+.payment-card {
+    flex: 1;
+    background: #ffffff; /* White to match your input fields */
+    border: 1px solid #ddd; /* Matching your input border */
+    border-radius: 8px; /* Matching your input border-radius */
+    padding: 12px 5px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+/* Hover state */
+.payment-card:hover {
+    border-color: #ffb6c1; /* Light pink hover */
+    background-color: #fffafb;
+}
+
+/* ACTIVE/SELECTED State - The "Royal Gold" focus */
+.payment-card.active {
+    border: 2px solid #d4af37; /* Royal Gold border */
+    background-color: #fffdf0; /* Very light gold tint */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(212, 175, 55, 0.15);
+}
+
+/* Text inside cards */
+.pay-title {
+    display: block;
+    font-weight: 700;
+    font-size: 14px;
+    color: #4B0082; /* Royal Purple */
+    margin-bottom: 2px;
+}
+
+.pay-desc {
+    display: block;
+    font-size: 11px;
+    color: #777; /* Subtle text like your notes */
+    font-weight: 500;
+}
+
+/* Change title color when active to match the gold theme */
+.payment-card.active .pay-title {
+    color: #b8860b; /* Deep Gold */
+}
+
+/* Container Box */
+.payment-display {
+    position: relative;
+    background: #ffffff;
+    border: 1px dashed #d4af37;
+    border-radius: 12px;
+    margin: 20px 0;
+    padding: 20px;
+    overflow: hidden;
+}
+
+/* Blur Effect */
+.payment-display.blurred .payment-grid {
+    filter: blur(5px);
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Overlay Styling */
+.payment-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    background: rgba(255, 245, 247, 0.6); /* Soft Royal Pink Tint */
+    transition: 0.4s ease;
+}
+
+.overlay-content { text-align: center; }
+
+.overlay-content p {
+    color: #4B0082;
+    font-weight: 600;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+/* Pay Now Button (Trigger) */
+.pay-btn {
+    background: #d4af37;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Space Grotesk', sans-serif;
+    transition: 0.3s;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+.pay-btn:hover {
+    background: #b8860b;
+    transform: translateY(-2px);
+}
+
+/* Payment Grid Layout */
+.payment-grid {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.qr-container {
+    flex: 1;
+    text-align: center;
+    border-right: 1px solid #eee;
+    padding-right: 15px;
+}
+
+#qrImage {
+    width: 120px;
+    height: 120px;
+    border-radius: 4px;
+}
+
+#amountDisplay {
+    margin-top: 10px;
+    font-weight: 700;
+    color: #b8860b;
+}
+
+/* Upload Styling */
+.upload-container { flex: 1.5; }
+
+.custom-file-input {
+    position: relative;
+    height: 90px;
+    border: 2px dashed #FFD1DC;
+    border-radius: 8px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-file-input input {
+    position: absolute;
+    width: 100%; height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.upload-placeholder { text-align: center; color: #888; }
+.upload-placeholder i { font-size: 24px; color: #4B0082; }
+
+/* Active/Click effect for both */
+.book-btn:active, .pay-btn:active {
+    transform: translateY(1px);
+}
+.book-btn {
+    width: 100%;
+    padding: 15px;
+    background: #4B0082;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 20px;
 }

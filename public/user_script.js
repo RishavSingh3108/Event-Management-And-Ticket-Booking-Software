@@ -60,10 +60,10 @@ function renderVenues(venues) {
 
                 <div class="card-actions-row">
                     <div class="spacer"></div> 
-                    <button class="btn-view-availability" onclick="openCalendar('${venue._id}', '${venue.name}')">
+                    <button class="btn-view-availability" onclick="openCalendar('${venue._id}', '${venue.name}','${venue.cost}')">
                         <i class='bx bx-calendar-event'></i> View Availability
                     </button>
-                    <button class="action-btn book-now-btn" onclick="initiateBooking('${venue._id}')">
+                    <button class="action-btn book-now-btn" onclick="initiateBooking('${venue._id}','${venue.cost}')">
                         💝 Book Now
                     </button>
                 </div>
@@ -99,10 +99,12 @@ function setupSearch() {
 
 let selectedVenue = null;
 let selectedDate = null;
+let basePrice = null;
 
-async function initiateBooking(venueId, venueDate = null) {
+async function initiateBooking(venueId, venueCost = null, venueDate = null) {
     selectedVenue = venueId;
     selectedDate = venueDate;
+    basePrice = venueCost;
 
     // 1. Set the date in the input field
     if (venueDate) {
@@ -151,6 +153,7 @@ async function initiateBooking(venueId, venueDate = null) {
 }
 
 function closeBookingModal(){
+    clearBookingForm();
     document.getElementById("bookingModal").style.display = "none";
 }
 
@@ -227,6 +230,39 @@ function clearBookingForm() {
     document.getElementById('email').value = "";
     document.getElementById('purpose').value = "";
     document.getElementById('requirements').value = "";
+
+    // 2. Reset File Input and Status
+    document.getElementById('screenshot').value = "";
+    const fileStatus = document.getElementById('file-status');
+    if (fileStatus) {
+        fileStatus.innerText = "Select Image";
+        fileStatus.style.color = "#888";
+    }
+
+    // 3. Reset Payment Selection to first card
+    document.getElementById('amountDisplay').innerText = "Payable: ₹0";
+    selectedPaymentType = 'partial'; 
+    const allCards = document.querySelectorAll('.payment-card');
+    allCards.forEach((card, index) => {
+        card.classList.toggle('active', index === 0);
+    });
+
+    // 4. Reset QR image to placeholder
+    const qrImg = document.getElementById('qrImage');
+    if (qrImg) qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Locked";
+
+    // 5. THE CRITICAL FIX: Restore Blur AND Overlay
+    const paymentDisplay = document.getElementById('paymentDisplay');
+    const paymentOverlay = document.getElementById('paymentOverlay');
+    
+    if (paymentDisplay) {
+        paymentDisplay.classList.add('blurred');
+    }
+    
+    if (paymentOverlay) {
+        paymentOverlay.style.display = "flex"; // Re-show the overlay
+        paymentOverlay.style.opacity = "1";    // Ensure it is visible
+    }
 }
 
 // Close modal if user clicks outside of it
@@ -322,21 +358,13 @@ function filterBy(type) {
 function closeTrackModal() {
     const modal = document.getElementById("trackModal");
     modal.style.display = "none"; // Hides it again
-    
-    // Re-enable background scrolling
     document.body.style.overflow = "auto";
 }
-
-// For the user view Availability button dates slots for event in venues
 
 let venueBookings = [];
 let selectedVenueId = null;
 
-/**
- * Open Calendar for Users
- * Triggered by: onclick="openCalendar('ID', 'Name')"
- */
-async function openCalendar(venueId, venueName) {
+async function openCalendar(venueId, venueName, venueCost) {
     selectedVenueId = venueId;
     document.getElementById('calVenueName').innerText = venueName;
     const modal = document.getElementById('calendarModal');
@@ -347,7 +375,7 @@ async function openCalendar(venueId, venueName) {
         venueBookings = await response.json();
 
         // 2. Setup the Dropdown (Current month + next 5)
-        setupMonthDropdown(venueId);
+        setupMonthDropdown(venueId, venueCost);
 
         // 3. Show the Modal
         modal.style.display = 'flex'; 
@@ -355,46 +383,11 @@ async function openCalendar(venueId, venueName) {
         console.error("Calendar Load Error:", err);
         // Fallback: If API fails, show empty calendar
         venueBookings = [];
-        setupMonthDropdown(venueId);
+        setupMonthDropdown(venueId, venueCost);
         modal.style.display = 'flex';
     }
 }
-
-// function setupMonthDropdown(venueId) {
-//     const select = document.getElementById('monthSelect');
-//     if (!select) return;
-    
-//     select.innerHTML = ''; 
-//     const now = new Date();
-//     const currentYear = now.getFullYear();
-//     const currentMonth = now.getMonth(); // 0-indexed (Jan is 0, Apr is 3)
-
-//     // Loop through all 12 months (January to December)
-//     for (let i = 0; i < 12; i++) {
-//         const date = new Date(currentYear, i, 1);
-//         const option = document.createElement('option');
-        
-//         const year = date.getFullYear();
-//         const monthNum = String(i + 1).padStart(2, '0');
-        
-//         option.value = `${year}-${monthNum}`;
-//         option.innerText = `${date.toLocaleString('default', { month: 'long' })}`;
-        
-//         // AUTOMATIC SELECTION: If the loop index matches the current month
-//         if (i === currentMonth) {
-//             option.selected = true;
-//         }
-
-//         select.appendChild(option);
-//     }
-
-//     // Default: Render the selected (current) month immediately
-//     renderCalendarGrid(select.value, venueId);
-
-//     // Update grid when dropdown changes
-//     select.onchange = (e) => renderCalendarGrid(e.target.value, venueId);
-// }
-function setupMonthDropdown(venueId) {
+function setupMonthDropdown(venueId, venueCost) {
     const monthSelect = document.getElementById('monthSelect');
     const yearSelect = document.getElementById('yearSelect'); // Grab your new year dropdown
     if (!monthSelect || !yearSelect) return;
@@ -433,7 +426,7 @@ function setupMonthDropdown(venueId) {
     const refreshGrid = () => {
         const selectedYear = yearSelect.value;
         const selectedMonth = monthSelect.value;
-        renderCalendarGrid(`${selectedYear}-${selectedMonth}`, venueId);
+        renderCalendarGrid(`${selectedYear}-${selectedMonth}`, venueId, venueCost);
     };
 
     // 4. Update grid whenever EITHER dropdown changes
@@ -444,7 +437,7 @@ function setupMonthDropdown(venueId) {
     refreshGrid();
 }
 
-function renderCalendarGrid(yearMonth, venueId) {
+function renderCalendarGrid(yearMonth, venueId, venueCost) {
     const grid = document.getElementById('calendarGrid');
     if (!grid) return;
     grid.innerHTML = ''; 
@@ -492,7 +485,7 @@ function renderCalendarGrid(yearMonth, venueId) {
             day.className = "day-box free";
             day.style.cursor = 'pointer';
             day.onclick = () => {
-                initiateBooking(venueId, formattedDate);
+                initiateBooking(venueId, venueCost, formattedDate);
                 closeCalendar();
             };
         }
@@ -513,3 +506,51 @@ window.addEventListener('click', (e) => {
         closeCalendar();
     }
 });
+
+// Variable to store the currently selected payment type
+let selectedPaymentType = 'partial'; 
+let finalAmount = 0;
+
+function selectPayment(element, type) {
+    // 1. Find all payment cards and remove the 'active' class
+    const allCards = document.querySelectorAll('.payment-card');
+    allCards.forEach(card => {
+        card.classList.remove('active');
+    });
+
+    // 2. Add the 'active' class to the card that was just clicked
+    element.classList.add('active');
+
+    // 3. Update our variable to the new selection
+    selectedPaymentType = type;
+    handlePayment();
+}
+// PAY NOW BUUTON KA FUNCTION HAI
+function handlePayment() {
+    const amountDisplay = document.getElementById('amountDisplay');
+    const qrImg = document.getElementById('qrImage');
+    const overlay = document.getElementById('paymentOverlay');
+    const display = document.getElementById('paymentDisplay');
+
+    if (selectedPaymentType === 'partial') finalAmount = basePrice * 0.25;
+    else if (selectedPaymentType === 'advance') finalAmount = basePrice * 0.50;
+    else finalAmount = basePrice;
+
+    // 2. Generate the QR Code (Dynamic)
+    const upiID = "rishav310805@okicici"; // Put your actual ID here
+    const qrData = `upi://pay?pa=${upiID}&pn=EventFlow&am=${finalAmount}&cu=INR`;
+    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrData)}`;
+
+    // 3. Update Text and Remove Blur
+    amountDisplay.innerText = `Payable: ₹${finalAmount}`;
+    display.classList.remove('blurred');
+    overlay.style.opacity = "0";
+    setTimeout(() => { overlay.style.display = "none"; }, 400);
+}
+
+function updateFileName(input) {
+    if (input.files.length > 0) {
+        document.getElementById('file-status').innerText = input.files[0].name;
+        document.getElementById('file-status').style.color = "green";
+    }
+}

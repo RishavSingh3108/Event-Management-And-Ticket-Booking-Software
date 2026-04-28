@@ -83,55 +83,99 @@
     <div id="bookingModal" class="modal">
 
         <div class="modal-content">
+            <header>
+                <span class="close" onclick="closeBookingModal()">&times;</span>
 
-            <span class="close" onclick="closeBookingModal()">&times;</span>
+                <h2>Book Venue</h2>
+            </header>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Booking Date</label>
+                        <input type="date" id="bookingDate" required> </div>
 
-            <h2>Book Venue</h2>
+                    <div class="form-group">
+                        <label>Number of Guests</label>
+                        <input type="number" id="guests" placeholder="Enter guests"> </div>
+                </div>
 
-            <div class="form-row">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Booked By</label>
+                        <input type="text" id="bookedBy" placeholder="Enter your name"> </div>
+
+                    <div class="form-group">
+                        <label>Contact Number</label>
+                        <input type="tel" id="contact" placeholder="Enter phone number"> </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="email" placeholder="Enter email"> </div>
+
+                    <div class="form-group">
+                        <label>Purpose of Booking</label>
+                        <input type="text" id="purpose" placeholder="Wedding / Party / Corporate Event"> </div>
+                </div>
+
                 <div class="form-group">
-                    <label>Booking Date</label>
-                    <input type="date" id="bookingDate" required> </div>
+                    <label>Special Requirements</label>
+                    <textarea id="requirements" placeholder="Decoration, Catering, Sound System, etc."></textarea> 
+                </div>
 
-                <div class="form-group">
-                    <label>Number of Guests</label>
-                    <input type="number" id="guests" placeholder="Enter guests"> </div>
+                <p class="note">
+                Note: Additional services like decoration, catering, sound system, or other special arrangements may involve extra charges.
+                </p>
+                <label class="payment-label">Select Payment Type</label>
+                <div class="payment-options">
+                    <div class="payment-card active" onclick="selectPayment(this, 'partial')">
+                        <span class="pay-title">Partial</span>
+                        <span class="pay-desc">25% Advance</span>
+                    </div>
+                    <div class="payment-card" onclick="selectPayment(this, 'advance')">
+                        <span class="pay-title">Advance</span>
+                        <span class="pay-desc">50% Advance</span>
+                    </div>
+                    <div class="payment-card" onclick="selectPayment(this, 'full')">
+                        <span class="pay-title">Full</span>
+                        <span class="pay-desc">100% Payment</span>
+                    </div>
+                </div>
+
+                <p class="important-note">
+                Important: After submitting the booking request, please visit the venue or contact the venue owner within 24 hours to make the advance payment. Booking will be confirmed only after advance payment.
+                </p>
+                <div id="paymentDisplay" class="payment-display blurred">
+                    <div id="paymentOverlay" class="payment-overlay">
+                        <div class="overlay-content">
+                            <p><i class='bx bxs-lock-alt'></i> Payment Details Locked</p>
+                            <button class="pay-btn" onclick="handlePayment()">Pay Now</button>
+                        </div>
+                    </div>
+
+                    <div class="payment-grid">
+                        <div class="qr-container">
+                            <img id="qrImage" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Locked" alt="QR Code">
+                            <p id="amountDisplay">Payable: ₹0</p>
+                        </div>
+
+                        <div class="upload-container">
+                            <label>Upload Payment Screenshot</label>
+                            <div class="custom-file-input">
+                                <input type="file" id="screenshot" accept="image/*" onchange="updateFileName(this)">
+                                <div class="upload-placeholder" id="uploadPlaceholder">
+                                    <i class='bx bx-camera'></i>
+                                    <span id="file-status">Select Image</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <button class="pay-btn" onclick="handlePayment()">Pay Now </button> -->
+                <button class="book-btn" onclick="confirmBooking()">Confirm Booking</button>
             </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Booked By</label>
-                    <input type="text" id="bookedBy" placeholder="Enter your name"> </div>
-
-                <div class="form-group">
-                    <label>Contact Number</label>
-                    <input type="tel" id="contact" placeholder="Enter phone number"> </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="email" placeholder="Enter email"> </div>
-
-                <div class="form-group">
-                    <label>Purpose of Booking</label>
-                    <input type="text" id="purpose" placeholder="Wedding / Party / Corporate Event"> </div>
-            </div>
-
-            <div class="form-group">
-                <label>Special Requirements</label>
-                <textarea id="requirements" placeholder="Decoration, Catering, Sound System, etc."></textarea> 
-            </div>
-
-            <p class="note">
-            Note: Additional services like decoration, catering, sound system, or other special arrangements may involve extra charges.
-            </p>
-
-            <p class="important-note">
-            Important: After submitting the booking request, please visit the venue or contact the venue owner within 24 hours to make the advance payment. Booking will be confirmed only after advance payment.
-            </p>
-
-            <button class="book-btn" onclick="confirmBooking()">Confirm Booking</button>
 
         </div>
     </div>
