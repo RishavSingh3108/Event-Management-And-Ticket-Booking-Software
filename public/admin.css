@@ -53,55 +53,158 @@ body {
 .bookings-nav-btn {
     display: flex;
     align-items: center;
-    gap: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    color: rgb(40, 174, 231);
+    gap: 10px;
+    background: rgba(40, 174, 231, 0.05); /* Very faint blue tint */
+    color: #28aee7;
     text-decoration: none;
-    padding: 8px 16px;
-    border-radius: 6px;
+    padding: 10px 20px;
+    border-radius: 50px; /* Modern pill shape */
     font-size: 14px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(40, 174, 231, 0.2);
+    position: relative;
+    overflow: hidden;
 }
 
 .bookings-nav-btn:hover {
-    background: #ffffff;
-    color: #4B0082; /* Changes to your theme color on hover */
-    transform: translateY(-2px);
+    background: #4B0082; /* Deep Theme Purple */
+    color: #ffffff;
+    border-color: #4B0082;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px -5px rgba(75, 0, 130, 0.4);
 }
 
+/* Subtle icon movement */
 .bookings-nav-btn i {
     font-size: 18px;
+    transition: transform 0.3s ease;
+}
+
+.bookings-nav-btn:hover i {
+    transform: scale(1.2) rotate(-10deg);
+}
+
+/* Glass shine streak */
+.bookings-nav-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: 0.5s;
+}
+
+.bookings-nav-btn:hover::before {
+    left: 100%;
 }
 
 .admin-name {
-    font-weight: 400;
+    font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 8px;
-    color: var(--text-muted);
+    gap: 12px;
+    color: #1e293b; /* Darker, more professional slate */
+    background: rgba(255, 255, 255, 0.5);
+    padding: 6px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+/* Adding a hover state for the profile chip */
+.admin-name:hover {
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transform: translateX(5px);
 }
 
 .admin-name i {
-    font-size: 24px;
-    color: var(--primary-blue);
+    font-size: 26px;
+    /* Soft Blue-Purple Gradient for the Icon */
+    background: linear-gradient(135deg, #28aee7, #4B0082);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 4px rgba(40, 174, 231, 0.2));
+}
+
+/* Status Indicator (Optional Sexy Add-on) */
+.admin-name::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #10b981; /* Online green */
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px #fff, 0 0 8px #10b981;
 }
 
 .logout-btn {
-    background: #ff4d4d;
+    position: relative;
+    /* Soft Rose to Crimson Gradient */
+    background: linear-gradient(135deg, #ff4d6d 0%, #c9184a 100%);
     color: white;
     border: none;
-    padding: 8px 18px;
-    border-radius: 6px;
-    font-weight: 600;
+    padding: 8px 22px;
+    border-radius: 10px; /* Matching the modern rounded look */
+    font-weight: 700;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     cursor: pointer;
-    transition: 0.3s;
+    overflow: hidden;
+    z-index: 1;
+    
+    /* Subtle Red Glow Shadow */
+    box-shadow: 0 6px 15px -4px rgba(201, 24, 74, 0.4);
+    
+    /* Smooth Bouncy Transition */
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .logout-btn:hover {
-    background: #e60000;
-    transform: translateY(-1px);
+    /* Slightly deeper red on hover */
+    background: linear-gradient(135deg, #ff758f 0%, #a4133c 100%);
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 10px 20px -5px rgba(164, 19, 60, 0.5);
+}
+
+/* --- THE SEXY LOGOUT ICON ANIMATION --- */
+.logout-btn i {
+    transition: transform 0.3s ease;
+}
+
+.logout-btn:hover i {
+    transform: translateX(-3px); /* Subtle "exit" movement for the icon */
+}
+
+/* --- SHINE EFFECT --- */
+.logout-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255, 255, 255, 0.25),
+        transparent
+    );
+    transition: all 0.5s ease;
+    z-index: -1;
+}
+
+.logout-btn:hover::before {
+    left: 100%;
+}
+
+/* --- ACTIVE CLICK EFFECT --- */
+.logout-btn:active {
+    transform: translateY(0) scale(0.96);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* --- Main Content Area & Background --- */
@@ -178,21 +281,71 @@ body {
 }
 
 .add-venue-btn {
-    background: var(--primary-blue);
+    position: relative;
+    background: linear-gradient(135deg, #4B0082 0%, #6a0dad 100%);
     color: white;
     border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: 600;
+    padding: 12px 28px;
+    border-radius: 12px; /* Slightly more rounded for a modern feel */
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     cursor: pointer;
-    transition: 0.3s;
     white-space: nowrap;
+    z-index: 1;
+    overflow: hidden;
+    
+    /* Luxury Glow Shadow */
+    box-shadow: 0 8px 20px -6px rgba(75, 0, 130, 0.4);
+    
+    /* Smooth, bouncy transition */
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .add-venue-btn:hover {
-    background: var(--dark-blue);
-    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+    background: linear-gradient(135deg, #6a0dad 0%, #ff69b4 100%);
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 12px 25px -8px rgba(255, 105, 180, 0.5);
+    color: #fff;
+}
+
+/* --- THE SEXY ICON ANIMATION --- */
+.add-venue-btn i {
+    font-size: 1.2rem;
+    transition: transform 0.4s ease;
+}
+
+.add-venue-btn:hover i {
+    transform: rotate(90deg); /* Makes the '+' icon spin on hover */
+}
+
+/* --- SHINE EFFECT --- */
+.add-venue-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transition: all 0.6s ease;
+    z-index: -1;
+}
+
+.add-venue-btn:hover::before {
+    left: 100%;
+}
+
+/* --- CLICK EFFECT --- */
+.add-venue-btn:active {
+    transform: translateY(0) scale(0.97);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }

@@ -1,0 +1,292 @@
+:root {
+    --bg: #fff5f5;
+    --card-bg: #ffffff;
+    --accent: #d4a373; /* Champagne Gold */
+    --text: #4a3737;
+    --text-dim: #8d7777;
+    --glass: rgba(212, 163, 115, 0.1);
+}
+
+body {
+    background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), 
+                url('https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2074');
+    
+    background-size: cover;      
+    background-position: center;  
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    margin: 0;
+    overflow-x: hidden;
+    padding-top: 80px; 
+}
+
+/* Background Decoration */
+.hero-blur {
+    position: fixed;
+    top: -10%; left: -10%;
+    width: 50%; height: 50%;
+    background: radial-gradient(circle, rgba(0, 255, 170, 0.1) 0%, transparent 70%);
+    z-index: -1;
+    filter: blur(80px);
+}
+
+/* Navigation */
+
+.premium-nav {
+    /* 1. Fix to top and fill width correctly */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 75px;
+    
+    /* 2. Glassmorphism Design */
+    background: rgba(255, 255, 255, 0.8); 
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    
+    /* 3. Alignment Logic - This fixes the 'off-screen' issue */
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    padding: 0 4%; /* Responsive side spacing */
+    box-sizing: border-box; /* Essential: keeps padding inside the 100% width */
+    z-index: 2000;
+}
+
+/* Nav Link (My Bookings) */
+.nav-link {
+    position: relative;
+    text-decoration: none;
+    color: var(--text-dim);
+    font-weight: 600; /* Slightly bolder for better readability */
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    padding: 8px 4px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- THE SEXY HOVER EFFECT --- */
+.nav-link:hover {
+    color: #4B0082; /* Your primary luxury purple */
+    transform: translateY(-1px);
+}
+
+/* --- THE LUXURY UNDERLINE ANIMATION --- */
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #4B0082, #ff69b4); /* Purple to Pink gradient */
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateX(-50%);
+    border-radius: 2px;
+}
+
+.nav-link:hover::after {
+    width: 80%; /* Expands from center on hover */
+}
+
+/* --- OPTIONAL: SUBTLE TEXT GLOW --- */
+.nav-link:hover {
+    text-shadow: 0 0 10px rgba(75, 0, 130, 0.2);
+}
+
+/* --- ACTIVE STATE (For the current page) --- */
+.nav-link.active {
+    color: #4B0082;
+}
+
+.nav-link.active::after {
+    width: 80%;
+    background: #4B0082;
+}
+
+#NameDisplay {
+    font-weight: 700;
+    color: #1e293b; /* Sophisticated Slate */
+    font-size: 0.9rem;
+    letter-spacing: 0.3px;
+    padding-right: 5px;
+    border-right: 1px solid rgba(0, 0, 0, 0.08); /* Subtle separator before logout */
+    margin-right: 10px;
+    transition: color 0.3s ease;
+}
+
+/* Change name color slightly when hovering over the profile area */
+.profile-chip:hover #NameDisplay {
+    color: #4B0082; /* Deep Theme Purple */
+}
+.icon-logout {
+    background: transparent;
+    border: none;
+    color: #ff4b2b;
+    font-size: 1.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 8px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+}
+
+.icon-logout:hover {
+    color: #dc2626; /* Deeper red */
+    background: rgba(255, 75, 43, 0.1); /* Very soft red halo */
+    transform: scale(1.15) rotate(5deg);
+    filter: drop-shadow(0 0 5px rgba(255, 75, 43, 0.3));
+}
+
+/* Subtle tooltip or "exit" hint using an icon nudge */
+.icon-logout:hover i {
+    transform: translateX(2px);
+}
+
+.icon-logout:active {
+    transform: scale(0.9);
+}
+
+
+.logo { font-size: 2rem; font-weight: 700; letter-spacing: -2px; }
+.logo span { color: var(--accent); }
+
+.nav-right { display: flex; align-items: center; gap: 3rem; }
+
+.profile-chip {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--glass);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+
+/* Search Header */
+.app-shell { max-width: 1200px; margin: 0 auto; padding: 0 5%; }
+.hero-text { margin: 4rem 0; }
+.hero-text h1 { font-size: 4rem; margin: 0; }
+.hero-text span { display: block; color: var(--accent); font-weight: 300; font-style: italic; }
+
+.search-glass {
+    margin-top: 2rem;
+    display: flex;
+    background: var(--glass);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 0.5rem;
+    border-radius: 15px;
+    max-width: 600px;
+    backdrop-filter: blur(10px);
+}
+
+.search-glass input {
+    background: transparent; border: none; outline: none;
+    color: black; padding: 1rem; width: 100%; font-size: 1.1rem;
+}
+
+.search-trigger {
+    background: var(--accent); border: none;
+    width: 50px; border-radius: 12px; cursor: pointer;
+    font-size: 1.5rem; display: flex; align-items: center; justify-content: center;
+}
+/* Update your venue-details-grid to handle more items */
+ .venue-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; 
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05); 
+    border-radius: 12px;
+} 
+
+/* Ensure the Book Now button stays aligned to the right */
+/* --- BUTTON CONTAINER --- */
+.card-actions-row {
+    display: flex;
+    justify-content: flex-end; 
+    width: 100%;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05); /* Subtle separation */
+}
+
+/* --- THE SEXY ACTION BUTTONS --- */
+.book-now-btn, .btn-view-availability {
+    position: relative;
+    padding: 12px 35px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    overflow: hidden;
+    z-index: 1;
+    
+    /* Elegant Purple to Pink Gradient */
+    background: linear-gradient(135deg, #4B0082 0%, #ff69b4 100%);
+    
+    /* Soft glowing shadow */
+    box-shadow: 0 10px 20px -10px rgba(75, 0, 130, 0.5);
+    
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* --- HOVER EFFECTS --- */
+.book-now-btn:hover, .btn-view-availability:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 25px -10px rgba(255, 105, 180, 0.6);
+    background: linear-gradient(135deg, #6a0dad 0%, #ff1493 100%);
+}
+
+/* --- ACTIVE CLICK EFFECT --- */
+.book-now-btn:active, .btn-view-availability:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* --- SHINE ANIMATION --- */
+.book-now-btn::after, .btn-view-availability::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 20%;
+    height: 200%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(30deg);
+    transition: all 0.6s ease;
+    z-index: -1;
+}
+
+.book-now-btn:hover::after, .btn-view-availability:hover::after {
+    left: 120%;
+}
+
+/* --- OPTIONAL: Distinct style for Availability (Secondary) --- */
+.btn-view-availability {
+    background: #ffffff;
+    color: #4B0082;
+    border: 2px solid #4B0082;
+    box-shadow: none;
+    margin-right: 10px;
+}
+
+.btn-view-availability:hover {
+    background: #4B0082;
+    color: #ffffff;
+    box-shadow: 0 10px 20px -10px rgba(75, 0, 130, 0.3);
+}

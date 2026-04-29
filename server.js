@@ -243,6 +243,46 @@ app.put('/api/bookings/status/:id', async (req, res) => {
     }
 });
 
+// --- Place this ABOVE your 'app.get(*)' route ---
+app.put('/api/bookings/update-date/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { newDate } = req.body;
+
+        // 1. Get the current booking to know which venue we are talking about
+        const currentBooking = await Booking.findById(id);
+        if (!currentBooking) {
+            return res.status(404).json({ success: false, message: "Booking not found" });
+        }
+
+        // 2. CHECK AVAILABILITY: 
+        // Look for any OTHER approved booking for the SAME venue on the SAME new date
+        const conflict = await Booking.findOne({
+            _id: { $ne: id }, // Don't count the current booking itself
+            venueId: currentBooking.venueId,
+            bookingDate: newDate,
+            status: "Approved" // Only block if the other booking is already approved
+        });
+
+        if (conflict) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "This date is already occupied by another event. Please choose a different date." 
+            });
+        }
+
+        // 3. If no conflict, update the date
+        currentBooking.bookingDate = newDate;
+        await currentBooking.save();
+
+        res.json({ success: true, message: "Date updated successfully!" });
+
+    } catch (err) {
+        console.error("Conflict Check Error:", err);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+});
+
 //  THIS SHOULD BE AT THE BOTTOM
 app.use(express.static(path.join(__dirname, 'public')));
 

@@ -1,0 +1,318 @@
+/* user modified my booking css */
+/* --- MANAGEMENT MODAL STYLES --- */
+
+.action-modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.8);
+    display: none; justify-content: center; align-items: center; z-index: 10000;
+}
+
+.sexy-management-card {
+    background: white; width: 95%; max-width: 900px; border-radius: 30px;
+    position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.mgmt-grid { display: grid; grid-template-columns: 1fr 1.2fr; }
+
+.mgmt-left { background: #f8fafc; padding: 40px; border-right: 1px solid #f1f5f9; text-align: center; }
+.proof-wrapper { margin: 20px 0; border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; }
+.proof-wrapper img { width: 100%; display: block; }
+
+.mgmt-right { padding: 40px; }
+.status-pill { 
+    display: inline-block; padding: 6px 16px; border-radius: 50px; 
+    font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 15px;
+}
+.status-pill.pending { background: #fef3c7; color: #92400e; }
+.status-pill.approved { background: #dcfce7; color: #166534; }
+
+.details-stack { margin-bottom: 25px; }
+.stack-item { 
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 0; border-bottom: 1px solid #f1f5f9;
+}
+.stack-item span { color: #64748b; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+.stack-item strong { color: #390d77; font-size: 14px; text-align: right; }
+
+.mgmt-actions { display: flex; gap: 15px; }
+.action-btn { 
+    flex: 1; padding: 14px; border: none; border-radius: 12px; 
+    font-weight: 700; cursor: pointer; display: flex; align-items: center; 
+    justify-content: center; gap: 8px; transition: 0.3s;
+}
+.reschedule { background: #eff6ff; color: #2563eb; }
+.cancel { background: #fee2e2; color: #dc2626; }
+.action-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+
+.reschedule-panel { 
+    margin-top: 20px; padding: 20px; background: #f8fafc; border-radius: 15px; 
+    display: flex; gap: 10px; border: 1px solid #e2e8f0;
+}
+.reschedule-panel input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; }
+.confirm-date-btn { background: #2563eb; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+
+/* Close Button */
+.close-modal-btn {
+    position: absolute; top: 20px; right: 20px; background: none; border: none;
+    font-size: 30px; cursor: pointer; color: #94a3b8;
+}
+
+/* --- 1. MODAL OVERLAY (GLASSMORPHISM) --- */
+#trackModal.modal {
+    display: none; /* Controlled by JS */
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(12px);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- 2. MODAL BOX (WIDE DASHBOARD STYLE) --- */
+#trackModal .modal-content.luxury-card {
+    background: #ffffff;
+    width: 95%;
+    max-width: 1000px;
+    height: 85vh; /* Keeps modal height fixed */
+    border-radius: 30px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Clips children to maintain border radius */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* --- 3. HEADER (DEEP PURPLE) --- */
+#trackModal header {
+    padding: 30px 40px;
+    background: purple;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    flex-shrink: 0; /* Prevents header from squishing */
+}
+
+#trackModal h2 {
+    color: WHITE;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.close {
+    font-size: 30px;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.8);
+    transition: 0.3s;
+}
+
+.close:hover {
+    color: white;
+    transform: scale(1.1);
+}
+
+/* --- 4. FILTER BAR --- */
+.filter-bar {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding: 20px;
+    background: #fafafa;
+    border-bottom: 1px solid #f1f5f9;
+    flex-shrink: 0; /* Prevents bar from squishing */
+}
+
+.filter-btn {
+    padding: 10px 25px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: #64748b;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.filter-btn.active {
+    background: #ff69b4;
+    color: white;
+    border-color: #ff69b4;
+    box-shadow: 0 4px 15px rgba(255, 105, 180, 0.4);
+}
+
+/* --- 5. SCROLLABLE CONTAINER --- */
+.bookings-display-container {
+    flex: 1; /* Takes up all remaining space */
+    overflow-y: auto; /* ENABLES VERTICAL SCROLLING */
+    overflow-x: hidden;
+    padding: 30px 40px;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    scroll-behavior: smooth;
+}
+
+/* --- 6. HORIZONTAL SPLIT CARD --- */
+.mini-booking-card {
+    position: relative;
+    background: white;
+    border-radius: 24px;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    transition: 0.3s;
+    min-height: 320px; /* Ensures adequate space for all details */
+    height: auto; /* Allows growth if text is very long */
+    flex-shrink: 0; /* Prevents cards from collapsing in the flex container */
+}
+
+.mini-booking-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.card-inner {
+    display: flex;
+    flex-direction: row;
+    min-height: 320px;
+    align-items: stretch; /* Ensures left/right sides are equal height */
+}
+
+/* Left side (Image) */
+.card-left {
+    width: 35%;
+    min-width: 300px;
+    background: #f1f5f9;
+}
+
+.card-venue-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Right side (Info) */
+.card-content {
+    flex: 1;
+    padding: 30px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* title at top, button at bottom */
+}
+
+.venue-title {
+    color: #ff69b4;
+    font-size: 1.5rem;
+    margin: 0 0 15px 0;
+    font-weight: 700;
+}
+
+.meta-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.meta-info p {
+    margin: 0;
+    font-size: 14px;
+    color: #475569;
+    display: flex;
+    align-items: flex-start; /* Better alignment for long text */
+    gap: 10px;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 8px;
+    line-height: 1.4;
+}
+
+.meta-info i {
+    color: #ff69b4;
+    font-size: 18px;
+    width: 20px;
+    margin-top: 2px;
+}
+
+/* --- 7. BUTTONS & BADGES --- */
+.card-status-badge {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    box-shadow: 0 4px 10px #ff69b4;
+}
+
+.card-status-badge.approved { background: #dcfce7; color: #15803d; }
+.card-status-badge.pending { background: #fef3c7; color: #92400e; }
+.card-status-badge.cancelled { background: #fee2e2; color: #dc2626; }
+
+.action-footer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 15px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.manage-booking-btn {
+    background: purple;
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s;
+}
+
+.manage-booking-btn:hover {
+    background: #ff69b4;
+    transform: translateX(5px);
+}
+
+.finalized-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #94a3b8;
+    background: #f1f5f9;
+    padding: 8px 16px;
+    border-radius: 8px;
+}
+
+/* --- 8. CUSTOM GOLDEN SCROLLBAR --- */
+.bookings-display-container::-webkit-scrollbar {
+    width: 10px;
+}
+
+.bookings-display-container::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.bookings-display-container::-webkit-scrollbar-thumb {
+    background: #d4af37; /* Luxury Gold */
+    border: 3px solid #f1f5f9; /* Padding effect */
+    border-radius: 10px;
+}
+
+.bookings-display-container::-webkit-scrollbar-thumb:hover {
+    background: #b8860b;
+}
+
+/* --- 9. RESPONSIVE --- */
+@media (max-width: 850px) {
+    .card-inner { flex-direction: column; height: auto; min-height: auto; }
+    .card-left { width: 100%; height: 220px; min-width: 100%; }
+    .manage-booking-btn { width: 100%; justify-content: center; }
+    .bookings-display-container { padding: 20px; }
+}

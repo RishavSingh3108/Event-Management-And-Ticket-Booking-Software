@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Premium Venues | EventFlow</title>
-    <link rel="stylesheet" href="user.css">
+    <link rel="stylesheet" href="user_main.css">
     <link rel="stylesheet" href="common_style.css">
     <link rel="stylesheet" href="venue.css">
     <link rel="stylesheet" href="view_booking.css">
+    <link rel="stylesheet" href="booking-panel.css">
+    <link rel="stylesheet" href="myBooking.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
@@ -23,7 +25,6 @@
             </div>
         </div>
     </nav>
-
     <div class="hero-blur"></div>
 
     <main class="app-shell">
@@ -194,6 +195,66 @@
             </div>
             <div id="trackBookingsList" class="bookings-display-container">
                 </div>
+        </div>
+    </div>
+
+    <!-- for user to view and modify their bookings -->
+
+    <div id="bookingActionModal" class="action-modal-overlay">
+        <div class="sexy-management-card">
+            <button class="close-modal-btn" onclick="closeManageModal()">&times;</button>
+            
+            <div class="mgmt-grid">
+                <div class="mgmt-left">
+                    <div class="section-tag">Payment Verification</div>
+                    <div class="proof-wrapper">
+                        <img id="m-proofImg" src="" alt="Payment Screenshot">
+                    </div>
+                    <p class="helper-text">This is the proof you submitted during booking.</p>
+                </div>
+
+                <div class="mgmt-right">
+                    <div id="m-status-pill" class="status-pill">Pending</div>
+                    <h1 id="m-venueName">Grand Venue</h1>
+                    
+                    <div class="details-stack">
+                        <div class="stack-item">
+                            <span><i class='bx bx-calendar'></i> Address</span>
+                            <strong id="m-address">0</strong>
+                        </div>
+                        <div class="stack-item">
+                            <span><i class='bx bx-calendar'></i> Contacts</span>
+                            <strong id="m-contact">0</strong>
+                        </div>
+                        <div class="stack-item">
+                            <span><i class='bx bx-calendar'></i> Event Date</span>
+                            <strong id="m-date">--/--/----</strong>
+                        </div>
+                        <div class="stack-item">
+                            <span><i class='bx bx-group'></i> Total Guests</span>
+                            <strong id="m-guests">0</strong>
+                        </div>
+                        <div class="stack-item">
+                            <span><i class='bx bx-wallet'></i> Amount Paid</span>
+                            <strong id="m-paid">₹0</strong>
+                        </div>
+                    </div>
+
+                    <div id="m-actionArea" class="mgmt-actions">
+                        <button class="action-btn reschedule" onclick="toggleDateChange()">
+                            <i class='bx bx-calendar-edit'></i> Change Date
+                        </button>
+                        <button class="action-btn cancel" onclick="handleCancellation()">
+                            <i class='bx bx-trash'></i> Cancel
+                        </button>
+                    </div>
+
+                    <div id="dateEditBox" class="reschedule-panel" style="display: none;">
+                        <input type="date" id="newDateSelect">
+                        <button class="confirm-date-btn" onclick="submitDateUpdate()">Confirm</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

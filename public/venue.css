@@ -130,43 +130,88 @@
     border-top: 1px solid #fef1f1; /* Light divider */
 }
 
-/* Base style for ALL buttons to create uniformity */
+/* --- Base style for ALL buttons to create uniformity --- */
 .view-bookings-btn, .edit-btn, .remove-btn {
+    position: relative;
     border: none;
     padding: 10px 22px;
-    border-radius: 50px; /* Perfect pill shape */
-    font-weight: 600;
-    font-size: 0.85rem;
+    border-radius: 50px; 
+    font-weight: 700;
+    font-size: 0.82rem;
+    letter-spacing: 0.3px;
     cursor: pointer;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
-    color: white; /* All buttons now use white text */
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    color: white; 
+    overflow: hidden;
+    z-index: 1;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* Hover effect for all buttons */
+/* --- Hover logic for all --- */
 .view-bookings-btn:hover, .edit-btn:hover, .remove-btn:hover {
-    transform: scale(1.05) translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transform: scale(1.08) translateY(-3px);
 }
 
-/* 1. View Bookings - Purple Gradient */
+/* --- THE SIGNATURE SHINE ANIMATION --- */
+.view-bookings-btn::after, .edit-btn::after, .remove-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -70%;
+    width: 25%;
+    height: 200%;
+    background: rgba(255, 255, 255, 0.25);
+    transform: rotate(30deg);
+    transition: all 0.6s ease;
+    z-index: -1;
+}
+
+.view-bookings-btn:hover::after, .edit-btn:hover::after, .remove-btn:hover::after {
+    left: 130%;
+}
+
+/* 1. View Bookings - Deep Indigo Luxury */
 .view-bookings-btn {
-    background: linear-gradient(135deg, #4B0082, #FFD700);
-    box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+    background: linear-gradient(135deg, #4B0082 0%, #6c5ce7 100%);
+    box-shadow: 0 6px 15px -4px rgba(108, 92, 231, 0.5);
+}
+.view-bookings-btn:hover {
+    box-shadow: 0 12px 20px -5px rgba(108, 92, 231, 0.6);
 }
 
-/* 2. Edit Button - Teal/Emerald Gradient */
+/* 2. Edit Button - Forest Emerald */
 .edit-btn {
-    background: linear-gradient(135deg, #2E8B57, #FF7F50);
-    box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
+    background: linear-gradient(135deg, #1b4d3e 0%, #2ecc71 100%);
+    box-shadow: 0 6px 15px -4px rgba(46, 204, 113, 0.4);
+}
+.edit-btn:hover {
+    box-shadow: 0 12px 20px -5px rgba(46, 204, 113, 0.5);
 }
 
-/* 3. Remove Button - Rose/Red Gradient */
+/* 3. Remove Button - Crimson Rose */
 .remove-btn {
-    background: linear-gradient(135deg, #800000, #FFB6A3);
-    box-shadow: 0 4px 15px rgba(255, 118, 117, 0.3);
+    background: linear-gradient(135deg, #800000 0%, #d63031 100%);
+    box-shadow: 0 6px 15px -4px rgba(214, 48, 49, 0.4);
+}
+.remove-btn:hover {
+    box-shadow: 0 12px 20px -5px rgba(214, 48, 49, 0.5);
+}
+
+/* --- Icon Interaction --- */
+.view-bookings-btn i, .edit-btn i, .remove-btn i {
+    transition: transform 0.3s ease;
+}
+
+.edit-btn:hover i { transform: rotate(-15deg); }
+.view-bookings-btn:hover i { transform: translateX(2px); }
+.remove-btn:hover i { transform: scale(1.2); }
+
+/* --- Click Effect --- */
+.view-bookings-btn:active, .edit-btn:active, .remove-btn:active {
+    transform: scale(0.95) translateY(0);
 }
 
 .right-actions {

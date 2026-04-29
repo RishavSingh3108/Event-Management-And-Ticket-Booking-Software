@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadUserVenues();
     setupSearch();
 });
-
+let activeBookingId = null; // Globally tracks which booking is currently open
 async function loadUserVenues() {
     const showcase = document.querySelector('.venue-showcase');
     
@@ -335,17 +335,14 @@ function filterBy(type) {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
 
-    // 1. Update button styles (Toggle 'active' class)
     document.getElementById('btnUpcoming').classList.toggle('active', type === 'upcoming');
     document.getElementById('btnPassed').classList.toggle('active', type === 'passed');
 
-    // 2. Filter the data
     const filtered = allBookingsData.filter(book => {
         const eventDate = new Date(book.bookingDate);
         return type === 'upcoming' ? eventDate >= now : eventDate < now;
     });
 
-    // 3. Clear container and render
     container.innerHTML = "";
 
     if (filtered.length === 0) {
@@ -355,31 +352,142 @@ function filterBy(type) {
 
     filtered.forEach(book => {
         const eventDate = new Date(book.bookingDate);
+        eventDate.setHours(0, 0, 0, 0);
         const isPast = eventDate < now;
-        const venue = book.venueId || { name: "Grand Venue", imgUrl: "default.jpg" };
+
+        const venue = book.venueId || { name: "Grand Venue", imgUrl: "default.jpg", address: "N/A", phone: "N/A" };
+        const bookingData = encodeURIComponent(JSON.stringify(book));
 
         const card = document.createElement('div');
-        card.className = `mini-booking-card ${isPast ? 'past' : 'upcoming'}`;
+        card.className = `mini-booking-card ${isPast ? 'past-event' : 'upcoming'}`;
         
+        // Final logic: Show button if not past AND status is not Cancelled or Rejected
+        const canManage = !isPast && book.status !== 'Cancelled' && book.status !== 'Rejected';
+
         card.innerHTML = `
-            <div class="card-status-badge ${isPast ? 'completed' : 'upcoming'}">
-                ${isPast ? 'Event Completed' : 'Upcoming Event'}
+            <div class="card-status-badge ${book.status ? book.status.toLowerCase() : 'pending'}">
+                ${book.status || 'Pending'}
             </div>
+            
             <div class="card-inner">
-                <img src="${venue.imgUrl}" class="card-venue-img">
+                <div class="card-left">
+                    <img src="${venue.imgUrl || 'default-venue.jpg'}" class="card-venue-img">
+                </div>
+
                 <div class="card-content">
-                    <h3>${venue.name}</h3>
+                    <h2 class="venue-title">${venue.name}</h2>
+                    
                     <div class="meta-info">
-                        <p><i class='bx bx-calendar'></i> <strong>Date:</strong> ${book.bookingDate}</p>
-                        <p><i class='bx bx-group'></i> <strong>Guests:</strong> ${book.guests || 'N/A'}</p>
-                        <p><i class='bx bx-map-pin'></i> <strong>Address:</strong> ${venue.address || 'N/A'}</p>
-                        <p><i class='bx bx-phone'></i> <strong>Contacts:</strong> ${venue.phone || 'N/A'}</p>
+                        <p><i class='bx bx-calendar'></i> <span><strong>Date:</strong> ${book.bookingDate}</span></p>
+                        <p><i class='bx bx-group'></i> <span><strong>Guests:</strong> ${book.guests || 'N/A'}</span></p>
+                        <p><i class='bx bx-map-pin'></i> <span><strong>Address:</strong> ${venue.address || 'N/A'}</span></p>
+                        <p><i class='bx bx-phone'></i> <span><strong>Contacts:</strong> ${venue.phone || 'N/A'}</span></p>
+                        <p><i class='bx bx-wallet'></i> <span><strong>Paid:</strong> ₹${book.paymentAmount || 0}</span></p>
+                        <p><i class='bx bx-info-circle'></i> <span><strong>Status:</strong> ${book.status || 'Pending'}</span></p>
+                    </div>
+
+                    <div class="action-footer">
+                        ${canManage ? `
+                            <button class="manage-booking-btn" onclick="openManageModal('${bookingData}')">
+                                View Details <i class='bx bx-chevron-right'></i>
+                            </button>
+                        ` : `
+                            <div class="finalized-label">
+                                ${book.status === 'Cancelled' ? 'Booking Cancelled' : 'Management Closed'}
+                            </div>
+                        `}
                     </div>
                 </div>
             </div>
         `;
         container.appendChild(card);
     });
+}
+
+
+function openManageModal(encodedData) {
+    // 1. Decode the data from the button click
+    const book = JSON.parse(decodeURIComponent(encodedData));
+    activeBookingId = book._id; // Store ID for the Cancel/Update actions
+    
+    const venue = book.venueId || {};
+
+    // 2. Fill the Static HTML (The code you put in user.html)
+    document.getElementById("m-venueName").innerText = venue.name || "Venue Details";
+    document.getElementById("m-address").innerText = venue.address || "N/A";
+    document.getElementById("m-contact").innerText = venue.phone || "N/A";
+    document.getElementById("m-date").innerText = book.bookingDate;
+    document.getElementById("m-guests").innerText = book.guests || "0";
+    document.getElementById("m-paid").innerText = `₹${book.paymentAmount || 0}`;
+    
+    // Update Status Pill
+    const statusPill = document.getElementById("m-status-pill");
+    statusPill.innerText = book.status;
+    statusPill.className = `status-pill ${book.status.toLowerCase()}`;
+
+    // Load the Payment Screenshot
+    document.getElementById("m-proofImg").src = `/api/bookings/screenshot/${book._id}`;
+
+    // 3. Reset UI states
+    document.getElementById("dateEditBox").style.display = "none";
+    document.getElementById("bookingActionModal").style.display = "flex";
+}
+
+// Close the modal
+function closeManageModal() {
+    document.getElementById("bookingActionModal").style.display = "none";
+}
+
+// Toggle the date picker panel
+function toggleDateChange() {
+    const box = document.getElementById("dateEditBox");
+    box.style.display = box.style.display === "none" ? "flex" : "none";
+}
+// Function to handle Booking Cancellation
+async function handleCancellation() {
+    if (!confirm("Are you sure you want to cancel this booking?")) return;
+
+    try {
+        const response = await fetch(`/api/bookings/status/${activeBookingId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'Cancelled' })
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            alert("Booking successfully cancelled.");
+            location.reload(); // Refresh the list
+        }
+    } catch (err) {
+        console.error("Cancellation error:", err);
+        alert("Failed to cancel booking.");
+    }
+}
+
+async function submitDateUpdate() {
+    const newDate = document.getElementById("newDateSelect").value;
+    if (!newDate) return alert("Select a date first.");
+
+    try {
+        const response = await fetch(`/api/bookings/update-date/${activeBookingId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ newDate: newDate })
+        });
+
+        const result = await response.json(); // This will now receive the "Date occupied" message
+
+        if (result.success) {
+            alert("Success! Date changed.");
+            location.reload();
+        } else {
+            // This will now alert "This date is already occupied..."
+            alert("Oops! " + result.message); 
+        }
+    } catch (err) {
+        alert("Server error. Please try again later.");
+    }
 }
 // Function to hide the Tracking Modal
 function closeTrackModal() {
