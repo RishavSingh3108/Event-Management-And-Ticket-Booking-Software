@@ -361,8 +361,9 @@ function filterBy(type) {
         const card = document.createElement('div');
         card.className = `mini-booking-card ${isPast ? 'past-event' : 'upcoming'}`;
         
-        // Final logic: Show button if not past AND status is not Cancelled or Rejected
         const canManage = !isPast && book.status !== 'Cancelled' && book.status !== 'Rejected';
+
+        const canDelete = book.status !== 'Approved';
 
         card.innerHTML = `
             <div class="card-status-badge ${book.status ? book.status.toLowerCase() : 'pending'}">
@@ -387,15 +388,24 @@ function filterBy(type) {
                     </div>
 
                     <div class="action-footer">
-                        ${canManage ? `
-                            <button class="manage-booking-btn" onclick="openManageModal('${bookingData}')">
-                                View Details <i class='bx bx-chevron-right'></i>
+                        <div class="footer-main-actions">
+                            ${canManage ? `
+                                <button class="manage-booking-btn" onclick="openManageModal('${bookingData}')">
+                                    View Details <i class='bx bx-chevron-right'></i>
+                                </button>
+                            ` : `
+                                <div class="finalized-label">
+                                    ${book.status === 'Cancelled' ? 'Booking Cancelled' : 'Management Closed'}
+                                </div>
+                            `}
+                        </div>
+
+                        <!-- Conditionally render Delete Button -->
+                        ${canDelete ? `
+                            <button class="delete-booking-btn" onclick="deleteBookingRecord('${book._id}')">
+                                <i class='bx bx-trash'></i> Delete
                             </button>
-                        ` : `
-                            <div class="finalized-label">
-                                ${book.status === 'Cancelled' ? 'Booking Cancelled' : 'Management Closed'}
-                            </div>
-                        `}
+                        ` : ''}
                     </div>
                 </div>
             </div>
@@ -687,5 +697,35 @@ function updateFileName(input) {
     if (input.files.length > 0) {
         document.getElementById('file-status').innerText = input.files[0].name;
         document.getElementById('file-status').style.color = "green";
+    }
+}
+
+async function deleteBookingRecord(bookingId) {
+    if (!confirm("Are you sure you want to delete this booking permanently?")) return;
+
+    try {
+
+        const response = await fetch(`/api/bookings/${bookingId}`, {
+            method: 'DELETE'
+        });
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Server says:", errorText);
+            throw new Error(`Server error: ${response.status}`);
+        }
+        const data = await response.json();
+
+        if (data.success) {
+            alert("Booking deleted successfully!");
+            allBookingsData = allBookingsData.filter(book => book.id !== bookingId);
+            const activeTab = document.getElementById('btnUpcoming').classList.contains('active') 
+                ? 'upcoming' 
+                : 'passed';
+            filterBy(activeTab);
+        }
+
+    } catch (error) {
+        console.error("Deletion Error:", error);
+        alert("Could not delete. Check the console for details.");
     }
 }

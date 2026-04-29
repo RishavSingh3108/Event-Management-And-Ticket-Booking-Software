@@ -283,6 +283,30 @@ app.put('/api/bookings/update-date/:id', async (req, res) => {
     }
 });
 
+// --- DELETE BOOKING API ---
+// This listens for DELETE requests sent to /api/bookings/[some-id]
+app.delete('/api/bookings/:id', async (req, res) => {
+    try {
+        const bookingId = req.params.id;
+        
+        // 1. If you are using Mongoose/MongoDB:
+        // Replace 'Booking' with whatever your Model is named (e.g., Reservation)
+        const result = await Booking.findByIdAndDelete(bookingId);
+
+        // 2. If you are using standard MongoDB driver:
+        // const result = await db.collection('bookings').deleteOne({ _id: new ObjectId(bookingId) });
+
+        if (!result) {
+            return res.status(404).json({ success: false, message: "Booking not found" });
+        }
+
+        res.status(200).json({ success: true, message: "Booking deleted successfully" });
+    } catch (error) {
+        console.error("Delete Error:", error);
+        res.status(500).json({ success: false, message: "Server error during deletion" });
+    }
+});
+
 //  THIS SHOULD BE AT THE BOTTOM
 app.use(express.static(path.join(__dirname, 'public')));
 
