@@ -14,9 +14,48 @@
 
 .mgmt-grid { display: grid; grid-template-columns: 1fr 1.2fr; }
 
-.mgmt-left { background: #f8fafc; padding: 40px; border-right: 1px solid #f1f5f9; text-align: center; }
-.proof-wrapper { margin: 20px 0; border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; }
-.proof-wrapper img { width: 100%; display: block; }
+.mgmt-left { 
+    background: #f8fafc; 
+    padding: 40px; 
+    border-right: 1px solid #f1f5f9; 
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    max-height: 80vh; /* Limits the height to 80% of the viewport */
+    overflow-y: auto; /* Adds a scrollbar if the proof or text is too long */
+}
+
+/* Restructured Image Wrapper to constrain the image size */
+.proof-wrapper { 
+    margin: 20px 0; 
+    border-radius: 20px; 
+    overflow: hidden; 
+    border: 1px solid #e2e8f0; 
+    background: #fff;
+    /* This ensures the image box never grows too large */
+    max-height: 400px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.proof-wrapper img { 
+    width: 100%; 
+    height: 100%;
+    /* 'contain' ensures the whole image is visible without stretching */
+    /* 'cover' would fill the box but might crop edges */
+    object-fit: contain; 
+    display: block; 
+}
+
+/* Custom Scrollbar for the left panel for a premium look */
+.mgmt-left::-webkit-scrollbar {
+    width: 6px;
+}
+.mgmt-left::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
 
 .mgmt-right { padding: 40px; }
 .status-pill { 

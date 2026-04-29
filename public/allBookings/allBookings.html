@@ -44,13 +44,20 @@
         </div>
     </div>
 
+    <!-- Main Overlay -->
     <div id="proofModal" class="proof-modal" onclick="closeProof()">
-        <div class="proof-content">
-            <span class="close-proof">&times;</span>
-            <img id="proofImage" src="" alt="Payment Verification Screenshot">
+        <div class="proof-content" onclick="event.stopPropagation()">
+            <div class="proof-header">
+                <h3 id="proofCaption">Payment Proof</h3>
+                <span class="close-proof" onclick="closeProof()">&times;</span>
+            </div>
+            <div class="proof-image-container">
+                <img id="proofImage" src="" alt="Payment Verification Screenshot">
+            </div>
             <div class="proof-footer">
-                <p id="proofCaption"></p>
-                <a id="downloadProof" href="" download="PaymentProof.png" class="download-btn">Download Image</a>
+                <a id="downloadProof" href="" download="PaymentProof.png" class="download-btn">
+                    <i class='bx bx-download'></i> Download Image
+                </a>
             </div>
         </div>
     </div>
