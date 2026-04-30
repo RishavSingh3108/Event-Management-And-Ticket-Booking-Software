@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const savedName = localStorage.getItem('userName');
     const savedRole = localStorage.getItem('userRole');
+    const savedId = localStorage.getItem('userId');
     const nameDisplay = document.getElementById('NameDisplay');
     const logoutBtn = document.querySelector('.icon-logout') || document.querySelector('.logout-btn');
 

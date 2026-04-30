@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Command Center</title>
+    <!-- Boxicons for Modern UI Icons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="profile.css">
+</head>
+<body>
+    <div class="full-page-container">
+        <!-- Top Glass Navigation -->
+        <nav class="top-dashboard-nav">
+            <div class="nav-left">
+                <a  href="../admin.html" class="nav-back-btn">
+                    <div class="icon-circle">
+                        <i class='bx bx-chevron-left'></i>
+                    </div>
+                    <span>Return to Dashboard</span>
+                </a>
+            </div>
+
+            <div class="nav-center">
+                <div class="nav-title">System Administrator Profile</div>
+            </div>
+
+            <div class="nav-right">
+                <div class="nav-date-wrapper">
+                    <span class="live-indicator"></span>
+                    <div class="nav-date">April 30, 2026</div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="content-wrapper">
+            <!-- Hero Identity Section -->
+            <header class="admin-hero-card">
+                <div class="avatar-wrapper">
+                    <!-- User can upload photo if not available -->
+                    <img id="profileDisplay" src="default-admin.png" alt="Admin">
+                    <label for="adminPhotoUpload" class="photo-edit-overlay">
+                        <i class='bx bxs-camera-plus'></i>
+                        <input type="file" id="adminPhotoUpload" hidden accept="image/*" onchange="updatePhotoPreview(event)">
+                    </label>
+                </div>
+                <div class="hero-info">
+                    <h1 id="adminNameDisplay"></h1>
+                    <p class="hero-email"><i class='bx bx-envelope' id="adminEmailDisplay"></i> </p>
+                    <p class="hero-email"><i class='bx bx-envelope' id="adminPhoneDisplay"></i> </p>
+                    <div class="hero-tag-container">
+                        <span class="hero-tag"><i class='bx bxs-check-shield' id="adminRole"></i> </span>
+                        <span class="hero-tag"><i class='bx bxs-map-pin' id="adminCurrentAddress"></i> </span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Stats Overview Section -->
+            <section class="performance-grid">
+                <div class="p-stat-card">
+                    <div class="p-icon purple"><i class='bx bx-building-house'></i></div>
+                    <div class="p-text"><span>Total Venues</span><h3>12</h3></div>
+                </div>
+                <div class="p-stat-card">
+                    <div class="p-icon blue"><i class='bx bx-calendar-check'></i></div>
+                    <div class="p-text"><span>Total Bookings</span><h3>1,240</h3></div>
+                </div>
+                <div class="p-stat-card">
+                    <div class="p-icon green"><i class='bx bx-wallet'></i></div>
+                    <div class="p-text"><span>Total Profit</span><h3>₹4,50,000</h3></div>
+                </div>
+                <div class="p-stat-card">
+                    <div class="p-icon pink"><i class='bx bx-star'></i></div>
+                    <div class="p-text"><span>Performance</span><h3>98%</h3></div>
+                </div>
+            </section>
+
+            <!-- Business Credentials Vault -->
+            <section class="credentials-container">
+                <div class="vault-header">
+                    <h2><i class='bx bxs-lock-alt'></i> Business Credentials</h2>
+                    <!-- Form will appear only if admin clicks update button -->
+                    <button id="mainEditBtn" class="edit-mode-trigger" onclick="enterEditMode()">
+                        <i class='bx bxs-edit-alt'></i> Update Details
+                    </button>
+                </div>
+
+                <!-- VIEW MODE (Default state) -->
+                <div id="credentialsView" class="details-display-grid">
+                    <div class="display-box">
+                        <label>GST Number</label>
+                        <p id="viewGst">22AAAAA0000A1Z5</p>
+                    </div>
+                    <div class="display-box">
+                        <label>Aadhar Number</label>
+                        <p id="viewAadhar">XXXX-XXXX-XXXX</p>
+                    </div>
+                    <div class="display-box">
+                        <label>Food License (FSSAI)</label>
+                        <p id="viewFssai">Pending Verification</p>
+                    </div>
+                    <div class="display-box">
+                        <label>GPS Location</label>
+                        <p id="viewGps">25.2425, 87.0149</p>
+                    </div>
+                </div>
+
+                <!-- EDIT MODE (Hidden by default) -->
+                <div id="credentialsEdit" class="details-form-container hidden">
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label>GST Number</label>
+                            <input type="text" id="editGst" value="22AAAAA0000A1Z5">
+                        </div>
+                        <div class="form-field">
+                            <label>Aadhar Number</label>
+                            <input type="text" id="editAadhar" value="XXXX-XXXX-XXXX">
+                        </div>
+                        <div class="form-field">
+                            <label>Food License (FSSAI)</label>
+                            <input type="text" id="editFssai" placeholder="Enter License Number">
+                        </div>
+                        <div class="form-field">
+                            <label>GPS Coordinates</label>
+                            <div class="gps-control">
+                                <input type="text" id="editGps" placeholder="Latitude, Longitude">
+                                <button type="button" class="gps-btn" onclick="grabLocation()">
+                                    <i class='bx bx-target-lock'></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-footer">
+                        <button class="btn-cancel" onclick="exitEditMode()">Cancel</button>
+                        <button class="btn-save" onclick="saveAdminData()">Save Profile Changes</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <script src="profile.js"></script>
+</body>
+</html>

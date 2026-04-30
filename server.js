@@ -20,6 +20,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // 2. Models
 const Venue = require('./models/Venue');
+const User = require('./models/User');
 
 // 3. Database Connection
 mongoose.connect(process.env.MONGO_URI)
@@ -284,17 +285,11 @@ app.put('/api/bookings/update-date/:id', async (req, res) => {
 });
 
 // --- DELETE BOOKING API ---
-// This listens for DELETE requests sent to /api/bookings/[some-id]
 app.delete('/api/bookings/:id', async (req, res) => {
     try {
         const bookingId = req.params.id;
         
-        // 1. If you are using Mongoose/MongoDB:
-        // Replace 'Booking' with whatever your Model is named (e.g., Reservation)
         const result = await Booking.findByIdAndDelete(bookingId);
-
-        // 2. If you are using standard MongoDB driver:
-        // const result = await db.collection('bookings').deleteOne({ _id: new ObjectId(bookingId) });
 
         if (!result) {
             return res.status(404).json({ success: false, message: "Booking not found" });
@@ -304,6 +299,100 @@ app.delete('/api/bookings/:id', async (req, res) => {
     } catch (error) {
         console.error("Delete Error:", error);
         res.status(500).json({ success: false, message: "Server error during deletion" });
+    }
+});
+
+// Route: Update Business Credentials
+// server.js
+app.put('/api/admin/update-profile', async (req, res) => {
+    try {
+        const { userId, gst, aadhar, fssai, gps } = req.body;
+        
+        // Use findByIdAndUpdate for the most direct match with the MongoDB _id
+        const updatedUser = await User.findByIdAndUpdate(
+            userId, 
+            {
+                $set: {
+                    'businessDetails.gstNumber': gst,
+                    'businessDetails.aadharNumber': aadhar,
+                    'businessDetails.foodLicense': fssai,
+                    'businessDetails.gpsLocation': gps
+                }
+            },
+            { new: true } // Returns the updated document
+        );
+
+        if (!updatedUser) {
+            // This triggers your "Update failed: Admin not found" alert
+            return res.status(404).json({ success: false, message: "Admin not found" });
+        }
+
+        res.json({ success: true, message: "Profile updated successfully" });
+    } catch (err) {
+        console.error("Backend Error:", err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+const adminStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'public/uploads/'); // Ensure this folder exists in your project
+    },
+    filename: (req, file, cb) => {
+        // Creates a unique name: admin-1714500000-image.jpg
+        cb(null, 'admin-' + Date.now() + path.extname(file.originalname));
+    }
+});
+const uploadAdmin = multer({ storage: adminStorage }); // Fixed property name
+
+// Corrected Photo Upload Route
+app.post('/api/admin/upload-photo', uploadAdmin.single('adminPhoto'), async (req, res) => {
+    try {
+        const { userId } = req.body; // Captured from FormData
+        
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: "No file uploaded" });
+        }
+
+        const imagePath = `/uploads/${req.file.filename}`;
+
+        // Find the user by ID and update their profileImage path
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { profileImage: imagePath },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        res.json({ 
+            success: true, 
+            message: "Photo updated successfully", 
+            imagePath: imagePath 
+        });
+    } catch (err) {
+        console.error("Upload Error:", err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// GET: Fetch Admin Profile Data
+// server.js
+// Make sure this is ABOVE your app.listen and BELOW your middlewares
+app.get('/api/admin/get-profile', async (req, res) => {
+    try {
+        const userId = req.query.id; // Correctly pull 'id' from the URL query
+        const admin = await User.findById(userId);
+
+        if (!admin) {
+            return res.status(404).json({ success: false, message: "Admin not found in Atlas" });
+        }
+
+        res.json({ success: true, data: admin });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
