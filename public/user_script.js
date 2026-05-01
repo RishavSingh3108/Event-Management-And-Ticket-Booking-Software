@@ -60,10 +60,10 @@ function renderVenues(venues) {
 
                 <div class="card-actions-row">
                     <div class="spacer"></div> 
-                    <button class="btn-view-availability" onclick="openCalendar('${venue._id}', '${venue.name}','${venue.cost}')">
+                    <button class="btn-view-availability" onclick="openCalendar('${venue._id}', '${venue.name}','${venue.cost}','${venue.adminId}')">
                         <i class='bx bx-calendar-event'></i> View Availability
                     </button>
-                    <button class="action-btn book-now-btn" onclick="initiateBooking('${venue._id}','${venue.cost}')">
+                    <button class="action-btn book-now-btn" onclick="initiateBooking('${venue._id}','${venue.adminId}','${venue.cost}')">
                         💝 Book Now
                     </button>
                 </div>
@@ -100,11 +100,12 @@ function setupSearch() {
 let selectedVenue = null;
 let selectedDate = null;
 let basePrice = null;
-
-async function initiateBooking(venueId, venueCost = null, venueDate = null) {
+let selectedVenueAdminId = null;
+async function initiateBooking(venueId, venueAdminId, venueCost = null, venueDate = null) {
     selectedVenue = venueId;
     selectedDate = venueDate;
     basePrice = venueCost;
+    selectedVenueAdminId = venueAdminId;
 
     // 1. Set the date in the input field
     if (venueDate) {
@@ -189,7 +190,9 @@ async function confirmBooking() {
     const formData = new FormData();
     
     // Standard Fields
+    console.log(selectedVenueAdminId);
     formData.append('userId', savedUserId);
+    formData.append('adminId', selectedVenueAdminId);
     formData.append('venueId', selectedVenue.trim()); // trim to clean any whitespace
     formData.append('bookingDate', document.getElementById('bookingDate').value);
     formData.append('guests', document.getElementById('guests').value);
@@ -509,7 +512,7 @@ function closeTrackModal() {
 let venueBookings = [];
 let selectedVenueId = null;
 
-async function openCalendar(venueId, venueName, venueCost) {
+async function openCalendar(venueId, venueName, venueCost, venueAdminId) {
     selectedVenueId = venueId;
     document.getElementById('calVenueName').innerText = venueName;
     const modal = document.getElementById('calendarModal');
@@ -520,7 +523,7 @@ async function openCalendar(venueId, venueName, venueCost) {
         venueBookings = await response.json();
 
         // 2. Setup the Dropdown (Current month + next 5)
-        setupMonthDropdown(venueId, venueCost);
+        setupMonthDropdown(venueId, venueCost, venueAdminId);
 
         // 3. Show the Modal
         modal.style.display = 'flex'; 
@@ -528,11 +531,11 @@ async function openCalendar(venueId, venueName, venueCost) {
         console.error("Calendar Load Error:", err);
         // Fallback: If API fails, show empty calendar
         venueBookings = [];
-        setupMonthDropdown(venueId, venueCost);
+        setupMonthDropdown(venueId, venueCost, venueAdminId);
         modal.style.display = 'flex';
     }
 }
-function setupMonthDropdown(venueId, venueCost) {
+function setupMonthDropdown(venueId, venueCost, venueAdminId) {
     const monthSelect = document.getElementById('monthSelect');
     const yearSelect = document.getElementById('yearSelect'); // Grab your new year dropdown
     if (!monthSelect || !yearSelect) return;
@@ -571,7 +574,7 @@ function setupMonthDropdown(venueId, venueCost) {
     const refreshGrid = () => {
         const selectedYear = yearSelect.value;
         const selectedMonth = monthSelect.value;
-        renderCalendarGrid(`${selectedYear}-${selectedMonth}`, venueId, venueCost);
+        renderCalendarGrid(`${selectedYear}-${selectedMonth}`, venueId, venueCost, venueAdminId);
     };
 
     // 4. Update grid whenever EITHER dropdown changes
@@ -582,7 +585,7 @@ function setupMonthDropdown(venueId, venueCost) {
     refreshGrid();
 }
 
-function renderCalendarGrid(yearMonth, venueId, venueCost) {
+function renderCalendarGrid(yearMonth, venueId, venueCost, venueAdminId) {
     const grid = document.getElementById('calendarGrid');
     if (!grid) return;
     grid.innerHTML = ''; 
@@ -630,7 +633,7 @@ function renderCalendarGrid(yearMonth, venueId, venueCost) {
             day.className = "day-box free";
             day.style.cursor = 'pointer';
             day.onclick = () => {
-                initiateBooking(venueId, venueCost, formattedDate);
+                initiateBooking(venueId, venueAdminId, venueCost, formattedDate);
                 closeCalendar();
             };
         }

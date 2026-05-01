@@ -1,6 +1,20 @@
-// Automatically load data when the page opens
 window.onload = loadAdminProfile;
 
+function updateLiveDate() {
+    const dateElement = document.getElementById('currentDateDisplay'); 
+    if (dateElement) {
+        const now = new Date();
+        const options = { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        };
+        
+        dateElement.innerText = now.toLocaleDateString('en-US', options);
+    }
+}
+updateLiveDate();
 function grabLocation() {
     const gpsInput = document.getElementById('editGps');
     if (navigator.geolocation) {
@@ -27,25 +41,20 @@ async function updatePhotoPreview(event) {
     const file = event.target.files[0];
     if (!file) return;
 
-    // 1. Get the dynamic userId from localStorage
     const savedId = localStorage.getItem('userId');
 
     if (!savedId) {
         alert("Session error: User ID not found. Please login again.");
         return;
     }
-
-    // 2. Show local preview immediately for UX
     const reader = new FileReader();
     reader.onload = function() {
         document.getElementById('profileDisplay').src = reader.result;
     };
     reader.readAsDataURL(file);
-
-    // 3. Prepare data for server using FormData
     const formData = new FormData();
-    formData.append('adminPhoto', file); // Must match the field name in uploadAdmin.single()
-    formData.append('userId', savedId);  // Switched from email to userId
+    formData.append('adminPhoto', file); 
+    formData.append('userId', savedId);  
 
     try {
         const response = await fetch('/api/admin/upload-photo', {
@@ -79,7 +88,7 @@ async function saveAdminData() {
     }
 
     const adminData = {
-        userId: savedId, // Use userId as the primary reference
+        userId: savedId, 
         gst: document.getElementById('editGst').value,
         aadhar: document.getElementById('editAadhar').value,
         fssai: document.getElementById('editFssai').value,
@@ -116,15 +125,40 @@ async function saveAdminData() {
     }
 }
 
-// public/adminProfile/profile.js
-
 window.onload = loadAdminProfile;
 
-async function loadAdminProfile() {
-    // Using the same key 'userId' that you verified in your header JS
-    const savedId = localStorage.getItem('userId');
-    console.log(`savedId : ${savedId}`);
+async function getFullAddressFromCoords(coordsString) {
+    if (!coordsString || !coordsString.includes(',')) return "No Location Set";
+    const [lat, lon] = coordsString.split(',').map(c => c.trim());
 
+    try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`);
+        const data = await response.json();
+
+        if (data.address) {
+            const addr = data.address;
+            const parts = [
+                addr.road || addr.suburb || addr.neighbourhood, 
+                addr.village || addr.town || addr.city_district, 
+                addr.state_district || addr.city,  
+                addr.state,  
+                addr.country 
+            ].filter(part => part); 
+
+            const mainAddress = parts.join(', ');
+            const pincode = addr.postcode || ""; 
+            return pincode ? `${mainAddress} - ${pincode}` : mainAddress;
+        }
+        return coordsString; 
+    } catch (error) {
+        console.error("Geocoding failed:", error);
+        return coordsString;
+    }
+}
+
+async function loadAdminProfile() {
+    const savedId = localStorage.getItem('userId');
+    loadPerformanceStats();
     if (!savedId) {
         console.error("No userId found in storage.");
         window.location.href = '../auth.html';
@@ -148,15 +182,18 @@ async function loadAdminProfile() {
             document.getElementById('adminEmailDisplay').innerText = `  ${data.email}`;
             document.getElementById('adminPhoneDisplay').innerText = `  ${data.phone}`;
             document.getElementById('adminRole').innerText = `  ${data.role}`;
-            document.getElementById('adminCurrentAddress').innerText = `  ${business.gpsLocation}`;
-
-
+            if (business.gpsLocation) {
+                getFullAddressFromCoords(business.gpsLocation).then(readableAddress => {
+                    document.getElementById('adminCurrentAddress').innerText = ` ${readableAddress}`;
+                });
+            } else {
+                document.getElementById('adminCurrentAddress').innerText = " Location Not Provided";
+            }
             // Update View Labels
             document.getElementById('viewGst').innerText = business.gstNumber || "Not Provided";
             document.getElementById('viewAadhar').innerText = business.aadharNumber || "Not Provided";
             document.getElementById('viewFssai').innerText = business.foodLicense || "Not Provided";
             document.getElementById('viewGps').innerText = business.gpsLocation || "Not Provided";
-
             // Update Edit Inputs
             document.getElementById('editGst').value = business.gstNumber || "";
             document.getElementById('editAadhar').value = business.aadharNumber || "";
@@ -169,5 +206,26 @@ async function loadAdminProfile() {
         }
     } catch (err) {
         console.error("Failed to fetch admin profile from database:", err);
+    }
+}
+async function loadPerformanceStats() {
+    const userId = localStorage.getItem('userId');
+    if (!userId) return;
+
+    try {
+        const response = await fetch(`/api/admin/dashboard-stats?userId=${userId}`);
+        const data = await response.json();
+
+        if (data.success) {
+            // Updating your performance grid cards
+            document.getElementById('totalVenuesDisplay').innerText = data.totalVenues;
+            document.getElementById('totalBookingsDisplay').innerText = data.totalBookings;
+            
+            // Format profit as Indian Rupees (e.g., ₹10,000)
+            const profit = data.totalProfit || 0;
+            document.getElementById('totalProfitDisplay').innerText = `₹${profit.toLocaleString('en-IN')}`;
+        }
+    } catch (err) {
+        console.error("Error loading performance grid:", err);
     }
 }

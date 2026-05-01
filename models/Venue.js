@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const VenueSchema = new mongoose.Schema({
+    adminId: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User', 
+        required: true 
+    },
     name: { type: String, required: true },
     address: String,
     phone: String,

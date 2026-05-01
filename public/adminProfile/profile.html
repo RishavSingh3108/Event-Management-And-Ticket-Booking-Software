@@ -28,7 +28,7 @@
             <div class="nav-right">
                 <div class="nav-date-wrapper">
                     <span class="live-indicator"></span>
-                    <div class="nav-date">April 30, 2026</div>
+                    <div class="nav-date" id="currentDateDisplay">Date</div>
                 </div>
             </div>
         </nav>
@@ -59,15 +59,15 @@
             <section class="performance-grid">
                 <div class="p-stat-card">
                     <div class="p-icon purple"><i class='bx bx-building-house'></i></div>
-                    <div class="p-text"><span>Total Venues</span><h3>12</h3></div>
+                    <div class="p-text"><span>Total Venues</span><h3 id="totalVenuesDisplay">0</h3></div>
                 </div>
                 <div class="p-stat-card">
                     <div class="p-icon blue"><i class='bx bx-calendar-check'></i></div>
-                    <div class="p-text"><span>Total Bookings</span><h3>1,240</h3></div>
+                    <div class="p-text"><span>Total Bookings</span><h3 id="totalBookingsDisplay">0</h3></div>
                 </div>
                 <div class="p-stat-card">
                     <div class="p-icon green"><i class='bx bx-wallet'></i></div>
-                    <div class="p-text"><span>Total Profit</span><h3>₹4,50,000</h3></div>
+                    <div class="p-text"><span>Total Profit</span><h3 id="totalProfitDisplay">₹ 0.00</h3></div>
                 </div>
                 <div class="p-stat-card">
                     <div class="p-icon pink"><i class='bx bx-star'></i></div>
@@ -88,20 +88,20 @@
                 <!-- VIEW MODE (Default state) -->
                 <div id="credentialsView" class="details-display-grid">
                     <div class="display-box">
-                        <label>GST Number</label>
-                        <p id="viewGst">22AAAAA0000A1Z5</p>
+                        <label>GST Number (GSTIN)</label>
+                        <p id="viewGst"></p>
                     </div>
                     <div class="display-box">
-                        <label>Aadhar Number</label>
-                        <p id="viewAadhar">XXXX-XXXX-XXXX</p>
+                        <label>Aadhar Number (UIDAI)</label>
+                        <p id="viewAadhar" aria-placeholder="XXXX-XXXX-XXXX"></p>
                     </div>
                     <div class="display-box">
                         <label>Food License (FSSAI)</label>
-                        <p id="viewFssai">Pending Verification</p>
+                        <p id="viewFssai"></p>
                     </div>
                     <div class="display-box">
-                        <label>GPS Location</label>
-                        <p id="viewGps">25.2425, 87.0149</p>
+                        <label>Co-ordinates (GPS)</label>
+                        <p id="viewGps"></p>
                     </div>
                 </div>
 

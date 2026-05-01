@@ -85,7 +85,13 @@ app.post('/api/bookings', upload.single('screenshot'), async (req, res) => {
         console.log("Incoming Body Text Data:", req.body);
         console.log("Incoming File Data:", req.file);
 
-        const { venueId, bookingDate, userId, paymentType, paymentAmount } = req.body;
+        const { venueId, adminId, bookingDate, userId, paymentType, paymentAmount } = req.body;
+
+       
+        console.log("Full req.body:", req.body);
+        if (!req.body.adminId) {
+            console.error("CRITICAL: adminId is missing from req.body");
+        }
 
         // 1. Basic Validations
         if (!userId) {
@@ -103,11 +109,33 @@ app.post('/api/bookings', upload.single('screenshot'), async (req, res) => {
 
         // 3. Create new booking with the file buffer
         const newBooking = new Booking({
-            ...req.body, // Spreads all text fields (guests, bookedBy, etc.)
+            // 1. Core Identification
+            userId: req.body.userId,            // The customer's ID
+            adminId: req.body.adminId,          // Your ID (Rishav Raj), essential for dashboard stats
+            venueId: req.body.venueId,          // The specific venue being booked
+
+            // 2. Booking Specifics
+            bookingDate: req.body.bookingDate,
+            guests: Number(req.body.guests),    // Ensure numeric format
+            bookedBy: req.body.bookedBy,
+            contact: req.body.contact,
+            email: req.body.email,
+            purpose: req.body.purpose,
+            requirements: req.body.requirements,
+
+            // 3. Payment Details
+            paymentType: req.body.paymentType,
+            paymentAmount: Number(req.body.paymentAmount), // Crucial for "Total Profit" calculation
+
+            // 4. File Upload (Multer Buffer)
             paymentScreenshot: {
-                data: req.file.buffer,        // Binary data from Multer
-                contentType: req.file.mimetype // e.g., image/png
-            }
+                data: req.file.buffer,          // Storing the image as binary data in MongoDB
+                contentType: req.file.mimetype  // e.g., 'image/jpeg' or 'image/png'
+            },
+
+            // 5. Status & Metadata
+            status: 'Pending',                  // Default status as per your schema
+            submittedAt: new Date()             // Tracks when the request was made
         });
 
         await newBooking.save();
@@ -391,6 +419,35 @@ app.get('/api/admin/get-profile', async (req, res) => {
         }
 
         res.json({ success: true, data: admin });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+app.get('/api/admin/dashboard-stats', async (req, res) => {
+    try {
+        const { userId } = req.query;
+        const adminProfile = await User.findById(userId); 
+
+        // Existing count and aggregation logic
+        const totalVenues = await Venue.countDocuments({ adminId: userId });
+        const stats = await Booking.aggregate([
+            { $match: { adminId: new mongoose.Types.ObjectId(userId) } },
+            { $group: { _id: null, count: { $sum: 1 }, revenue: { $sum: "$paymentAmount" } } }
+        ]);
+        const data = stats[0] || { count: 0, revenue: 0 };
+
+        // SENDING THE NESTED DATA
+        res.json({
+            success: true,
+            totalVenues,
+            totalBookings: data.count,
+            totalProfit: data.revenue,
+            // Match your screenshot exactly:
+            gst: adminProfile?.businessDetails?.gstNumber, 
+            aadhar: adminProfile?.businessDetails?.aadharNumber,
+            fssai: adminProfile?.businessDetails?.foodLicense,
+            location: adminProfile?.businessDetails?.gpsLocation
+        });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }

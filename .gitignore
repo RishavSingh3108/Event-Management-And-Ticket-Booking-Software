@@ -1,6 +1,6 @@
 # Dependencies
 node_modules/
-
+public/uploads/
 # Environment variables (Secrets)
 .env
 .env.local

@@ -1,12 +1,40 @@
-// 1. Get the elements
 let isEditMode = false;
 let currentEditId = null;
 const venueModal = document.getElementById('venueModal');
 const addVenueBtn = document.querySelector('.add-venue-btn');
 const addVenueForm = document.getElementById('addVenueForm');
 
-// 2. Modal Controls
-addVenueBtn.addEventListener('click', () => {
+// 1. Function to check profile status
+async function checkProfileAndOpenModal() {
+    const userId = localStorage.getItem('userId');
+
+    try {
+        const response = await fetch(`/api/admin/dashboard-stats?userId=${userId}`);
+        const data = await response.json();
+        
+        // This will now see the strings from businessDetails
+        const isComplete = data.gst && data.fssai && data.aadhar && data.location;
+
+        if (!isComplete) {
+            alert("⚠️ Please complete your profile (GST, FSSAI, Aadhar, and Location) before adding a venue!");
+            return; 
+        }
+
+        // Open your modal logic
+        isEditMode = false;
+        currentEditId = null;
+        addVenueForm.reset();
+        document.querySelector('.modal-header h2').innerHTML = "<i class='bx bx-building-house'></i> Register New Venue";
+        document.querySelector('.btn-primary').innerText = "Submit";
+        venueModal.classList.add('active');
+
+    } catch (err) {
+        console.error("Error:", err);
+    }
+}
+
+// 2. Logic to actually open the modal (extracted from your click listener)
+function openAddVenueModal() {
     isEditMode = false;     // Reset mode
     currentEditId = null;   // Reset ID
     addVenueForm.reset();   // Clear fields
@@ -16,7 +44,10 @@ addVenueBtn.addEventListener('click', () => {
     document.querySelector('.btn-primary').innerText = "Submit";
     
     venueModal.classList.add('active');
-});
+}
+
+// 3. Update your click listener to use the check
+addVenueBtn.addEventListener('click', checkProfileAndOpenModal);
 
 function closeModal() {
     venueModal.classList.remove('active');
@@ -31,9 +62,11 @@ window.addEventListener('click', (e) => {
 
 addVenueForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const savedId = localStorage.getItem('userId');
 
     // 1. Data Collection
     const venueData = {
+        adminId: savedId,
         name: document.getElementById('vName').value,
         address: document.getElementById('vAddress').value,
         phone: document.getElementById('vPhone').value,
@@ -44,6 +77,11 @@ addVenueForm.addEventListener('submit', async (e) => {
         size: Number(document.getElementById('vSize').value),
         cost: Number(document.getElementById('vCost').value)
     };
+
+    if (!savedId) {
+        alert("Error: User session not found. Please log in again.");
+        return;
+    }
 
     // 2. Logic Switch (The fix is here)
     let url = '/api/venues';
