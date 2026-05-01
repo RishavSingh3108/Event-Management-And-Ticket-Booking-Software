@@ -120,16 +120,18 @@ addVenueForm.addEventListener('submit', async (e) => {
 async function loadVenues() {
     const container = document.getElementById('venueContainer');
     if (!container) return;
+    const myId = localStorage.getItem('userId'); // added this
 
     try {
-        const response = await fetch('/api/venues');
+        const response = await fetch(`/api/venues?adminId=${myId}`); // added this
+        // const response = await fetch('/api/venues');
         if (!response.ok) throw new Error('Network response was not ok');
         
         const venues = await response.json();
         container.innerHTML = ""; // Clear loading text
 
         if (venues.length === 0) {
-            container.innerHTML = "<p>No venues found in the database.</p>";
+            container.innerHTML = "<p>You haven't added any venues yet.</p>";
             return;
         }
 

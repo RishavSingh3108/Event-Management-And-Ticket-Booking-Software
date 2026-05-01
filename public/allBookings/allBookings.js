@@ -7,8 +7,11 @@ async function fetchAdminBookings() {
     const tableBody = document.getElementById('bookingTableBody');
     tableBody.innerHTML = `<tr><td colspan="12" style="text-align:center;">Loading bookings...</td></tr>`;
 
+    const myId = localStorage.getItem('userId'); // added this
+
     try {
-        const response = await fetch('/api/admin/bookings');
+        // const response = await fetch('/api/admin/bookings');
+        const response = await fetch(`/api/admin/bookings?adminId=${myId}`); // added this
         const data = await response.json();
 
         if (data.success && data.bookings.length > 0) {

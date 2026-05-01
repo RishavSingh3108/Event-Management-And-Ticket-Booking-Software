@@ -60,14 +60,14 @@ app.post('/api/venues', async (req, res) => {
 // GET: Fetch all Venues
 app.get('/api/venues', async (req, res) => {
     try {
-
-        const venues = await Venue.find({}); 
+        const { adminId } = req.query;
+        const filter = adminId ? { adminId: adminId } : {};
+        const venues = await Venue.find(filter); 
+        
         res.status(200).json(venues); 
-
     } catch (err) {
-
+        console.error("Fetch Error:", err);
         res.status(500).json({ message: "Server error while fetching venues" });
-
     }
 });
 
@@ -221,17 +221,36 @@ app.get('/api/bookings/single/:id', async (req, res) => {
 // =======================================
 
 // 1. GET ALL BOOKINGS (For the Admin Master Table)
+// app.get('/api/admin/bookings', async (req, res) => {
+//     try {
+//         // Populate 'venueId' to get the venue name automatically
+//         const bookings = await Booking.find()
+//             .populate('venueId') 
+//             .sort({ submittedAt: -1 });
+        
+//         res.status(200).json({ success: true, bookings });
+//     } catch (err) {
+//         console.error("Admin Fetch Error:", err);
+//         res.status(500).json({ success: false, message: "Error fetching all bookings" });
+//     }
+// });
 app.get('/api/admin/bookings', async (req, res) => {
     try {
-        // Populate 'venueId' to get the venue name automatically
-        const bookings = await Booking.find()
+        // 1. Get the adminId from the query parameters
+        const { adminId } = req.query;
+
+        // 2. Build the query object: filter by adminId if it's provided
+        const query = adminId ? { adminId: adminId } : {};
+
+        // 3. Find and populate as before, but with the specific filter
+        const bookings = await Booking.find(query)
             .populate('venueId') 
             .sort({ submittedAt: -1 });
         
         res.status(200).json({ success: true, bookings });
     } catch (err) {
         console.error("Admin Fetch Error:", err);
-        res.status(500).json({ success: false, message: "Error fetching all bookings" });
+        res.status(500).json({ success: false, message: "Error fetching filtered bookings" });
     }
 });
 
