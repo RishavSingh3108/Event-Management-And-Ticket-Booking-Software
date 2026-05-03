@@ -213,3 +213,96 @@ function calculateTotal() {
     const balance = grandTotal - advancePaid;
     document.getElementById('finalBalance').innerText = `₹${balance.toLocaleString()}`;
 }
+
+// 1. DATA FETCHING & SYNC
+// Inside billing.js
+async function fetchBillingHistory() {
+    // Get bookingId from URL parameters (e.g., billing.html?id=69f4ab...)
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentBookingId = urlParams.get('id'); 
+    
+    if (!currentBookingId) return;
+
+    try {
+        // Pass the bookingId to the API
+        const response = await fetch(`http://localhost:3000/api/billing/history?bookingId=${currentBookingId}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            renderMasterList(data.bills);
+        }
+    } catch (error) {
+        console.error("Fetch Error:", error);
+    }
+}
+
+// 2. RENDERING THE LIST
+function renderMasterList(bills) {
+    const historyBody = document.getElementById('historyBody');
+    historyBody.innerHTML = ''; // Clear existing rows
+
+    bills.forEach(bill => {
+        const row = document.createElement('tr');
+        
+        // Match the columns defined in your CSS: SUBMITTED, CLIENT, TOTAL, BALANCE, ACTION
+        row.innerHTML = `
+            <td>
+                <div>${new Date(bill.createdAt).toLocaleDateString()}</div>
+                <small style="color: #999">${new Date(bill.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
+            </td>
+            <td>
+                <strong>${bill.customerDetail.name}</strong>
+            </td>
+            <td>₹${bill.summary.subtotal.toLocaleString()}</td>
+            <td class="text-danger">₹${bill.summary.balanceDue.toLocaleString()}</td>
+            <td>
+                <button class="delete-btn" onclick="viewPastBill('${bill._id}')" title="View Invoice">
+                    <i class='bx bx-show-alt' style="color: var(--primary-purple)"></i>
+                </button>
+            </td>
+        `;
+        historyBody.appendChild(row);
+    });
+}
+
+// 3. SEARCH FUNCTIONALITY
+document.getElementById('historySearch').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('#historyBody tr');
+
+    rows.forEach(row => {
+        const clientName = row.querySelector('strong').innerText.toLowerCase();
+        // Toggle visibility based on search match
+        if (clientName.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// 4. SYNC BUTTON ACTION
+function toggleBillingHistory() {
+    const syncBtn = document.querySelector('.sync-btn');
+    const icon = syncBtn.querySelector('i');
+    
+    // Add spinning animation
+    icon.classList.add('bx-spin');
+    syncBtn.style.opacity = '0.7';
+    syncBtn.innerText = ' Syncing...';
+    syncBtn.prepend(icon);
+
+    // Fetch fresh data
+    fetchBillingHistory().then(() => {
+        // Reset button after slight delay for visual feedback
+        setTimeout(() => {
+            icon.classList.remove('bx-spin');
+            syncBtn.style.opacity = '1';
+            syncBtn.innerText = ' Sync Data';
+            syncBtn.prepend(icon);
+        }, 800);
+    });
+}
+
+// Initial load
+document.addEventListener('DOMContentLoaded', fetchBillingHistory);

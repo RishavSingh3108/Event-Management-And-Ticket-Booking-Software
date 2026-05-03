@@ -12,6 +12,10 @@ const upload = multer({
     storage: storage,
     limits: { fileSize: 5 * 1024 * 1024 } 
 });
+const billingRoutes = require('./routes/billing');
+
+// Ensure this matches the 'api/billing' part of your fetch URL
+app.use('/api/billing', billingRoutes);
 
 // 1. Middlewares
 app.use(cors()); 
@@ -457,7 +461,7 @@ app.get('/api/admin/dashboard-stats', async (req, res) => {
         res.status(500).json({ success: false, error: err.message });
     }
 });
-const Billing = require('./models/billing'); // Double-check this folder/file path
+const Billing = require('./models/Billing'); // Double-check this folder/file path
 
 app.post('/api/admin/save-invoice', async (req, res) => {
     try {
@@ -509,7 +513,7 @@ app.get('/api/admin/generate-bill/:id', async (req, res) => {
             const lastNumMatch = lastInvoice.invoiceNumber.match(/\d+/);
             if (lastNumMatch) nextNumber = parseInt(lastNumMatch[0]) + 1;
         }
-        const formattedInvoiceNum = `#ASC996-${nextNumber.toString().padStart(4, '0')}`;
+        const formattedInvoiceNum = `#ASC-${nextNumber.toString().padStart(4, '0')}`;
         const now = new Date();
         const datePart = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
         const timePart = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
@@ -540,6 +544,31 @@ app.get('/api/admin/generate-bill/:id', async (req, res) => {
     } catch (err) {
         console.error("Error fetching details:", err);
         res.status(500).json({ success: false });
+    }
+});
+// GET: Fetch all Billing History for the Master List
+app.get('/api/billing/history', async (req, res) => {
+    try {
+        // 1. Get adminId from query (passed from localStorage in your JS)
+        const { adminId } = req.query;
+
+        // 2. Build the query: Filter by adminId if it exists
+        const query = adminId ? { adminId: adminId } : {};
+
+        // 3. Find bills, sort by newest first (descending createdAt)
+        const bills = await Billing.find(query).sort({ createdAt: -1 });
+
+        // 4. Return the data to billing.js
+        res.status(200).json({
+            success: true,
+            bills: bills
+        });
+    } catch (err) {
+        console.error("Master List Fetch Error:", err.message);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch billing history: " + err.message
+        });
     }
 });
 
