@@ -509,7 +509,7 @@ app.get('/api/admin/generate-bill/:id', async (req, res) => {
             const lastNumMatch = lastInvoice.invoiceNumber.match(/\d+/);
             if (lastNumMatch) nextNumber = parseInt(lastNumMatch[0]) + 1;
         }
-        const formattedInvoiceNum = `#INV-${nextNumber.toString().padStart(6, '0')}`;
+        const formattedInvoiceNum = `#ASC996-${nextNumber.toString().padStart(4, '0')}`;
         const now = new Date();
         const datePart = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
         const timePart = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
