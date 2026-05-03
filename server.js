@@ -220,20 +220,6 @@ app.get('/api/bookings/single/:id', async (req, res) => {
 // NEW ADMIN BOOKING ROUTES (ADD THESE)
 // =======================================
 
-// 1. GET ALL BOOKINGS (For the Admin Master Table)
-// app.get('/api/admin/bookings', async (req, res) => {
-//     try {
-//         // Populate 'venueId' to get the venue name automatically
-//         const bookings = await Booking.find()
-//             .populate('venueId') 
-//             .sort({ submittedAt: -1 });
-        
-//         res.status(200).json({ success: true, bookings });
-//     } catch (err) {
-//         console.error("Admin Fetch Error:", err);
-//         res.status(500).json({ success: false, message: "Error fetching all bookings" });
-//     }
-// });
 app.get('/api/admin/bookings', async (req, res) => {
     try {
         // 1. Get the adminId from the query parameters
@@ -469,6 +455,78 @@ app.get('/api/admin/dashboard-stats', async (req, res) => {
         });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
+    }
+});
+// const Billing = require('./models/Billing'); // Ensure this path is correct
+
+// app.post('/api/admin/save-invoice', async (req, res) => {
+//     try {
+//         const { invoiceNumber, bookingId } = req.body;
+
+//         // 1. Check if an invoice for this booking already exists
+//         const existingInvoice = await Billing.findOne({ invoiceNumber });
+//         if (existingInvoice) {
+//             return res.status(400).json({ 
+//                 success: false, 
+//                 message: "Invoice number already exists in the database." 
+//             });
+//         }
+
+//         // 2. Create and Save the new Billing document
+//         const newInvoice = new Billing(req.body);
+//         await newInvoice.save();
+
+//         // 3. Optional: Update the status in your Booking collection
+//         // await Booking.findByIdAndUpdate(bookingId, { status: 'Invoiced' });
+
+//         res.status(201).json({ 
+//             success: true, 
+//             message: "Invoice data and billing table saved successfully!" 
+//         });
+
+//     } catch (err) {
+//         console.error("Save Invoice Error:", err);
+//         res.status(500).json({ 
+//             success: false, 
+//             message: "Internal Server Error: Could not save the bill." 
+//         });
+//     }
+// });
+const Billing = require('./models/billing'); // Double-check this folder/file path
+
+app.post('/api/admin/save-invoice', async (req, res) => {
+    try {
+        // Log to terminal to verify the incoming IDs (adminId, customerId, etc.)
+        console.log("Incoming Invoice Data:", req.body);
+
+        // 1. Check for duplicate Invoice Number
+        const existingInvoice = await Billing.findOne({ invoiceNumber: req.body.invoiceNumber });
+        if (existingInvoice) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "This invoice number already exists in the database." 
+            });
+        }
+
+        // 2. Direct assignment using your preferred req.body method
+        const newInvoice = new Billing(req.body);
+
+        // 3. Save to MongoDB
+        await newInvoice.save();
+
+        res.status(201).json({ 
+            success: true, 
+            message: "Invoice and billing table saved successfully!" 
+        });
+
+    } catch (err) {
+        // CRITICAL: This will tell you exactly which field caused the 500 error
+        console.error("Database Save Error:", err.message);
+        
+        res.status(500).json({ 
+            success: false, 
+            message: "Server Error: " + err.message 
+        });
     }
 });
 

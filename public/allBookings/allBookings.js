@@ -23,6 +23,7 @@ async function fetchAdminBookings() {
                 else totalCost = book.paymentAmount; // 100% paid
 
                 const balance = totalCost - book.paymentAmount;
+                // console.log(book.venueId._id);
 
                 return `
                 <tr class="status-row ${book.status.toLowerCase()}">
@@ -61,6 +62,11 @@ async function fetchAdminBookings() {
                             ` : `<small style="color:#aaa;">Finalized</small>`}
                         </div>
                     </td>
+                    <td>
+                        <button class="billing-btn" onclick="goToBilling('${book._id}' , '${book.userId}' , '${book.venueId._id}')">
+                            <i class='bx bx-receipt'></i> Generate Bill
+                        </button>
+                    </td>
                 </tr>`;
             }).join('');
         } else {
@@ -97,6 +103,8 @@ async function updateStatus(id, newStatus) {
 
 // 3. Modal Image Handling
 function openProof(id, name) {
+    console.log(id);
+    console.log(name);
     const modal = document.getElementById('proofModal');
     const img = document.getElementById('proofImage');
     const downloadLink = document.getElementById('downloadProof');
@@ -135,4 +143,10 @@ function filterTable() {
             }
         }
     }
+}
+function goToBilling(bookingId, customerId, venueId) {
+    console.log(bookingId);
+    console.log(customerId);
+    console.log(venueId);
+    window.location.href = `/POS/billing.html?id=${bookingId}&cid=${customerId}&vid=${venueId}`;
 }

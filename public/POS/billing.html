@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice | Event Management System</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="billing.css">
+</head>
+<body>
+
+    <!-- TOP NAVIGATION: Return to Dashboard -->
+    <nav class="top-nav no-print">
+        <button type="button" class="return-btn" onclick="location.href='/allBookings/allBookings.html'">
+            <i class='bx bx-arrow-back'></i> Back to Dashboard
+        </button>
+    </nav>
+
+    <!-- MAIN INVOICE CARD -->
+    <div class="invoice-card" id="invoice">
+        <div class="watermark">Official</div>
+        
+        <header class="invoice-header">
+            <div class="brand-section">
+                <h1>TAX INVOICE</h1>
+                <p>Event Management Hub</p>
+            </div>
+            <div class="invoice-meta">
+                <div id="invNum">#INV-000019</div>
+                <div id="invDate">Date: --/--/----</div>
+            </div>
+        </header>
+
+        <div class="invoice-body">
+            <div class="info-grid">
+                <div class="info-block">
+                    <h3>CLIENT INFORMATION</h3>
+                    <div id="custName" class="highlight-text">-</div>
+                    <div id="custEmail">-</div>
+                    <div id="custPhone">-</div>
+                </div>
+                <div class="info-block text-right">
+                    <h3>VENUE & CONTACT</h3>
+                    <div id="venueName" class="highlight-text">-</div>
+                    <div id="venueAddr">-</div>
+                    <div id="venueGst">-</div>
+                    <div id="venuefssai">-</div>
+                    <div id="venueSupport">Support: +91 XXXXX XXXXX</div>
+                </div>
+            </div>
+
+            <!-- DYNAMIC BILLING TABLE -->
+            <table class="billing-table" id="billingTable">
+                <thead>
+                    <tr>
+                        <th>S.N.</th>
+                        <th>Description</th>
+                        <th width="150">Service Cost</th>
+                        <th width="120">GST %</th>
+                        <th class="text-right" width="150">Total</th>
+                        <th class="no-print" width="50">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="invoiceItems">
+                    <!-- Default Venue Row will be injected here via JS -->
+                </tbody>
+            </table>
+
+            <!-- TABLE EDITING ACTIONS -->
+            <div class="action-bar no-print">
+                <button type="button" class="add-row-btn" onclick="addNewRow()">
+                    <i class='bx bx-plus'></i> Add Extra Service
+                </button>
+                <button type="button" class="clear-btn" onclick="clearFullInvoice()">
+                    <i class='bx bx-trash'></i> Clear All
+                </button>
+            </div>
+
+            <div class="summary-wrapper">
+                <div class="summary-row">
+                    <span>Subtotal:</span>
+                    <span id="subtotal">₹0</span>
+                </div>
+                <div class="summary-row paid">
+                    <span>Amount Paid (Advance):</span>
+                    <span id="paidAmount">-₹0</span>
+                </div>
+                <div class="summary-row total-row">
+                    <span>Balance Due:</span>
+                    <span id="finalBalance">₹0</span>
+                </div>
+            </div>
+
+            <div class="footer-note">
+                <p><strong>Thank you for choosing our Venue for your Event!</strong></p>
+                <p>This is a computer-generated invoice for the services rendered at our Venue.</p>
+                <p>Please clear the balance due before the commencement of the event.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION: Final Controls -->
+    <div class="bottom-nav no-print">
+        <div class="final-controls">
+            <button type="button" id="saveBtn" class="save-btn" onclick="saveInvoiceToDB()">
+                <i class='bx bx-save'></i> Save Invoice Data
+            </button>
+            <button type="button" id="printBtn" class="print-btn" onclick="window.print()">
+                <i class='bx bx-printer'></i> Print Final Invoice
+            </button>
+        </div>
+    </div>
+
+    <script src="billing.js"></script>
+</body>
+</html>
