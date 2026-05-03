@@ -10,7 +10,7 @@
 <body>
 
     <!-- TOP NAVIGATION: Fixed to top -->
-    <nav class="top-nav no-print">
+    <nav class="top-nav ">
         <div class="nav-container">
             <!-- TOP LEFT: Save and Print -->
             <div class="final-controls">
@@ -20,10 +20,13 @@
                 <button type="button" id="printBtn" class="print-btn" onclick="window.print()">
                     <i class='bx bx-printer'></i> Print Invoice
                 </button>
+                <button class="refresh-btn" id="refreshBtn"  onclick="window.location.reload()">
+                    <i class='bx bx-undo'></i> Refresh
+                </button>
             </div>
 
             <!-- TOP RIGHT: Return Button -->
-            <button type="button" class="return-btn" onclick="location.href='/allBookings/allBookings.html'">
+            <button type="button" class="return-btn no-print" onclick="location.href='/allBookings/allBookings.html'">
                 <i class='bx bx-arrow-back'></i> Back to Dashboard
             </button>
         </div>

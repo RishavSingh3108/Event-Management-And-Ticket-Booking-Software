@@ -2,6 +2,7 @@ let advancePaid = 0;
 // Global variables to store hidden reference IDs
 let currentCustomerId = null;
 let currentVenueId = null;
+let fetchedBills = [];
 // Priority: localStorage, but we can fallback if the API provides a specific adminId
 let currentAdminId = localStorage.getItem('userId');
 
@@ -105,10 +106,7 @@ async function saveInvoiceToDB() {
 
         if (result.success) {
             alert("Invoice Saved Successfully!");
-            printBtn.disabled = false;
-            printBtn.classList.remove('print-btn-locked');
-            printBtn.classList.add('print-btn-active');
-            saveBtn.style.display = 'none';
+            lockUI();
         } else {
             alert("Error: " + result.message);
             saveBtn.disabled = false;
@@ -216,6 +214,7 @@ function calculateTotal() {
 
 // 1. DATA FETCHING & SYNC
 // Inside billing.js
+
 async function fetchBillingHistory() {
     // Get bookingId from URL parameters (e.g., billing.html?id=69f4ab...)
     const urlParams = new URLSearchParams(window.location.search);
@@ -229,6 +228,7 @@ async function fetchBillingHistory() {
         const data = await response.json();
         
         if (data.success) {
+            fetchedBills = data.bills; // Store data globally
             renderMasterList(data.bills);
         }
     } catch (error) {
@@ -302,6 +302,90 @@ function toggleBillingHistory() {
             syncBtn.prepend(icon);
         }, 800);
     });
+}
+function viewPastBill(billId) {
+    // Use .toString() to ensure a perfect string match
+    const bill = fetchedBills.find(b => b._id.toString() === billId.toString());
+    if (!bill) {
+        console.error("Bill not found!");
+        return;
+    }
+    lockUI();
+    // 2. Sync with your HTML IDs (e.g., 'invNum' instead of 'invoiceNumber')
+    if(document.getElementById('invNum')) document.getElementById('invNum').innerText = bill.invoiceNumber;
+    if(document.getElementById('invDate')) document.getElementById('invDate').innerText = `Date: ${bill.invoiceDate}`;
+
+    // 3. Populate Customer Info specifically
+    document.getElementById('custName').innerText = bill.customerDetail.name;
+    document.getElementById('custEmail').innerText = bill.customerDetail.email;
+    document.getElementById('custPhone').innerText = bill.customerDetail.phone;
+
+    // 4. Reconstruct Table (Matching your payload property names: serviceCost, gstPercentage, rowTotal)
+    const tbody = document.getElementById('invoiceItems');
+    tbody.innerHTML = ''; 
+
+    bill.billingTable.forEach((item, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="sn">${index + 1}</td>
+            <td>
+                <strong>${item.description}</strong><br>
+                <small>Event Date: ${bill.bookingDate || 'N/A'}</small>
+            </td>
+            <td><input type="number" class="row-cost" value="${item.serviceCost}" readonly></td>
+            <td>
+                <select class="row-gst" disabled>
+                    <option>${item.gstPercentage}%</option>
+                </select>
+            </td>
+            <td class="text-right row-total">₹${item.rowTotal.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+            <td class="no-print"></td> 
+        `;
+        tbody.appendChild(row);
+    });
+
+    // 5. Update Summary (Using the IDs from your DOM: subtotal, finalBalance)
+    document.getElementById('subtotal').innerText = `₹${bill.summary.subtotal.toLocaleString()}`;
+    document.getElementById('paidAmount').innerText = `-₹${bill.summary.advancePaid.toLocaleString()}`;
+    document.getElementById('finalBalance').innerText = `₹${bill.summary.balanceDue.toLocaleString()}`;
+
+    // 6. UI Adjustments
+    const saveBtn = document.getElementById('saveBtn');
+    if(saveBtn) saveBtn.style.display = 'none'; // Hide save to prevent duplicates
+    if (returnBtn) returnBtn.style.display = 'flex';
+    
+    const printBtn = document.getElementById('printBtn');
+    if(printBtn) {
+        printBtn.disabled = false;
+        printBtn.classList.add('print-btn-active');
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function lockUI(){
+    // 1. SELECT BUTTONS & TOOLS
+    const saveBtn = document.getElementById('saveBtn');
+    const printBtn = document.getElementById('printBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const tableActions = document.querySelector('.table-actions'); // Add/Clear container
+    const deleteIcons = document.querySelectorAll('.no-print'); // Trash icons
+
+    // 2. HIDE EDITING TOOLS
+    if (saveBtn) saveBtn.style.display = 'none';
+    if (tableActions) tableActions.style.display = 'none';
+    deleteIcons.forEach(icon => icon.style.display = 'none');
+
+    // 3. SHOW PRINT & REFRESH (Force display)
+    if (printBtn) {
+        printBtn.style.setProperty('display', 'flex', 'important');
+        printBtn.disabled = false;
+    }
+    if (refreshBtn) {
+        refreshBtn.style.setProperty('display', 'flex', 'important');
+    }
+
+    // Refresh history list visually without a page reload
+    fetchBillingHistory();
 }
 
 // Initial load

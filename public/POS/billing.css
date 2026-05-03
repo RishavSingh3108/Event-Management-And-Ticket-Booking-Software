@@ -50,7 +50,7 @@ body {
     gap: 15px;
 }
 
-.save-btn, .print-btn, .return-btn {
+.save-btn, .print-btn, .refresh-btn, .return-btn {
     padding: 10px 22px;
     border-radius: 10px;
     font-weight: 600;
@@ -63,13 +63,13 @@ body {
     transition: all 0.3s ease;
 }
 
-.save-btn { background: var(--primary-purple); color: white; }
-.save-btn:hover { background: var(--accent-purple); transform: translateY(-2px); }
+.save-btn { background: white; color: var(--primary-purple); }
+.save-btn:hover { background: red; transform: translateY(-2px); }
 
-.print-btn { background: #f8f9fa; color: var(--primary-purple); border: 1px solid #ddd; }
-.print-btn:hover { background: #eee; }
+.print-btn, .refresh-btn{ background: #f8f9fa; color: var(--primary-purple); border: 1px solid #ddd;}
+.print-btn:hover, .refresh-btn:hover { background: red; }
 
-.return-btn { background: #fdf2f2; color: var(--danger-red); border: 1px solid #fee2e2; }
+.return-btn { background: #fdf2f2; color: var(--danger-red); border: 1px solid #fee2e2;}
 .return-btn:hover { background: var(--danger-red); color: white; }
 
 /* --- MAIN CONTENT WRAPPER (4:3 RATIO) --- */
