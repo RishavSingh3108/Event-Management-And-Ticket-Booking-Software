@@ -529,6 +529,66 @@ app.post('/api/admin/save-invoice', async (req, res) => {
         });
     }
 });
+app.get('/api/admin/generate-bill/:id', async (req, res) => {
+    try {
+        const booking = await Booking.findById(req.params.id);
+        if (!booking) return res.status(404).json({ success: false });
+
+        // Logic for Auto-Incrementing Invoice Number
+        const lastInvoice = await Billing.findOne().sort({ createdAt: -1 });
+        let nextNumber = 1;
+
+        if (lastInvoice && lastInvoice.invoiceNumber) {
+            // Extract numbers from a format like "#INV-000001"
+            const lastNumMatch = lastInvoice.invoiceNumber.match(/\d+/);
+            if (lastNumMatch) {
+                nextNumber = parseInt(lastNumMatch[0]) + 1;
+            }
+        }
+
+        // Format with leading zeros: #INV-000002
+        const formattedInvoiceNum = `#INV-${nextNumber.toString().padStart(6, '0')}`;
+        const now = new Date();
+
+        // Formats to: 3 May 2026
+        const datePart = now.toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+
+        // Formats to: 06:17 PM
+        const timePart = now.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+
+        res.json({ 
+            success: true, 
+            bill: {
+                invoiceNumber: formattedInvoiceNum,
+                // Provide today's date in local format
+                date: `${datePart}, ${timePart}`,
+                customer: booking.bookedBy,
+                email: booking.email,
+                contact: booking.contact,
+                venue: booking.purpose || "Event Venue",
+                total: booking.paymentAmount || 0,
+                paid: booking.paymentAmount || 0,
+                cid: booking.userId,
+                vid: booking.venueId,
+                bookingDate: booking.bookingDate,
+                venueAddress: "Your Venue Address Here", // Add this to your Booking model later
+                venueGst: "27AAAAA0000A1Z5",
+                venuefssai: "12345678901234"
+            }
+        });
+    } catch (err) {
+        console.error("Generate Bill Error:", err);
+        res.status(500).json({ success: false });
+    }
+});
 
 //  THIS SHOULD BE AT THE BOTTOM
 app.use(express.static(path.join(__dirname, 'public')));
