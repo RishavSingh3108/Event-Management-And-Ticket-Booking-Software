@@ -457,41 +457,6 @@ app.get('/api/admin/dashboard-stats', async (req, res) => {
         res.status(500).json({ success: false, error: err.message });
     }
 });
-// const Billing = require('./models/Billing'); // Ensure this path is correct
-
-// app.post('/api/admin/save-invoice', async (req, res) => {
-//     try {
-//         const { invoiceNumber, bookingId } = req.body;
-
-//         // 1. Check if an invoice for this booking already exists
-//         const existingInvoice = await Billing.findOne({ invoiceNumber });
-//         if (existingInvoice) {
-//             return res.status(400).json({ 
-//                 success: false, 
-//                 message: "Invoice number already exists in the database." 
-//             });
-//         }
-
-//         // 2. Create and Save the new Billing document
-//         const newInvoice = new Billing(req.body);
-//         await newInvoice.save();
-
-//         // 3. Optional: Update the status in your Booking collection
-//         // await Booking.findByIdAndUpdate(bookingId, { status: 'Invoiced' });
-
-//         res.status(201).json({ 
-//             success: true, 
-//             message: "Invoice data and billing table saved successfully!" 
-//         });
-
-//     } catch (err) {
-//         console.error("Save Invoice Error:", err);
-//         res.status(500).json({ 
-//             success: false, 
-//             message: "Internal Server Error: Could not save the bill." 
-//         });
-//     }
-// });
 const Billing = require('./models/billing'); // Double-check this folder/file path
 
 app.post('/api/admin/save-invoice', async (req, res) => {
@@ -524,7 +489,7 @@ app.post('/api/admin/save-invoice', async (req, res) => {
         console.error("Database Save Error:", err.message);
         
         res.status(500).json({ 
-            success: false, 
+            success: false,
             message: "Server Error: " + err.message 
         });
     }
@@ -533,59 +498,47 @@ app.get('/api/admin/generate-bill/:id', async (req, res) => {
     try {
         const booking = await Booking.findById(req.params.id);
         if (!booking) return res.status(404).json({ success: false });
-
-        // Logic for Auto-Incrementing Invoice Number
+        // const venue = await Venue.findById(booking.venueId);
+        const [venue, admin] = await Promise.all([
+            Venue.findById(booking.venueId),
+            User.findById(booking.adminId) 
+        ]);
         const lastInvoice = await Billing.findOne().sort({ createdAt: -1 });
         let nextNumber = 1;
-
         if (lastInvoice && lastInvoice.invoiceNumber) {
-            // Extract numbers from a format like "#INV-000001"
             const lastNumMatch = lastInvoice.invoiceNumber.match(/\d+/);
-            if (lastNumMatch) {
-                nextNumber = parseInt(lastNumMatch[0]) + 1;
-            }
+            if (lastNumMatch) nextNumber = parseInt(lastNumMatch[0]) + 1;
         }
-
-        // Format with leading zeros: #INV-000002
         const formattedInvoiceNum = `#INV-${nextNumber.toString().padStart(6, '0')}`;
         const now = new Date();
-
-        // Formats to: 3 May 2026
-        const datePart = now.toLocaleDateString('en-GB', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
-        });
-
-        // Formats to: 06:17 PM
-        const timePart = now.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-        });
+        const datePart = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+        const timePart = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
         res.json({ 
             success: true, 
             bill: {
                 invoiceNumber: formattedInvoiceNum,
-                // Provide today's date in local format
-                date: `${datePart}, ${timePart}`,
-                customer: booking.bookedBy,
+                date: `${datePart}, ${timePart}`, 
+                customer: booking.bookedBy, // 
                 email: booking.email,
                 contact: booking.contact,
-                venue: booking.purpose || "Event Venue",
-                total: booking.paymentAmount || 0,
+                // Venue Details fetched from the Venue collection
+                venue: venue ? venue.name : "Event Venue",
+                venueAddress: venue ? venue.address : "N/A",
+                venueContact: venue ? venue.phone : "N/A",
+                total: venue.cost || 0,
+                //Admin Details
+                venueGst: admin?.businessDetails ? admin.businessDetails.gstNumber : "N/A",
+                venuefssai: admin?.businessDetails ? admin.businessDetails.foodLicense : "N/A",
+                // Financial Details
                 paid: booking.paymentAmount || 0,
                 cid: booking.userId,
                 vid: booking.venueId,
-                bookingDate: booking.bookingDate,
-                venueAddress: "Your Venue Address Here", // Add this to your Booking model later
-                venueGst: "27AAAAA0000A1Z5",
-                venuefssai: "12345678901234"
+                bookingDate: booking.bookingDate
             }
         });
     } catch (err) {
-        console.error("Generate Bill Error:", err);
+        console.error("Error fetching details:", err);
         res.status(500).json({ success: false });
     }
 });

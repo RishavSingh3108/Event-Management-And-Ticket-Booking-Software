@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('venueAddr').innerText = b.venueAddress;
             document.getElementById('venueGst').innerText = `GSTIN: ${b.venueGst || 'N/A'}`;
             document.getElementById('venuefssai').innerText = `FSSAI: ${b.venuefssai || 'N/A'}`;
+            document.getElementById('venueSupport').innerText = b.venueContact;
             document.getElementById('paidAmount').innerText = `-₹${b.paid.toLocaleString()}`;
 
             addDefaultVenueRow(b.venue, b.total, b.bookingDate);
