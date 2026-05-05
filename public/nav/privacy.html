@@ -3,32 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy | EventFlow</title>
-    <link rel="stylesheet" href="design.css">
+    <title>Privacy Policy | EventHub</title>
+    <!-- Link to the same final CSS used for About Us -->
+    <link rel="stylesheet" href="../common-style.css">
+    <link rel="stylesheet" href="style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
-    <h1 class="page-title">Privacy Policy</h1>
-    <main class="main-card">
-        <h2>Your Data, Protected</h2>
-        <p>We prioritize the security of your information. This policy explains how EventFlow collects and protects your data within our system.</p>
 
-        <div class="quote-box">
-            "We treat your personal and event data as sacred. We never share your details with unauthorized parties."
-        </div>
+    <!-- UNIFORM NAVBAR -->
+    <header class="navbar">
+        <div class="logo">Event<span>Hub</span></div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="home.html">Home</a></li>
+                <li class="dropdown">
+                    <a href="javascript:void(0)" class="dropbtn">Login <i class='bx bx-chevron-down'></i></a>
+                    <div class="dropdown-content">
+                        <a href="/login/user">
+                            <div class="menu-item"><i class='bx bx-log-in-circle'></i><span>User Login</span></div>
+                            <i class='bx bx-right-arrow-alt'></i>
+                        </a>
+                        <a href="/login/admin">
+                            <div class="menu-item"><i class='bx bx-shield-quarter'></i><span>Admin Login</span></div>
+                            <i class='bx bx-right-arrow-alt'></i>
+                        </a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a href="javascript:void(0)" class="dropbtn">Register <i class='bx bx-chevron-down'></i></a>
+                    <div class="dropdown-content">
+                        <a href="/register/user">
+                            <div class="menu-item"><i class='bx bx-user-plus'></i><span>User Registration</span></div>
+                            <i class='bx bx-right-arrow-alt'></i>
+                        </a>
+                        <a href="/register/admin">
+                            <div class="menu-item"><i class='bx bx-user-check'></i><span>Admin Registration</span></div>
+                            <i class='bx bx-right-arrow-alt'></i>
+                        </a>
+                    </div>
+                </li>
+                <li><a href="home.html#popular-events">Events</a></li>
+                <li><a href="home.html#venues-section">Venues</a></li>
+            </ul>
+        </nav>
+    </header>
+    <!-- MAIN CONTENT CARD -->
+    <div class="about-container">
+        <h1 class="page-title">Privacy Policy</h1>
+        <main class="main-card">
+            <h2>Your Data, Protected</h2>
+            <p>We prioritize the security of your information. This policy explains how <b>EventHub</b> collects and protects your data within our system.</p>
 
-        <h2 style="color: var(--accent-green);">Security Measures</h2>
-        <div class="feature-grid">
-            <div class="feature-item">
-                <h3>Encryption</h3>
-                <p>All sensitive data is protected using SSL protocols.</p>
+            <div class="quote-box">
+                "We treat your personal and event data as sacred. We never share your details with unauthorized parties."
             </div>
-            <div class="feature-item">
-                <h3>User Control</h3>
-                <p>You have full control over your profile and data.</p>
+
+            <h2 class="section-subtitle">Security Measures</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <div class="icon">🔒</div>
+                    <h3>Encryption</h3>
+                    <p>All sensitive data is protected using SSL protocols and secure hashing for passwords.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="icon">👤</div>
+                    <h3>User Control</h3>
+                    <p>You have full control over your profile, booking history, and data visibility.</p>
+                </div>
             </div>
-        </div>
-        <a href="javascript:history.back()" class="btn-home">← Back to Previous Page</a>
-    </main>
+
+            <div class="back-action">
+                <!-- Using btn-back to match the bold, pill-style CSS -->
+                <a href="javascript:history.back()" class="btn-home">← Back to Previous Page</a>
+            </div>
+        </main>
+    </div>
 
 </body>
 </html>

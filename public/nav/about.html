@@ -2,36 +2,90 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="design.css">
-    <title>About Us | EventFlow</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <title>About Us | EventHub</title>
 </head>
 <body>
 
-    <h1 class="page-title">About Our System</h1>
-    <main class="main-card">
-        <h2>Empowering Event Excellence</h2>
-        <p>The <b>EventFlow Management System</b> is a digital solution designed to simplify the complex world of venue booking and event coordination. We bridge the gap between world-class venues and the visionaries who organize events.</p>
+    <!-- UNIFORM NAVBAR (Same as Home Page) -->
+    <header class="navbar">
+        <div class="logo">Event<span>Hub</span></div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="home.html">Home</a></li>
 
-        <div class="quote-box">
-            "Our mission is to provide a seamless, professional, and romantic atmosphere for every event, ensuring that the journey from discovery to booking is effortless."
-        </div>
+                <!-- LOGIN DROPDOWN -->
+                <li class="dropdown">
+                    <a href="javascript:void(0)" class="dropbtn">Login <i class='bx bx-chevron-down'></i></a>
+                    <div class="dropdown-content">
+                        <a href="/login/user">
+                            <div class="menu-item"><i class='bx bx-log-in-circle'></i><span>User Login</span></div>
+                            <i class='bx bx-right-arrow-alt'></i>
+                        </a>
+                        <a href="/login/admin">
+                            <div class="menu-item"><i class='bx bx-shield-quarter'></i><span>Admin Login</span></div>
+                            <i class='bx bx-right-arrow-alt'></i>
+                        </a>
+                    </div>
+                </li>
 
-        <h2 style="color: var(--accent-green);">What We Offer</h2>
-        <div class="feature-grid">
-            <div class="feature-item">
-                <h3>Premium Venues</h3>
-                <p>Access a curated list of top-tier spaces.</p>
+                <!-- REGISTER DROPDOWN -->
+                <li class="dropdown">
+                    <a href="javascript:void(0)" class="dropbtn">Register <i class='bx bx-chevron-down'></i></a>
+                    <div class="dropdown-content">
+                        <a href="/register/user">
+                            <div class="menu-item"><i class='bx bx-user-plus'></i><span>User Registration</span></div>
+                            <i class='bx bx-right-arrow-alt'></i>
+                        </a>
+                        <a href="/register/admin">
+                            <div class="menu-item"><i class='bx bx-user-check'></i><span>Admin Registration</span></div>
+                            <i class='bx bx-right-arrow-alt'></i>
+                        </a>
+                    </div>
+                </li>
+                <li><a href="home.html#popular-events">Events</a></li>
+                <li><a href="home.html#venues-section">Venues</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- ABOUT CONTENT -->
+    <main class="about-container">
+        <h1 class="page-title">About Our System</h1>
+        
+        <section class="main-card">
+            <h2>Empowering Event Excellence</h2>
+            <p>The <b>EventHub Management System</b> is a digital solution designed to simplify the complex world of venue booking and event coordination. We bridge the gap between world-class venues and the visionaries who organize events.</p>
+
+            <div class="quote-box">
+                "Our mission is to provide a seamless, professional, and romantic atmosphere for every event, ensuring that the journey from discovery to booking is effortless."
             </div>
-            <div class="feature-item">
-                <h3>Real-time Logic</h3>
-                <p>Instantly check availability and manage slots.</p>
+
+            <h2 class="section-subtitle">What We Offer</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <div class="icon">🏛</div>
+                    <h3>Premium Venues</h3>
+                    <p>Access a curated list of top-tier spaces like Milan Motel and Royal Gardens.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="icon">⚡</div>
+                    <h3>Real-time Logic</h3>
+                    <p>Instantly check availability and manage slots with our optimized backend.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="icon">🔒</div>
+                    <h3>Secure Portals</h3>
+                    <p>Professional tools for both Admins and Users with OTP verification.</p>
+                </div>
             </div>
-            <div class="feature-item">
-                <h3>Secure Portals</h3>
-                <p>Professional tools for both Admins and Users.</p>
+            
+            <div class="back-action">
+                <a href="javascript:history.back()" class="btn-home">← Back to Previous Page</a>
             </div>
-        </div>
-        <a href="javascript:history.back()" class="btn-home">← Back to Previous Page</a>
+        </section>
     </main>
 
 </body>

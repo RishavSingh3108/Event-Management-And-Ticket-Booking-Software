@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EventHub - Event Management & Ticket Booking</title>
+  <link rel="stylesheet" href="home.css">
+  <link rel="stylesheet" href="../common_style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+
+    <div class="logo">Event<span>Hub</span> </div>
+    <nav>
+        <ul class="nav-links">
+            <li><a href="#">Home</a></li>
+            <!-- LOGIN DROPDOWN -->
+            <li class="dropdown">
+                <a href="javascript:void(0)" class="dropbtn">Login <i class='bx bx-chevron-down'></i></a>
+                <div class="dropdown-content">
+                    <a href="/login/user">
+                        <div class="menu-item">
+                            <i class='bx bx-log-in-circle'></i>
+                            <span>User Login</span>
+                        </div>
+                        <i class='bx bx-right-arrow-alt'></i>
+                    </a>
+                    <a href="/login/admin">
+                        <div class="menu-item">
+                            <i class='bx bx-shield-quarter'></i>
+                            <span>Admin Login</span>
+                        </div>
+                        <i class='bx bx-right-arrow-alt'></i>
+                    </a>
+                </div>
+            </li>
+
+            <!-- REGISTER DROPDOWN -->
+            <li class="dropdown">
+                <a href="javascript:void(0)" class="dropbtn">Register <i class='bx bx-chevron-down'></i></a>
+                <div class="dropdown-content">
+                    <a href="/register/user">
+                        <div class="menu-item">
+                            <i class='bx bx-user-plus'></i>
+                            <span>User Registration</span>
+                        </div>
+                        <i class='bx bx-right-arrow-alt'></i>
+                    </a>
+                    <a href="/register/admin">
+                        <div class="menu-item">
+                            <i class='bx bx-user-check'></i>
+                            <span>Admin Registration</span>
+                        </div>
+                        <i class='bx bx-right-arrow-alt'></i>
+                    </a>
+                </div>
+            </li>
+            <li><a href="#popular-events">Events</a></li>
+            <li><a href="#venues-section">Venues</a></li>
+        </ul>
+    </nav>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section class="hero">
+    <div class="overlay"></div>
+    <div class="hero-content">
+      <h1> Discover & Book Amazing Events Near You </h1>
+      <p>Weddings • Concerts • College Fests • Conferences • Birthday Parties </p>
+      <!-- SEARCH CARD -->
+      <div class="booking-card">
+
+        <div class="input-group">
+          <label>Event Type</label>
+
+          <select>
+            <option>Select Event</option>
+            <option>Wedding</option>
+            <option>Concert</option>
+            <option>Conference</option>
+            <option>Birthday Party</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>Location</label>
+          <input type="text" placeholder="Enter city">
+        </div>
+        <div class="input-group">
+          <label>Date</label>
+          <input type="date">
+        </div>
+        <div class="input-group">
+          <label>Guests</label>
+          <select>
+            <option>Guests</option>
+            <option>50+</option>
+            <option>100+</option>
+            <option>500+</option>
+          </select>
+        </div>
+        <button class="search-btn" onclick="requireLogin(event)">Search Events</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- POPULAR EVENTS -->
+  <section class="events-section" id="popular-events">
+    <div class="section-header">
+      <h2>Popular Events</h2>
+      <p>Book trending events and experiences instantly</p>
+    </div>
+    <div class="events-grid">
+      <div class="event-card">
+        <img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1200&auto=format&fit=crop">
+        <div class="event-content">
+          <h3>Luxury Wedding</h3>
+          <p>Premium wedding planning and venue booking.</p>
+          <div class="card-footer">
+            <span>Starting ₹50,000</span>
+            <button onclick="requireLogin(event)">Book Now</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="event-card">
+        <img src="https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=1200&auto=format&fit=crop">
+        <div class="event-content">
+          <h3>Music Concert</h3>
+          <p>Book VIP and premium concert tickets online.</p>
+          <div class="card-footer">
+            <span>Tickets from ₹999</span>
+            <button onclick="requireLogin(event)">Book Now</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="event-card">
+        <img src="https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=1200&auto=format&fit=crop">
+        <div class="event-content">
+          <h3>Corporate Event</h3>
+          <p>Professional event management for businesses.</p>
+          <div class="card-footer">
+            <span>Custom Pricing</span>
+            <button onclick="requireLogin(event)">Book Now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- VENUES SECTION -->
+<section id="venues-section" class="events-section">
+
+    <div class="section-header">
+      <h2>Premium Venues</h2>
+      <p>Discover the perfect space for your special occasion</p>
+    </div>
+    <div class="events-grid">
+      <div class="event-card">
+        <img src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=1200&auto=format&fit=crop">
+        <div class="event-content">
+          <h3>Milan Motel</h3>
+          <p>Elegant banquet hall with modern amenities in Bhagalpur.</p>
+          <div class="card-footer">
+            <span>Starting ₹45,000</span>
+            <button onclick="requireLogin(event)">View Details</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="event-card">
+        <img src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?q=80&w=1200&auto=format&fit=crop">
+        <div class="event-content">
+          <h3>Royal Garden</h3>
+          <p>Spacious outdoor lawn perfect for grand weddings and fests.</p>
+          <div class="card-footer">
+            <span>Starting ₹60,000</span>
+            <button onclick="requireLogin(event)">View Details</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="event-card">
+        <img src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop">
+        <div class="event-content">
+          <h3>Grand Plaza Hall</h3>
+          <p>Luxury indoor venue with premium catering services.</p>
+          <div class="card-footer">
+            <span>Starting ₹75,000</span>
+            <button onclick="requireLogin(event)">View Details</button>
+          </div>
+        </div>
+      </div>
+    </div>
+</section>
+
+  <!-- FEATURES -->
+  <section class="features">
+
+    <div class="section-header">
+      <h2>Why Choose EventHub?</h2>
+      <p>Manage and book events seamlessly</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-box">
+        <div class="icon">🎟</div>
+        <h3>Instant Ticket Booking</h3>
+        <p>Fast and secure ticket booking for all types of events.</p>
+      </div>
+
+      <div class="feature-box">
+        <div class="icon">🏛</div>
+        <h3>Venue Management</h3>
+        <p>Explore and reserve premium venues easily.</p>
+      </div>
+
+      <div class="feature-box">
+        <div class="icon">📅</div>
+        <h3>Event Scheduling</h3>
+        <p>Plan and organize events with smart scheduling tools.</p>
+      </div>
+
+      <div class="feature-box">
+        <div class="icon">🔒</div>
+        <h3>Secure Payments</h3>
+        <p>100% secure online payments and booking confirmation.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials">
+
+    <div class="section-header">
+      <h2>Customer Reviews</h2>
+      <p>What our users say about us</p>
+    </div>
+
+    <div class="testimonial-grid">
+      <div class="testimonial-card">
+        <p>“Booked wedding venue and catering within minutes. Amazing experience!”</p>
+        <h4>- Rahul Sharma</h4>
+      </div>
+
+      <div class="testimonial-card">
+        <p>“Very smooth concert ticket booking system with instant confirmation.”</p>
+        <h4>- Priya Singh</h4>
+      </div>
+
+
+      <div class="testimonial-card">
+        <p>“Best event management platform for college fests and conferences.”</p>
+        <h4>- Aman Verma</h4>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Event Managers</h3>
+                <p>It is a professional administrative dashboard designed to centralize venue management, enabling real-time monitoring of event locations, capacities, and booking schedules through a clean, data-driven interface.</p>
+            </div>
+
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="../nav/about.html">About Us</a></li>
+                    <li><a href="#popular-events">Upcoming Events</a></li>
+                    <li><a href="../nav/privacy.html">Privacy Policy</a></li>
+                    <li><a href="../nav/terms.html">Terms and Conditions</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <p>Email: supportBCEevent@gmail.com</p>
+                <p>Phone: +91 9842xx41xx</p>
+                <p>Location: Aryabhatta Hostel, BCE Bhagalpur</p>
+            </div>
+
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <div class="social-icons">
+                    <span><a style="color: aquamarine;" href="https://www.instagram.com/rishavraj9866?igsh=MTFieW5qejM1Mm0zZw==">Instagram</a></span>  |
+                    <span><a style="color: aquamarine;" href="#">Twitter</a></span>  |
+                    <span><a style="color: aquamarine;" href="https://www.linkedin.com/in/rishav-raj-499b79253/">LinkedIn</a></span>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 EventFlow Management System. All Rights Reserved.</p>
+        </div>
+    </footer>
+    <script src="home.js"></script>
+</body>
+</html>

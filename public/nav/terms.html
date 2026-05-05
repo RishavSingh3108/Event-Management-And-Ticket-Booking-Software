@@ -3,32 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terms & Conditions | EventFlow</title>
-    <link rel="stylesheet" href="design.css">
+    <title>Terms & Conditions | EventHub</title>
+    <!-- Relative path to parent folder for shared styles -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Boxicons for dropdown arrows and menu icons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
-    <h1 class="page-title">Terms & Conditions</h1>
-    <main class="main-card">
-        <h2>Professional Standards</h2>
-        <p>By using the EventFlow platform, you agree to follow our professional guidelines regarding venue usage and booking integrity.</p>
 
-        <div class="quote-box">
-            "A successful event begins with a mutual commitment to professionalism and transparency."
-        </div>
+    <!-- UNIFORM NAVBAR -->
+    <header class="navbar">
+        <div class="logo">Event<span>Hub</span></div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="home.html">Home</a></li>
+                <li class="dropdown">
+                    <a href="javascript:void(0)" class="dropbtn">Login <i class='bx bx-chevron-down'></i></a>
+                    <div class="dropdown-content">
+                        <a href="/login/user">
+                            <div class="menu-item"><i class='bx bx-log-in-circle'></i><span>User Login</span></div>
+                            <i class='bx bx-right-arrow-alt'></i>
+                        </a>
+                        <a href="/login/admin">
+                            <div class="menu-item"><i class='bx bx-shield-quarter'></i><span>Admin Login</span></div>
+                            <i class='bx bx-right-arrow-alt'></i>
+                        </a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a href="javascript:void(0)" class="dropbtn">Register <i class='bx bx-chevron-down'></i></a>
+                    <div class="dropdown-content">
+                        <a href="/register/user">
+                            <div class="menu-item"><i class='bx bx-user-plus'></i><span>User Registration</span></div>
+                            <i class='bx bx-right-arrow-alt'></i>
+                        </a>
+                        <a href="/register/admin">
+                            <div class="menu-item"><i class='bx bx-user-check'></i><span>Admin Registration</span></div>
+                            <i class='bx bx-right-arrow-alt'></i>
+                        </a>
+                    </div>
+                </li>
+                <li><a href="home.html#popular-events">Events</a></li>
+                <li><a href="home.html#venues-section">Venues</a></li>
+            </ul>
+        </nav>
+    </header>
 
-        <h2 style="color: var(--accent-green);">Platform Rules</h2>
-        <div class="feature-grid">
-            <div class="feature-item">
-                <h3>Booking Policy</h3>
-                <p>All reservations must be verified by the admin.</p>
+    <!-- MAIN CONTENT CARD -->
+    <div class="about-container">
+        <h1 class="page-title">Terms & Conditions</h1>
+        <main class="main-card">
+            <h2>Agreement of Use</h2>
+            <p>By accessing <b>EventHub</b>, you agree to comply with our service standards. These terms ensure a professional and safe environment for both venue owners and event organizers.</p>
+
+            <div class="quote-box">
+                "Our terms are designed to protect the integrity of the booking process, ensuring fairness and transparency for every user."
             </div>
-            <div class="feature-item">
-                <h3>Cancellation</h3>
-                <p>Rules depend on the specific venue's requirements.</p>
+
+            <h2 class="section-subtitle">User Guidelines</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <div class="icon">📅</div>
+                    <h3>Booking Integrity</h3>
+                    <p>Users must provide accurate event details and respect venue-specific rules.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="icon">⚖️</div>
+                    <h3>Account Responsibility</h3>
+                    <p>You are responsible for maintaining the confidentiality of your login credentials.</p>
+                </div>
             </div>
-        </div>
-         <a href="javascript:history.back()" class="btn-home">← Back to Previous Page</a>
-    </main>
+
+            <div class="back-action">
+                <!-- Pill-style button using the btn-back class -->
+                <a href="javascript:history.back()" class="btn-home">← Back to Previous Page</a>
+            </div>
+        </main>
+    </div>
 
 </body>
 </html>
