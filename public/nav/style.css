@@ -22,92 +22,224 @@ body {
     color: var(--text-dark);
 }
 
-/* --- NAVBAR (Fixed Visibility) --- */
 .navbar {
+    position: absolute; /* Sits on top of the background image */
+    top: 0;
+    left: 0;
     width: 100%;
-    position: relative; /* Changed from absolute so it doesn't overlap content */
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* Logo left, Nav links right */
     align-items: center;
-    padding: 25px 80px;
-    background: rgb(232, 203, 203);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    z-index: 1000;
+    padding: 30px 80px; /* Generous side padding as seen in image */
+    background: transparent;
+    z-index: 2000;
+    font-family: 'Poppins', sans-serif;
 }
 
 .logo {
-    color: var(--text-dark); /* Dark color for visibility */
-    font-size: 34px;
-    font-weight: 700;
+    font-size: 32px;
+    font-weight: 800;
+    color: #ffffff; /* "Event" in white */
+    letter-spacing: -1px;
+    text-decoration: none;
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .logo span {
-    color: var(--primary-orange); /* Signature Orange */
+    color: #ff8c00; /* "Hub" in signature orange */
 }
 
-/* --- SHARED NAV LINK STYLES --- */
 .nav-links {
-    display: flex;
     list-style: none;
-    gap: 30px;
-    align-items: center;
-}
-
-.nav-links a, 
-.dropbtn {
-    text-decoration: none;
-    color: var(--text-dark); /* Dark grey for visibility on white background */
-    font-weight: 500;
-    font-size: 15px;
-    transition: 0.3s;
-    background: none;
-    border: none;
-    padding: 0;
     display: flex;
+    gap: 40px; /* Space between menu items */
     align-items: center;
-    gap: 5px;
-    cursor: pointer;
 }
 
-/* Hover effect */
-.nav-links a:hover, 
-.dropdown:hover .dropbtn {
-    color: var(--primary-orange);
+.nav-links a {
+    text-decoration: none;
+    color: #ffffff; /* Pure white links per image */
+    font-weight: 600;
+    font-size: 16px;
+    transition: 0.3s ease;
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 1);
 }
 
-/* --- DROPDOWN BOX (image_e3f2e1.png Style) --- */
+.nav-links a:hover {
+    color: #ff8c00;
+}
+
 .dropdown {
     position: relative;
 }
 
 .dropdown-content {
-    display: none;
+    display: none; /* Hidden by default, toggled via JS .show class */
     position: absolute;
-    background-color: var(--white);
-    min-width: 260px;
-    box-shadow: 0px 10px 25px rgba(0,0,0,0.1);
-    border-radius: 12px;
-    z-index: 1000;
-    top: 150%;
-    left: 0;
+    top: 130%; /* Space below nav link */
+    right: 0;
+    background-color: #ffffff;
+    min-width: 280px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    border-radius: 20px;
     overflow: hidden;
-    border: 1px solid #eee;
+    z-index: 3000;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.dropdown-content.show {
+    display: block !important;
+    animation: fadeInDown 0.3s ease;
 }
 
 .dropdown-content a {
-    color: var(--text-dark) !important;
-    padding: 15px 20px !important;
+    color: #333 !important;
+    padding: 18px 25px !important;
     display: flex !important;
     justify-content: space-between !important;
-    border-bottom: 1px solid #f0f0f0;
+    align-items: center;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: 14px;
 }
 
 .dropdown-content a:hover {
-    background-color: #f9f9f9;
+    background-color: #fff9f5;
+    color: #ff8c00 !important;
 }
 
-.dropdown:hover .dropdown-content {
-    display: block;
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.menu-item i {
+    font-size: 20px;
+    color: #ff8c00;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 5000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+}
+
+.modal-content {
+    background: #ffffff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 50px 40px;
+    border-radius: 40px;
+    width: 90%;
+    max-width: 450px;
+    text-align: center;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+    animation: slideDown 0.4s ease;
+}
+
+/* Multi-Step Visibility Classes */
+.reg-step {
+    display: none;
+}
+
+/* Step Indicator Dots */
+.step-indicator {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 25px;
+}
+
+.step-dot {
+    height: 8px;
+    width: 8px;
+    background-color: #e0e0e0;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+.step-dot.active {
+    background-color: #ff8c00;
+    width: 24px;
+    border-radius: 10px;
+}
+
+.input-field {
+    margin-bottom: 15px;
+}
+
+.input-field input {
+    width: 100%;
+    padding: 18px 25px;
+    background: #f1f4f9;
+    border: 2px solid transparent;
+    border-radius: 15px;
+    outline: none;
+    transition: 0.3s;
+}
+
+.input-field input:focus {
+    border-color: #ff8c00;
+    background: #fff;
+}
+
+.btn-continue {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #ff8c00, #ff4500); /* Home Page Orange Gradient */
+    color: white;
+    border: none;
+    border-radius: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(255, 140, 0, 0.2);
+    transition: 0.3s;
+}
+
+.btn-continue:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 25px rgba(255, 140, 0, 0.3);
+}
+
+.signup-text a {
+    color: #4fb06d; /* Signature Parrot Green */
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.close-btn {
+    position: absolute;
+    right: 30px;
+    top: 25px;
+    font-size: 30px;
+    color: #bbb;
+    cursor: pointer;
+}
+
+@keyframes slideDown {
+    from { transform: translate(-50%, -60%); opacity: 0; }
+    to { transform: translate(-50%, -50%); opacity: 1; }
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 992px) {
+    .navbar { padding: 20px 40px; }
+}
+
+@media (max-width: 768px) {
+    .nav-links { display: none; } /* Add a hamburger menu for mobile later */
 }
 
 /* --- ABOUT PAGE CONTENT --- */

@@ -23,14 +23,14 @@
             <li class="dropdown">
                 <a href="javascript:void(0)" class="dropbtn">Login <i class='bx bx-chevron-down'></i></a>
                 <div class="dropdown-content">
-                    <a href="/login/user">
+                    <a href="javascript:void(0)" onclick="openModal('User')">
                         <div class="menu-item">
                             <i class='bx bx-log-in-circle'></i>
                             <span>User Login</span>
                         </div>
                         <i class='bx bx-right-arrow-alt'></i>
                     </a>
-                    <a href="/login/admin">
+                    <a href="javascript:void(0)" onclick="openModal('Admin')">
                         <div class="menu-item">
                             <i class='bx bx-shield-quarter'></i>
                             <span>Admin Login</span>
@@ -44,14 +44,14 @@
             <li class="dropdown">
                 <a href="javascript:void(0)" class="dropbtn">Register <i class='bx bx-chevron-down'></i></a>
                 <div class="dropdown-content">
-                    <a href="/register/user">
+                    <a href="javascript:void(0)" onclick="openRegisterModal('User')">
                         <div class="menu-item">
                             <i class='bx bx-user-plus'></i>
                             <span>User Registration</span>
                         </div>
                         <i class='bx bx-right-arrow-alt'></i>
                     </a>
-                    <a href="/register/admin">
+                    <a href="javascript:void(0)" onclick="openRegisterModal('Admin')">
                         <div class="menu-item">
                             <i class='bx bx-user-check'></i>
                             <span>Admin Registration</span>
@@ -302,3 +302,124 @@
     <script src="home.js"></script>
 </body>
 </html>
+
+<!-- LOGIN POP UP MODAL FOR BOTH USER AND ADMIN -->
+<div id="loginModal" class="modal">
+    
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        
+        <div class="modal-header">
+            <h1>Event<span>Management</span></h1>
+            <p>Your Vision, Our Venue</p>
+        </div>
+
+        <h2 class="login-title"><span id="portalType">User</span> Login</h2>
+
+        <form id="loginForm">
+            <div class="input-field">
+                <input type="email" placeholder="Email Id" required>
+            </div>
+            <div class="input-field">
+                <input type="password" placeholder="Password" required>
+            </div>
+            
+            <div class="form-footer">
+                <a href="javascript:void(0)" onclick="handleForgotPassword()" class="forgot-link">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="btn-continue">CONTINUE</button>
+        </form>
+
+        <p class="signup-text">New User? <a href="javascript:void(0)" onclick="switchToRegistration()">Sign Up</a></p>
+    </div>
+</div>
+
+<!-- REGISTRATION POP UP MODAL FOR ADMIN AND USER BOTH -->
+<div id="registerModal" class="modal">
+    <div class="modal-content registration-card">
+        <span class="close-btn" onclick="closeRegisterModal()">&times;</span>
+        
+        <div class="modal-header">
+            <h1>Event<span>Hub</span></h1>
+            <div class="step-indicator">
+                <span class="step-dot active"></span>
+                <span class="step-dot"></span>
+                <span class="step-dot"></span>
+                <span class="step-dot"></span>
+            </div>
+        </div>
+
+        <h2 class="login-title"><span id="regType">User</span> Registration</h2>
+
+        <!-- STEP 1: Basic Info -->
+        <div class="reg-step" id="step1">
+            <div class="input-field">
+                <input type="text" id="regName" placeholder="Full Name" required>
+            </div>
+            <div class="input-field">
+                <input type="date" id="regDOB" title="Date of Birth" required>
+            </div>
+            <button type="button" class="btn-continue" onclick="nextStep(2)">Next</button>
+            <p class="signup-text">
+                Already have an account? 
+                <a href="javascript:void(0)" onclick="switchToLogin()">Login</a>
+            </p>
+        </div>
+
+        <!-- STEP 2: Email Verification -->
+        <div class="reg-step" id="step2" style="display:none;">
+            <div class="input-field">
+                <input type="email" id="regEmail" placeholder="Email Address" required>
+            </div>
+            <button type="button" class="btn-otp" onclick="sendOTP('email')">Send OTP</button>
+            <div class="input-field">
+                <input type="text" id="emailOTP" placeholder="Enter Email OTP">
+            </div>
+            <button type="button" class="btn-continue" onclick="nextStep(3)">Verify & Next</button>
+        </div>
+
+        <!-- STEP 3: Phone Verification -->
+        <div class="reg-step" id="step3" style="display:none;">
+            <div class="input-field">
+                <input type="tel" id="regPhone" placeholder="Phone Number" required>
+            </div>
+            <button type="button" class="btn-otp" onclick="sendOTP('phone')">Send OTP</button>
+            <div class="input-field">
+                <input type="text" id="phoneOTP" placeholder="Enter Phone OTP">
+            </div>
+            <button type="button" class="btn-continue" onclick="nextStep(4)">Verify & Next</button>
+        </div>
+
+        <!-- STEP 4: Password -->
+        <div class="reg-step" id="step4" style="display:none;">
+            <div class="input-field">
+                <input type="password" id="regPass" placeholder="Password" required>
+            </div>
+            <div class="input-field">
+                <input type="password" id="regConfirmPass" placeholder="Confirm Password" required>
+            </div>
+            <button type="submit" class="btn-continue" onclick="finalizeRegistration()">Register</button>
+        </div>
+
+    </div>
+</div>
+
+<!-- INTERMEDIATE NOTICE MODAL -->
+<div id="noticeModal" class="modal">
+    <div class="modal-content" style="max-width: 400px; padding: 40px;">
+        <span class="close-btn" onclick="closeNoticeModal()">&times;</span>
+        
+        <div class="modal-header">
+            <i class='bx bx-lock-alt' style="font-size: 50px; color: #ff8c00;"></i>
+            <h2 style="margin-top: 15px;">Access Restricted</h2>
+            <p style="color: #666; margin: 15px 0;">Please login first to access this feature and explore all EventHub functionalities.</p>
+        </div>
+
+        <button type="button" class="btn-continue" onclick="proceedToLogin()">LOGIN NOW</button>
+        
+        <p class="signup-text" style="margin-top: 20px;">
+            Don't have an account? <a href="javascript:void(0)" onclick="proceedToRegister()">Sign Up</a>
+        </p>
+    </div>
+</div>

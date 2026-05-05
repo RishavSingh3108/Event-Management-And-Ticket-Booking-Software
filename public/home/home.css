@@ -71,37 +71,44 @@ body{
 .dropdown {
     position: relative;
 }
-
 .dropdown-content {
-    display: none;
+    display: none; /* Hidden by default */
     position: absolute;
     background-color: #ffffff;
     min-width: 260px;
     box-shadow: 0px 10px 25px rgba(0,0,0,0.1);
     border-radius: 12px;
     z-index: 1000;
-    top: 150%; /* Spacing below the link */
+    top: 100%; 
     left: 0;
     overflow: hidden;
     border: 1px solid #eee;
 }
 
-/* Dropdown link styling as per image_e3f2e1.png */
+/* This class will be toggled by JavaScript */
+.dropdown-content.show {
+    display: block !important;
+}
+
 .dropdown-content a {
     color: #444 !important;
     padding: 15px 20px !important;
     display: flex !important;
     justify-content: space-between !important;
+    align-items: center; /* Ensures icons and text align vertically */
     border-bottom: 1px solid #f0f0f0;
+    text-decoration: none;
+    transition: background 0.3s;
 }
 
 .dropdown-content a:hover {
     background-color: #f9f9f9;
+    color: #ff8c00 !important; /* Highlights text in your signature orange */
 }
 
-/* Show on hover */
-.dropdown:hover .dropdown-content {
-    display: block;
+/* Remove the last border for a cleaner look */
+.dropdown-content a:last-child {
+    border-bottom: none;
 }
 
 /* Menu Item (Icon + Text) */
@@ -421,19 +428,206 @@ body{
 }
 
 @media(max-width:600px){
-
     .hero-content h1{
         font-size:34px;
     }
-
     .hero-content p{
         font-size:16px;
     }
-
     .nav-links{
         gap:18px;
         flex-wrap:wrap;
         justify-content:center;
     }
+}
+/* --- MODAL CONTENT CARD --- */
+.modal {
+    display: none; /* Keeps it hidden until openModal() is called */
+    position: fixed; /* Sticks to the screen, not the page content */
+    z-index: 3000; /* Stays above your navbar and hero sections */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Dims the background */
+    backdrop-filter: blur(8px); /* Modern blur effect */
+}
+.modal-content {
+    background: #ffffff;
+    margin: 5% auto;
+    padding: 50px 40px;
+    border-radius: 40px; /* High rounding as seen in your reference image */
+    width: 90%;
+    max-width: 450px;
+    position: relative;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15); /* Soft professional shadow */
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    animation: slideDown 0.4s ease;
+}
 
+@keyframes slideDown {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* --- BRANDING HEADER --- */
+.modal-header h1 {
+    font-size: 32px;
+    color: #333;
+    font-weight: 800;
+    letter-spacing: -1px;
+}
+
+.modal-header h1 span {
+    color: #ff8c00; /* Signature Primary Orange */
+}
+
+.modal-header p {
+    color: #888;
+    font-size: 14px;
+    margin-top: 5px;
+    margin-bottom: 30px;
+}
+
+/* --- LOGIN TITLE --- */
+.login-title {
+    text-align: left;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #000;
+}
+
+/* --- INPUT FIELDS --- */
+.input-field {
+    margin-bottom: 15px;
+}
+
+.input-field input {
+    width: 100%;
+    padding: 18px 25px;
+    background: #f1f4f9; /* Light grey/blue tint for depth */
+    border: 2px solid transparent;
+    border-radius: 15px;
+    font-size: 15px;
+    outline: none;
+    transition: 0.3s;
+}
+
+.input-field input:focus {
+    border-color: #ff8c00; /* Orange border on focus */
+    background: #fff;
+}
+
+/* --- FORGOT PASSWORD --- */
+.form-footer {
+    text-align: right;
+    margin-bottom: 25px;
+}
+
+.forgot-link {
+    color: #d9534f; /* Muted red for importance */
+    font-size: 13px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.forgot-link:hover {
+    text-decoration: underline;
+}
+
+/* --- CONTINUE BUTTON (Orange Gradient) --- */
+.btn-continue {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #ff8c00, #ff4500); /* Home Page Orange Gradient */
+    color: white;
+    border: none;
+    border-radius: 18px;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(255, 140, 0, 0.2);
+    transition: 0.3s;
+}
+
+.btn-continue:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 25px rgba(255, 140, 0, 0.3);
+}
+
+/* --- SIGNUP TEXT --- */
+.signup-text {
+    margin-top: 25px;
+    color: #333;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.signup-text a {
+    color: #4fb06d; /* Signature Parrot Green */
+    text-decoration: none;
+}
+
+.signup-text a:hover {
+    text-decoration: underline;
+}
+
+/* --- CLOSE BUTTON --- */
+.close-btn {
+    position: absolute;
+    right: 25px;
+    top: 20px;
+    font-size: 28px;
+    color: #999;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.close-btn:hover {
+    color: #ff4500;
+}
+
+/* FOR REGISTRATION PURPOSES */
+/* Step Indicator Dots */
+.step-indicator {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.step-dot {
+    height: 8px;
+    width: 8px;
+    background-color: #ddd;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.step-dot.active {
+    background-color: #ff8c00; /* Your signature orange */
+    width: 20px;
+    border-radius: 10px;
+}
+
+/* OTP Button Styling */
+.btn-otp {
+    background: transparent;
+    border: 1px solid #ff8c00;
+    color: #ff8c00;
+    padding: 8px 15px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 15px;
+    transition: 0.3s;
+}
+
+.btn-otp:hover {
+    background: #ff8c00;
+    color: #fff;
 }

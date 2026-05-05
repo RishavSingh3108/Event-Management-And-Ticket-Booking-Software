@@ -1,10 +1,128 @@
 function requireLogin(event) {
-    // Prevent the default action (like form submission or navigation)
     if (event) event.preventDefault();
-
-    // The Popup Alert
-    alert("Please login to access these features.");
-
-    // Optional: Redirect them to the login section/page after they click OK
-    // window.location.href = "#login-section"; 
+    openModal('User');
 }
+function openModal(role) {
+    const modal = document.getElementById("loginModal");
+    const portalTypeDisplay = document.getElementById("portalType");
+    const dropdownContent = document.querySelector('.dropdown-content');
+    if (modal && portalTypeDisplay) {
+        portalTypeDisplay.innerText = role;
+        modal.style.display = "block";
+        dropdownContent.classList.remove('show');
+        document.body.style.overflow = "hidden";
+    }
+}
+function closeModal() {
+    const modal = document.getElementById("loginModal");
+    if (modal) {
+        modal.style.display = "none";
+        document.body.style.overflow = "auto";
+    }
+}
+let currentRegStep = 1;
+function openRegisterModal(role) {
+    const regModal = document.getElementById("registerModal");
+    const regTypeDisplay = document.getElementById("regType");
+
+    if (regModal) {
+        if (regTypeDisplay) regTypeDisplay.innerText = role;
+        nextStep(1);
+        
+        regModal.style.display = "block";
+        document.body.style.overflow = "hidden";
+        const dropdownContent = document.querySelector('.dropdown-content');
+        if (dropdownContent) dropdownContent.classList.remove('show');
+    }
+}
+function nextStep(step) {
+    const allSteps = document.querySelectorAll('.reg-step');
+    allSteps.forEach(s => s.style.display = 'none');
+    const targetStep = document.getElementById(`step${step}`);
+    if (targetStep) {
+        targetStep.style.display = 'block';
+    }
+    const dots = document.querySelectorAll('.step-dot');
+    dots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === (step - 1));
+    });
+
+    currentRegStep = step;
+}
+
+function closeRegisterModal() {
+    const regModal = document.getElementById("registerModal");
+    if (regModal) {
+        regModal.style.display = "none";
+        document.body.style.overflow = "auto";
+    }
+}
+function switchToLogin() {
+    const regRole = document.getElementById("regType").innerText;
+    closeRegisterModal();
+    openModal(regRole);
+}
+function switchToRegistration() {
+    const loginRole = document.getElementById("portalType").innerText;
+    closeModal();
+    openRegisterModal(loginRole);
+}
+/* --- NOTICE MODAL LOGIC --- */
+function requireLogin(event) {
+    if (event) event.preventDefault();
+    
+    const noticeModal = document.getElementById("noticeModal");
+    if (noticeModal) {
+        noticeModal.style.display = "block";
+        document.body.style.overflow = "hidden"; // Disable scroll
+    }
+}
+function closeNoticeModal() {
+    const noticeModal = document.getElementById("noticeModal");
+    if (noticeModal) {
+        noticeModal.style.display = "none";
+        document.body.style.overflow = "auto"; 
+    }
+}
+function proceedToLogin() {
+    closeNoticeModal();
+    openModal('User');
+}
+function proceedToRegister() {
+    closeNoticeModal();
+    openRegisterModal('User');
+}
+window.onclick = function(event) {
+    const loginModal = document.getElementById("loginModal");
+    const regModal = document.getElementById("registerModal");
+    const noticeModal = document.getElementById("noticeModal");
+    
+    if (event.target === loginModal) {
+        closeModal();
+    }
+    if (event.target === regModal) {
+        closeRegisterModal();
+    }
+    if (event.target === noticeModal) {
+        closeNoticeModal();
+    }
+};
+window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const action = urlParams.get('action'); 
+    const role = urlParams.get('role') || 'User'; 
+    console.log("Action detected:", action);
+    console.log("Role detected:", role);
+
+    if (action === 'login') {
+        openModal(role);
+    } 
+    else if (action === 'register') {
+        openRegisterModal(role);
+    } 
+
+    if (action) {
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+    }
+});
