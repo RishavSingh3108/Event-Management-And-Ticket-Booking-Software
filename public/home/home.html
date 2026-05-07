@@ -325,7 +325,7 @@
             </div>
             
             <div class="form-footer">
-                <a href="javascript:void(0)" onclick="handleForgotPassword()" class="forgot-link">Forgot Password?</a>
+                <a href="javascript:void(0)" onclick="openForgotPassword()" class="forgot-link">Forgot Password?</a>
             </div>
 
             <button type="submit" class="btn-continue">CONTINUE</button>
@@ -402,6 +402,41 @@
             <button type="submit" class="btn-continue" onclick="finalizeRegistration()">Register</button>
         </div>
 
+    </div>
+</div>
+
+<div id="forgotPasswordModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeForgotModal()">&times;</span>
+        
+        <div class="modal-header">
+            <h1>Event<span>Hub</span></h1>
+            <p>Reset your account password</p>
+        </div>
+
+        <div class="forgot-step" id="forgotStep1">
+            <h2 class="login-title">Verify Email</h2>
+            <div class="input-field">
+                <input type="email" id="forgotEmail" placeholder="Enter Registered Email" required>
+            </div>
+            <button type="button" class="btn-otp" onclick="sendForgotOTP()">Send OTP</button>
+            
+            <div class="input-field">
+                <input type="text" id="forgotOTP" placeholder="Enter OTP">
+            </div>
+            <button type="button" class="btn-continue" onclick="verifyForgotOTP()">Verify & Next</button>
+        </div>
+
+        <div class="forgot-step" id="forgotStep2" style="display:none;">
+            <h2 class="login-title">New Password</h2>
+            <div class="input-field">
+                <input type="password" id="newPass" placeholder="New Password" required>
+            </div>
+            <div class="input-field">
+                <input type="password" id="confirmNewPass" placeholder="Confirm New Password" required>
+            </div>
+            <button type="button" class="btn-continue" onclick="updatePassword()">Update Password</button>
+        </div>
     </div>
 </div>
 

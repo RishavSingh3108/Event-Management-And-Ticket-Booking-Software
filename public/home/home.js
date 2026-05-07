@@ -96,6 +96,7 @@ window.onclick = function(event) {
     const loginModal = document.getElementById("loginModal");
     const regModal = document.getElementById("registerModal");
     const noticeModal = document.getElementById("noticeModal");
+    const forgotModal = document.getElementById("forgotPasswordModal");
     
     if (event.target === loginModal) {
         closeModal();
@@ -105,6 +106,9 @@ window.onclick = function(event) {
     }
     if (event.target === noticeModal) {
         closeNoticeModal();
+    }
+    if (event.target === forgotModal) {
+        closeForgotModal();
     }
 };
 window.addEventListener('DOMContentLoaded', () => {
@@ -126,3 +130,60 @@ window.addEventListener('DOMContentLoaded', () => {
         window.history.replaceState({}, document.title, newUrl);
     }
 });
+// --- FORGOT PASSWORD FUNCTIONS ---
+
+function openForgotPassword() {
+    // Close login modal first
+    closeModal();
+    
+    const forgotModal = document.getElementById("forgotPasswordModal");
+    if (forgotModal) {
+        // Reset to Step 1
+        document.getElementById('forgotStep1').style.display = 'block';
+        document.getElementById('forgotStep2').style.display = 'none';
+        
+        forgotModal.style.display = "block";
+        document.body.style.overflow = "hidden";
+    }
+}
+
+function closeForgotModal() {
+    const forgotModal = document.getElementById("forgotPasswordModal");
+    if (forgotModal) {
+        forgotModal.style.display = "none";
+        document.body.style.overflow = "auto";
+    }
+}
+
+function sendForgotOTP() {
+    const email = document.getElementById('forgotEmail').value;
+    if(!email) return alert("Please enter your email");
+    
+    // Logic for Node.js backend to send email
+    alert("Reset OTP sent to " + email);
+}
+
+function verifyForgotOTP() {
+    // Logic to check OTP against backend
+    const otp = document.getElementById('forgotOTP').value;
+    if(!otp) return alert("Please enter the OTP");
+
+    // On success, show Step 2
+    document.getElementById('forgotStep1').style.display = 'none';
+    document.getElementById('forgotStep2').style.display = 'block';
+}
+
+function updatePassword() {
+    const newP = document.getElementById('newPass').value;
+    const confirmP = document.getElementById('confirmNewPass').value;
+
+    if (newP !== confirmP) {
+        alert("Passwords do not match!");
+        return;
+    }
+
+    // Logic for MongoDB update
+    alert("Password updated successfully! Please login with your new password.");
+    closeForgotModal();
+    openModal('User'); // Redirect back to login
+}
