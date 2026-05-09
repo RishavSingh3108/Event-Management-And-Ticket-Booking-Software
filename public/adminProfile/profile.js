@@ -125,7 +125,6 @@ async function saveAdminData() {
     }
 }
 
-window.onload = loadAdminProfile;
 
 async function getFullAddressFromCoords(coordsString) {
     if (!coordsString || !coordsString.includes(',')) return "No Location Set";

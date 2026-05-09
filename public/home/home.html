@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EventHub - Event Management & Ticket Booking</title>
-  <link rel="stylesheet" href="home.css">
+  <link rel="stylesheet" href="/home/home.css">
   <link rel="stylesheet" href="../common_style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +18,7 @@
     <div class="logo">Event<span>Hub</span> </div>
     <nav>
         <ul class="nav-links">
-            <li><a href="#">Home</a></li>
+            <li><a href="/">Home</a></li>
             <!-- LOGIN DROPDOWN -->
             <li class="dropdown">
                 <a href="javascript:void(0)" class="dropbtn">Login <i class='bx bx-chevron-down'></i></a>
@@ -60,8 +60,8 @@
                     </a>
                 </div>
             </li>
-            <li><a href="#popular-events">Events</a></li>
-            <li><a href="#venues-section">Venues</a></li>
+            <li><a href="/home/home.html#popular-events">Events</a></li>
+            <li><a href="/home/home.html#venues-section">Venues</a></li>
         </ul>
     </nav>
   </header>
@@ -299,7 +299,7 @@
             <p>&copy; 2026 EventFlow Management System. All Rights Reserved.</p>
         </div>
     </footer>
-    <script src="home.js"></script>
+    <script src="/home/home.js"></script>
 </body>
 </html>
 
@@ -318,17 +318,17 @@
 
         <form id="loginForm">
             <div class="input-field">
-                <input type="email" placeholder="Email Id" required>
+                <input type="email" id="loginEmail" placeholder="Email Id" required>
             </div>
             <div class="input-field">
-                <input type="password" placeholder="Password" required>
+                <input type="password" id="loginPassword" placeholder="Password" required>
             </div>
             
             <div class="form-footer">
                 <a href="javascript:void(0)" onclick="openForgotPassword()" class="forgot-link">Forgot Password?</a>
             </div>
 
-            <button type="submit" class="btn-continue">CONTINUE</button>
+            <button type="submit" class="btn-continue" onclick="handleLogin(event)">CONTINUE</button>
         </form>
 
         <p class="signup-text">New User? <a href="javascript:void(0)" onclick="switchToRegistration()">Sign Up</a></p>
@@ -376,7 +376,7 @@
             <div class="input-field">
                 <input type="text" id="emailOTP" placeholder="Enter Email OTP">
             </div>
-            <button type="button" class="btn-continue" onclick="nextStep(3)">Verify & Next</button>
+            <button type="button" class="btn-continue" onclick="verifyStepOTP('email',3)">Verify & Next</button>
         </div>
 
         <!-- STEP 3: Phone Verification -->
@@ -388,7 +388,7 @@
             <div class="input-field">
                 <input type="text" id="phoneOTP" placeholder="Enter Phone OTP">
             </div>
-            <button type="button" class="btn-continue" onclick="nextStep(4)">Verify & Next</button>
+            <button type="button" class="btn-continue" onclick="verifyStepOTP('phone',4)">Verify & Next</button>
         </div>
 
         <!-- STEP 4: Password -->

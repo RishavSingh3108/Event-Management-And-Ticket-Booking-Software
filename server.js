@@ -2,11 +2,14 @@ const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const cors = require('cors'); 
+const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
 const app = express();
 
 const multer = require('multer');
+const nodemailer = require('nodemailer');
+const twilio = require('twilio');
 const storage = multer.memoryStorage();
 const upload = multer({ 
     storage: storage,
@@ -25,6 +28,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // 2. Models
 const Venue = require('./models/Venue');
 const User = require('./models/User');
+const Admin = require('./models/Admin');
 
 // 3. Database Connection
 mongoose.connect(process.env.MONGO_URI)
@@ -33,7 +37,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 // 4. Routes
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'auth.html'));
+    res.sendFile(path.join(__dirname, 'public', 'home', 'home.html'));
 });
 
 // Auth routes
@@ -416,8 +420,6 @@ app.post('/api/admin/upload-photo', uploadAdmin.single('adminPhoto'), async (req
 });
 
 // GET: Fetch Admin Profile Data
-// server.js
-// Make sure this is ABOVE your app.listen and BELOW your middlewares
 app.get('/api/admin/get-profile', async (req, res) => {
     try {
         const userId = req.query.id; // Correctly pull 'id' from the URL query
@@ -437,7 +439,7 @@ app.get('/api/admin/dashboard-stats', async (req, res) => {
         const { userId } = req.query;
         const adminProfile = await User.findById(userId); 
 
-        // Existing count and aggregation logic
+        // Existing count and aggation logic
         const totalVenues = await Venue.countDocuments({ adminId: userId });
         const stats = await Booking.aggregate([
             { $match: { adminId: new mongoose.Types.ObjectId(userId) } },
@@ -569,6 +571,254 @@ app.get('/api/billing/history', async (req, res) => {
             success: false,
             message: "Failed to fetch billing history: " + err.message
         });
+    }
+});
+const otpSchema = new mongoose.Schema({
+    target: { type: String, required: true }, // The email or phone
+    otp: { type: String, required: true },    // The 6-digit code
+    createdAt: { 
+        type: Date, 
+        default: Date.now, 
+        index: { expires: 300 } // This deletes the code automatically after 5 minutes
+    }
+});
+
+// This creates the 'OTPModel' variable that was missing
+const OTPModel = mongoose.model('OTP', otpSchema);
+// 1. Configure the Email Transporter
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
+
+const accountSid = process.env.TWILIO_SID;; 
+const authToken = process.env.TWILIO_TOKEN; 
+
+const client = twilio(accountSid, authToken);
+
+// 2. Generate a 6-Digit OTP
+const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
+
+// 3. API Route to Send OTP
+app.post('/api/auth/send-otp', async (req, res) => {
+    const { target, type } = req.body;
+    const otp = generateOTP();
+
+    try {
+        if (type === 'email') {
+            await transporter.sendMail({
+                from: '"EventHub Team" <rishav310805@gmail.com>',
+                to: target,
+                subject: "Your EventHub Verification Code",
+                html: `<b>Your OTP is ${otp}</b>`
+            });
+        }
+        else if (type === 'phone') {
+            // WHATSAPP LOGIC
+            await client.messages.create({
+                from: '+18562809398', // Twilio Sandbox Number
+                to: `+91${target}`,   // User's number
+                body: `Your EventHub verification code is: ${otp}`
+            });
+        }
+        
+        await OTPModel.create({ target, otp });
+        res.json({ success: true, message: "OTP sent!" });
+
+    } catch (error) {
+        // This log will appear in your TERMINAL
+        console.error("CRITICAL SERVER ERROR:", error.message);
+        
+        // This sends the error message to your BROWSER console
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+// 4. API Route to Verify OTP
+app.post('/api/auth/verify-otp', async (req, res) => {
+    const { target, otp } = req.body;
+
+    try {
+        const record = await OTPModel.findOne({ target, otp });
+
+        if (record) {
+            await OTPModel.deleteOne({ _id: record._id });
+            res.json({ success: true, message: "Email verified successfully!" });
+        } else {
+            res.status(400).json({ success: false, message: "Invalid or expired OTP." });
+        }
+    } catch (error) {
+        console.error("Verification Error:", error.message);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+app.post('/api/auth/forgot-password-otp', async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        // 1. Check if the user exists in your User database
+        // (Assuming your user model is called 'User')
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ success: false, message: "Email not registered." });
+        }
+
+        // 2. Generate a 6-digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // 3. Clean up old OTPs for this email and save the new one
+        // We use 'target' to match your Schema
+        await OTPModel.deleteMany({ target: email });
+
+        const newOtpEntry = new OTPModel({
+            target: email, 
+            otp: otp
+        });
+        await newOtpEntry.save();
+
+        // 4. Send Email using your Transporter
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'EventHub - Password Reset OTP',
+            text: `Your OTP for password reset is: ${otp}. It will expire in 5 minutes.`
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        res.json({ success: true, message: "OTP sent successfully!" });
+
+    } catch (err) {
+        console.error("Forgot OTP Send Error:", err);
+        res.status(500).json({ success: false, message: "Failed to send OTP. Please try again." });
+    }
+});
+app.post('/api/auth/verify-reset-otp', async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+
+        // Use 'OTPModel' to match your send-otp logic and definition
+        const otpRecord = await OTPModel.findOne({ 
+            target: email, 
+            otp: otp 
+        });
+
+        if (!otpRecord) {
+            // If no record is found, it's either the wrong code or it expired (TTL deleted it)
+            return res.status(400).json({ 
+                success: false, 
+                message: "Invalid or expired OTP. Please request a new one." 
+            });
+        }
+        await OTPModel.deleteOne({ _id: otpRecord._id });
+
+        // Success! 
+        res.json({ success: true, message: "OTP verified successfully." });
+
+    } catch (error) {
+        console.error("Verification Error:", error);
+        // Returning JSON prevents the "Unexpected token <" error on the frontend
+        res.status(500).json({ success: false, message: "Internal server error." });
+    }
+});
+app.post('/api/auth/reset-password', async (req, res) => {
+    try {
+        const { email, newPassword } = req.body;
+
+        // 1. Find user
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found." });
+        }
+
+        // 2. Hash the new password before saving
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        // 3. Update and Save
+        user.password = hashedPassword;
+        await user.save();
+
+        res.json({ success: true, message: "Password updated successfully." });
+    } catch (error) {
+        console.error("Bcrypt Update Error:", error);
+        res.status(500).json({ success: false, message: "Server error." });
+    }
+});
+
+app.post('/api/register', async (req, res) => {
+   
+    try {
+        const { name, dob, email, phone, password, role } = req.body;
+        const existingUser = await User.findOne({ email });
+        const existingAdmin = await Admin.findOne({ email });
+
+        if (existingUser || existingAdmin) {
+            return res.status(400).json({ success: false, message: "Email already registered!" });
+        }
+        const hashedPassword = await bcrypt.hash(password, 10);
+        if (role === 'Admin') {
+            const newAdmin = new Admin({ 
+                name, 
+                dob, 
+                email, 
+                phone, 
+                password: hashedPassword, 
+                role 
+            });
+            await newAdmin.save();
+        } else {
+            const newUser = new User({ 
+                name, 
+                dob, 
+                email, 
+                phone, 
+                password: hashedPassword, 
+                role 
+            });
+            await newUser.save();
+        }
+
+        res.status(201).json({ success: true, message: "Registration successful!" });
+
+    } catch (err) {
+        console.error("Reg Error:", err.message);
+        res.status(500).json({ success: false, message: "Error saving to database." });
+    }
+});
+app.post('/api/login', async (req, res) => {
+    try {
+        const { email, password, role } = req.body;
+        if (!email || !password || !role) {
+            return res.status(400).json({ success: false, message: "All fields are required." });
+        }
+        const Model = (role === 'Admin') ? Admin : User;
+        const account = await Model.findOne({ email });
+
+        if (!account) {
+            return res.status(401).json({ success: false, message: "Invalid email or role." });
+        }
+        const isMatch = await bcrypt.compare(password, account.password); 
+
+        if (!isMatch) {
+            return res.status(401).json({ success: false, message: "Incorrect password." });
+        }
+        res.status(200).json({
+            success: true,
+            message: `Welcome back, ${account.name}!`,
+            user: {
+                id: account._id,
+                name: account.name,
+                email: account.email,
+                role: account.role
+            }
+        });
+
+    } catch (err) {
+        console.error("Login Error:", err.message);
+        res.status(500).json({ success: false, message: "Internal server error." });
     }
 });
 

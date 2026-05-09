@@ -5,29 +5,30 @@
 //     phone: { type: String },
 //     email: { type: String, required: true, unique: true },
 //     password: { type: String, required: true },
-//     role: { type: String, enum: ['User', 'Admin'], default: 'User' }
+//     role: { type: String, enum: ['User', 'Admin'], default: 'User' },
+    
+//     // Extended fields for the Admin Profile
+//     profileImage: { type: String, default: '/uploads/default-admin.png' },
+//     businessDetails: {
+//         gstNumber: { type: String, default: '' },
+//         aadharNumber: { type: String, default: '' },
+//         foodLicense: { type: String, default: '' },
+//         gpsLocation: { type: String, default: '' }
+//     }
 // });
 
-// // THIS LINE IS CRITICAL:
 // module.exports = mongoose.model('User', userSchema);
 
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-    name: { type: String },
-    phone: { type: String },
+    name: { type: String, required: true },
+    dob: { type: Date, required: true }, // Added this line
     email: { type: String, required: true, unique: true },
+    phone: { type: String, required: true },
     password: { type: String, required: true },
-    role: { type: String, enum: ['User', 'Admin'], default: 'User' },
-    
-    // Extended fields for the Admin Profile
-    profileImage: { type: String, default: '/uploads/default-admin.png' },
-    businessDetails: {
-        gstNumber: { type: String, default: '' },
-        aadharNumber: { type: String, default: '' },
-        foodLicense: { type: String, default: '' },
-        gpsLocation: { type: String, default: '' }
-    }
+    role: { type: String, default: 'User' },
+    createdAt: { type: Date, default: Date.now }
 });
 
 module.exports = mongoose.model('User', userSchema);
