@@ -194,25 +194,6 @@ router.get('/particularAdmin/bookings', async (req, res) => {
         res.status(500).json({ success: false, message: "Error fetching filtered bookings" });
     }
 });
-// UPDATE BOOKING STATUS (Approve/Reject)
-router.put('/bookings/status/:id', async (req, res) => {
-    try {
-        const { status } = req.body; // 'Approved' or 'Rejected'
-        const updatedBooking = await Booking.findByIdAndUpdate(
-            req.params.id, 
-            { status: status }, 
-            { returnDocument: 'after' }
-        );
-
-        if (!updatedBooking) {
-            return res.status(404).json({ success: false, message: "Booking not found" });
-        }
-
-        res.json({ success: true, message: `Booking ${status} successfully!` });
-    } catch (err) {
-        res.status(500).json({ success: false, message: "Update failed" });
-    }
-});
 // Generate Bill
 router.get('/generate-bill/:id', async (req, res) => {
     try {

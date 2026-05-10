@@ -111,14 +111,23 @@
                         <div class="form-field">
                             <label>GST Number</label>
                             <input type="text" id="editGst" value="22AAAAA0000A1Z5">
+                            <small id="gstHint" style="color:red; display:none;">Invalid GSTIN format</small>
                         </div>
                         <div class="form-field">
                             <label>Aadhar Number</label>
-                            <input type="text" id="editAadhar" value="XXXX-XXXX-XXXX">
+                            <!-- <input type="text" id="editAadhar" value="XXXX-XXXX-XXXX"> -->
+                            <div class="aadhar-control" style="display: flex; gap: 10px;">
+                                <input type="text" id="editAadhar" maxlength="12" placeholder="XXXX XXXX XXXX" value="XXXX-XXXX-XXXX" >
+                                <button type="button" id="verifyAadharBtn" class="verify-btn" disabled onclick="sendAadharOTP()">
+                                    Validate
+                                </button>
+                            </div>
+                            <small id="aadharHint" style="color:red; display:none;">Invalid Aadhaar Format</small>
                         </div>
                         <div class="form-field">
                             <label>Food License (FSSAI)</label>
                             <input type="text" id="editFssai" placeholder="Enter License Number">
+                            <small id="fssaiHint" style="color:red; display:none;">Must be exactly 14 digits</small>
                         </div>
                         <div class="form-field">
                             <label>GPS Coordinates</label>
@@ -136,6 +145,26 @@
                     </div>
                 </div>
             </section>
+            <!-- Aadhar OTP verification POP UP -->
+            <div id="otpModal" class="modal-overlay hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <i class='bx bxs-shield-quarter modal-icon'></i>
+                        <h3>Aadhaar Verification</h3>
+                        <p>Enter the 6-digit code sent to your linked mobile number.</p>
+                    </div>
+                    
+                    <div class="modal-body">
+                        <input type="text" id="aadharOtpInput" maxlength="6" placeholder="0 0 0 0 0 0" autocomplete="off">
+                        <div id="otpError" class="error-text hidden">Invalid OTP. Please try again.</div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn-secondary" onclick="closeOtpModal()">Cancel</button>
+                        <button class="btn-primary" onclick="confirmAadharOTP()">Verify OTP</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <script src="profile.js"></script>

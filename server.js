@@ -81,6 +81,26 @@ app.get('/api/bookings/screenshot/:id', async (req, res) => {
         res.status(500).send('Error retrieving image');
     }
 });
+// UPDATE BOOKING STATUS (Approve/Reject)
+app.put('/api/bookings/status/:id', async (req, res) => {
+    console.log("Called!");
+    try {
+        const { status } = req.body; // 'Approved' or 'Rejected'
+        const updatedBooking = await Booking.findByIdAndUpdate(
+            req.params.id, 
+            { status: status }, 
+            { returnDocument: 'after' }
+        );
+
+        if (!updatedBooking) {
+            return res.status(404).json({ success: false, message: "Booking not found" });
+        }
+
+        res.json({ success: true, message: `Booking ${status} successfully!` });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Update failed" });
+    }
+});
 
 const otpSchema = new mongoose.Schema({
     target: { type: String, required: true }, 

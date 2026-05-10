@@ -78,9 +78,128 @@ async function updatePhotoPreview(event) {
         alert("Failed to connect to the server.");
     }
 }
+// Function to validate GST as the admin types
+document.getElementById('editGst').addEventListener('input', function (e) {
+    const gstInput = e.target;
+    const gstValue = gstInput.value.toUpperCase();
+    gstInput.value = gstValue; 
+
+    const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+
+    if (gstValue.length > 0 && gstValue.length < 15) {
+        gstInput.style.borderColor = "#ffa500"; 
+    } else if (gstValue.length === 15 && !gstRegex.test(gstValue)) {
+        gstInput.style.borderColor = "red"; 
+    } else if (gstRegex.test(gstValue)) {
+        gstInput.style.borderColor = "#4CAF50"; 
+    } else {
+        gstInput.style.borderColor = ""; 
+    }
+});
+// Function to validate FSSAI as the admin types
+document.getElementById('editFssai').addEventListener('input', function (e) {
+    const fssaiInput = e.target;
+    fssaiInput.value = fssaiInput.value.replace(/\D/g, ''); 
+    const fssaiValue = fssaiInput.value;
+    const fssaiRegex = /^\d{14}$/;
+    if (fssaiValue.length > 0 && fssaiValue.length < 14) {
+        fssaiInput.style.borderColor = "#ffa500"; 
+    } else if (fssaiValue.length === 14 && fssaiRegex.test(fssaiValue)) {
+        fssaiInput.style.borderColor = "#4CAF50"; 
+    } else if (fssaiValue.length > 14) {
+        fssaiInput.value = fssaiValue.slice(0, 14);
+    } else {
+        fssaiInput.style.borderColor = "red"; 
+    }
+});
+// Function to validate AADHAR structure so that it can be send to UIDAI for further verification's
+document.getElementById('editAadhar').addEventListener('input', function (e) {
+    const aadharInput = e.target;
+    const verifyBtn = document.getElementById('verifyAadharBtn'); // Get your Validate button
+    
+    aadharInput.value = aadharInput.value.replace(/\D/g, ''); 
+    const val = aadharInput.value;
+    const aadharRegex = /^\d{12}$/;
+
+    if (val.length === 12) {
+        if (aadharRegex.test(val)) {
+            aadharInput.style.borderColor = "#4CAF50"; 
+            // ENABLE BUTTON
+            verifyBtn.disabled = false;
+            verifyBtn.style.opacity = "1";
+            verifyBtn.style.cursor = "pointer";
+        } else {
+            aadharInput.style.borderColor = "red";
+            verifyBtn.disabled = true;
+        }
+    } else {
+        if (val.length > 12) aadharInput.value = val.slice(0, 12);
+        aadharInput.style.borderColor = "#ffa500";
+        // DISABLE BUTTON
+        verifyBtn.disabled = true;
+        verifyBtn.style.opacity = "0.5";
+        verifyBtn.style.cursor = "not-allowed";
+    }
+});
+
+let currentAadharOTP = null;
+
+// This runs when the Validate button is clicked
+function sendAadharOTP() {
+    // 1. Generate a random 6-digit code
+    currentAadharOTP = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // 2. Alert the user (Simulating the SMS)
+    alert(`OTP sent to Aadhaar-linked mobile: ${currentAadharOTP}`);
+    
+    // 3. Show the modal
+    document.getElementById('otpModal').classList.remove('hidden');
+}
+
+function closeOtpModal() {
+    document.getElementById('otpModal').classList.add('hidden');
+}
+
+function confirmAadharOTP() {
+    const enteredOtp = document.getElementById('aadharOtpInput').value;
+    const aadharInput = document.getElementById('editAadhar');
+    const verifyBtn = document.getElementById('verifyAadharBtn');
+
+    if (enteredOtp === currentAadharOTP) {
+        alert("✅ Aadhaar Verified Successfully!");
+        
+        // Lock the field so it can't be edited anymore
+        aadharInput.readOnly = true;
+        aadharInput.style.backgroundColor = "#f8f8f8";
+        
+        // Style the button as 'Verified'
+        verifyBtn.innerHTML = "<i class='bx bxs-check-shield'></i> Verified";
+        verifyBtn.style.backgroundColor = "#4CAF50";
+        verifyBtn.disabled = true;
+        
+        closeOtpModal();
+    } else {
+        alert("❌ Invalid OTP. Please try again.");
+    }
+}
 async function saveAdminData() {
-    // 1. Get the dynamic adminId from localStorage
     const savedId = localStorage.getItem('adminId');
+    // GST Regex Validation
+    const gstValue = document.getElementById('editGst').value.toUpperCase();
+    const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+    if (!gstRegex.test(gstValue)) {
+        alert("Please enter a correct 15-digit GST number format.");
+        document.getElementById('editGst').focus();
+        return; 
+    }
+    // FSSAI Validation
+    const fssaiValue = document.getElementById('editFssai').value;
+    const fssaiRegex = /^\d{14}$/;
+    if (fssaiValue && !fssaiRegex.test(fssaiValue)) {
+        alert("Please enter a valid 14-digit FSSAI License Number.");
+        document.getElementById('editFssai').focus();
+        return; 
+    }
 
     if (!savedId) {
         alert("Session error: Admin ID not found. Please login again.");

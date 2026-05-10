@@ -81,7 +81,7 @@ async function updateStatus(id, newStatus) {
     if (!confirm(`Are you sure you want to mark this booking as ${newStatus}?`)) return;
 
     try {
-        const response = await fetch(`/api/admin/bookings/status/${id}`, {
+        const response = await fetch(`/api/bookings/status/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: newStatus })
