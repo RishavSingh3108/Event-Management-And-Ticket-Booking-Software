@@ -15,10 +15,6 @@ const upload = multer({
     storage: storage,
     limits: { fileSize: 5 * 1024 * 1024 } 
 });
-const billingRoutes = require('./routes/billing');
-
-// Ensure this matches the 'api/billing' part of your fetch URL
-app.use('/api/billing', billingRoutes);
 
 // 1. Middlewares
 app.use(cors()); 
@@ -29,6 +25,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 const Venue = require('./models/Venue');
 const User = require('./models/User');
 const Admin = require('./models/Admin');
+const Booking = require('./models/Booking');
+const billingRoutes = require('./routes/billing');
+const Billing = require('./models/Billing'); 
+
+// Ensure this matches the 'api/billing' part of your fetch URL
+app.use('/api/billing', billingRoutes);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 3. Database Connection
 mongoose.connect(process.env.MONGO_URI)
@@ -52,8 +55,6 @@ app.use('/api', authRoutes);
 // POST: Create Venue
 app.post('/api/venues', async (req, res) => {
     try {
-        console.log("Receiving data:", req.body);
-
         const newVenue = new Venue(req.body); 
         await newVenue.save(); 
 
@@ -84,19 +85,9 @@ app.get('/api/venues', async (req, res) => {
 // BOOKING API ROUTES
 // =======================================
 
-// Booking can be done by user for any venue
-const Booking = require('./models/Booking');
-// POST: Create a new booking with conflict check
-
 app.post('/api/bookings', upload.single('screenshot'), async (req, res) => {
     try {
-        console.log("Incoming Body Text Data:", req.body);
-        console.log("Incoming File Data:", req.file);
-
         const { venueId, adminId, bookingDate, userId, paymentType, paymentAmount } = req.body;
-
-       
-        console.log("Full req.body:", req.body);
         if (!req.body.adminId) {
             console.error("CRITICAL: adminId is missing from req.body");
         }
@@ -154,9 +145,29 @@ app.post('/api/bookings', upload.single('screenshot'), async (req, res) => {
         res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 });
+// PUT: Update an existing venue
+app.put('/api/venues/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        // Check if the ID is valid
+        if (!id || id === "null" || id === "undefined") {
+            return res.status(400).json({ success: false, message: "Invalid Venue ID" });
+        }
+
+        const updatedVenue = await Venue.findByIdAndUpdate(id, req.body, { returnDocument: 'after' });
+
+        if (!updatedVenue) {
+            console.log("❓ Venue not found in DB");
+            return res.status(404).json({ success: false, message: "Venue not found" });
+        }
+        res.json({ success: true, message: "Update successful" });
+    } catch (err) {
+        console.error("❌ Server Error during PUT:", err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
 
 // DELETE: Remove a venue by ID
-
 app.delete('/api/venues/:id', async (req, res) => {
     try {
         const result = await Venue.findByIdAndDelete(req.params.id);
@@ -170,42 +181,11 @@ app.delete('/api/venues/:id', async (req, res) => {
 });
 
 
-// PUT: Update an existing venue
-app.put('/api/venues/:id', async (req, res) => {
-    try {
-        const id = req.params.id;
-        console.log("🛠️ Received Update Request for ID:", id);
-        console.log("📦 Data received:", req.body);
-
-        // Check if the ID is valid
-        if (!id || id === "null" || id === "undefined") {
-            return res.status(400).json({ success: false, message: "Invalid Venue ID" });
-        }
-
-        const updatedVenue = await Venue.findByIdAndUpdate(id, req.body, { new: true });
-
-        if (!updatedVenue) {
-            console.log("❓ Venue not found in DB");
-            return res.status(404).json({ success: false, message: "Venue not found" });
-        }
-
-        console.log("✅ Venue updated successfully!");
-        res.json({ success: true, message: "Update successful" });
-    } catch (err) {
-        console.error("❌ Server Error during PUT:", err);
-        res.status(500).json({ success: false, error: err.message });
-    }
-});
-
 // Route to get all bookings for a SPECIFIC venue (needed for the Admin Calendar)
 app.get('/api/bookings/venue/:venueId', async (req, res) => {
     try {
         const { venueId } = req.params;
-        
-        // Find all bookings where venueId matches the one clicked by the Admin
         const bookings = await Booking.find({ venueId: venueId });
-        
-        // Send the list of bookings back to the Admin Dashboard
         res.status(200).json(bookings);
     } catch (err) {
         console.error("Error fetching bookings for venue:", err);
@@ -230,13 +210,8 @@ app.get('/api/bookings/single/:id', async (req, res) => {
 
 app.get('/api/admin/bookings', async (req, res) => {
     try {
-        // 1. Get the adminId from the query parameters
         const { adminId } = req.query;
-
-        // 2. Build the query object: filter by adminId if it's provided
         const query = adminId ? { adminId: adminId } : {};
-
-        // 3. Find and populate as before, but with the specific filter
         const bookings = await Booking.find(query)
             .populate('venueId') 
             .sort({ submittedAt: -1 });
@@ -255,8 +230,6 @@ app.get('/api/bookings/screenshot/:id', async (req, res) => {
         if (!booking || !booking.paymentScreenshot || !booking.paymentScreenshot.data) {
             return res.status(404).send('Image not found');
         }
-        
-        // Set the header to image/png or image/jpeg
         res.set('Content-Type', booking.paymentScreenshot.contentType);
         // Send the raw binary data
         res.send(booking.paymentScreenshot.data);
@@ -272,7 +245,7 @@ app.put('/api/bookings/status/:id', async (req, res) => {
         const updatedBooking = await Booking.findByIdAndUpdate(
             req.params.id, 
             { status: status }, 
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         if (!updatedBooking) {
@@ -347,11 +320,11 @@ app.delete('/api/bookings/:id', async (req, res) => {
 // server.js
 app.put('/api/admin/update-profile', async (req, res) => {
     try {
-        const { userId, gst, aadhar, fssai, gps } = req.body;
+        const { adminId, gst, aadhar, fssai, gps } = req.body;
         
         // Use findByIdAndUpdate for the most direct match with the MongoDB _id
-        const updatedUser = await User.findByIdAndUpdate(
-            userId, 
+        const updatedUser = await Admin.findByIdAndUpdate(
+            adminId, 
             {
                 $set: {
                     'businessDetails.gstNumber': gst,
@@ -360,7 +333,7 @@ app.put('/api/admin/update-profile', async (req, res) => {
                     'businessDetails.gpsLocation': gps
                 }
             },
-            { new: true } // Returns the updated document
+            { returnDocument: 'after' } // Returns the updated document
         );
 
         if (!updatedUser) {
@@ -389,8 +362,7 @@ const uploadAdmin = multer({ storage: adminStorage }); // Fixed property name
 // Corrected Photo Upload Route
 app.post('/api/admin/upload-photo', uploadAdmin.single('adminPhoto'), async (req, res) => {
     try {
-        const { userId } = req.body; // Captured from FormData
-        
+        const { adminId } = req.body; // Captured from FormData       
         if (!req.file) {
             return res.status(400).json({ success: false, message: "No file uploaded" });
         }
@@ -398,10 +370,10 @@ app.post('/api/admin/upload-photo', uploadAdmin.single('adminPhoto'), async (req
         const imagePath = `/uploads/${req.file.filename}`;
 
         // Find the user by ID and update their profileImage path
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
+        const updatedUser = await Admin.findByIdAndUpdate(
+            adminId,
             { profileImage: imagePath },
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         if (!updatedUser) {
@@ -422,11 +394,13 @@ app.post('/api/admin/upload-photo', uploadAdmin.single('adminPhoto'), async (req
 // GET: Fetch Admin Profile Data
 app.get('/api/admin/get-profile', async (req, res) => {
     try {
-        const userId = req.query.id; // Correctly pull 'id' from the URL query
-        const admin = await User.findById(userId);
+        // const adminId = req.query.adminId; // Correctly pull 'adminId' from the URL query
+        const { adminId } = req.query;
+
+        const admin = await Admin.findById(adminId);
 
         if (!admin) {
-            return res.status(404).json({ success: false, message: "Admin not found in Atlas" });
+            return res.status(404).json({ success: false, message: "Admin not found" });
         }
 
         res.json({ success: true, data: admin });
@@ -436,13 +410,13 @@ app.get('/api/admin/get-profile', async (req, res) => {
 });
 app.get('/api/admin/dashboard-stats', async (req, res) => {
     try {
-        const { userId } = req.query;
-        const adminProfile = await User.findById(userId); 
+        const { adminId } = req.query;
+        const adminProfile = await Admin.findById(adminId); 
 
         // Existing count and aggation logic
-        const totalVenues = await Venue.countDocuments({ adminId: userId });
+        const totalVenues = await Venue.countDocuments({ adminId: adminId });
         const stats = await Booking.aggregate([
-            { $match: { adminId: new mongoose.Types.ObjectId(userId) } },
+            { $match: { adminId: new mongoose.Types.ObjectId(adminId) } },
             { $group: { _id: null, count: { $sum: 1 }, revenue: { $sum: "$paymentAmount" } } }
         ]);
         const data = stats[0] || { count: 0, revenue: 0 };
@@ -463,12 +437,9 @@ app.get('/api/admin/dashboard-stats', async (req, res) => {
         res.status(500).json({ success: false, error: err.message });
     }
 });
-const Billing = require('./models/Billing'); // Double-check this folder/file path
 
 app.post('/api/admin/save-invoice', async (req, res) => {
     try {
-        // Log to terminal to verify the incoming IDs (adminId, customerId, etc.)
-        console.log("Incoming Invoice Data:", req.body);
 
         // 1. Check for duplicate Invoice Number
         const existingInvoice = await Billing.findOne({ invoiceNumber: req.body.invoiceNumber });
@@ -502,12 +473,14 @@ app.post('/api/admin/save-invoice', async (req, res) => {
 });
 app.get('/api/admin/generate-bill/:id', async (req, res) => {
     try {
-        const booking = await Booking.findById(req.params.id);
-        if (!booking) return res.status(404).json({ success: false });
-        // const venue = await Venue.findById(booking.venueId);
+        const bookingId = req.params.id;
+        const booking = await Booking.findById(bookingId);
+        if (!booking) {
+            return res.status(404).json({ success: false, message: "Booking not found" });
+        }
         const [venue, admin] = await Promise.all([
             Venue.findById(booking.venueId),
-            User.findById(booking.adminId) 
+            Admin.findById(booking.adminId) 
         ]);
         const lastInvoice = await Billing.findOne().sort({ createdAt: -1 });
         let nextNumber = 1;
@@ -516,36 +489,29 @@ app.get('/api/admin/generate-bill/:id', async (req, res) => {
             if (lastNumMatch) nextNumber = parseInt(lastNumMatch[0]) + 1;
         }
         const formattedInvoiceNum = `#ASC-${nextNumber.toString().padStart(4, '0')}`;
-        const now = new Date();
-        const datePart = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-        const timePart = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
         res.json({ 
             success: true, 
             bill: {
                 invoiceNumber: formattedInvoiceNum,
-                date: `${datePart}, ${timePart}`, 
-                customer: booking.bookedBy, // 
+                date: new Date().toLocaleString('en-GB'), 
+                customer: booking.bookedBy,
                 email: booking.email,
                 contact: booking.contact,
-                // Venue Details fetched from the Venue collection
-                venue: venue ? venue.name : "Event Venue",
+                venue: venue ? venue.name : "N/A",
                 venueAddress: venue ? venue.address : "N/A",
+                venueGst: admin?.businessDetails?.gstNumber || "N/A",
+                venuefssai: admin?.businessDetails?.foodLicense || "N/A",
                 venueContact: venue ? venue.phone : "N/A",
-                total: venue.cost || 0,
-                //Admin Details
-                venueGst: admin?.businessDetails ? admin.businessDetails.gstNumber : "N/A",
-                venuefssai: admin?.businessDetails ? admin.businessDetails.foodLicense : "N/A",
-                // Financial Details
                 paid: booking.paymentAmount || 0,
-                cid: booking.userId,
-                vid: booking.venueId,
+                total: venue?.cost || 0,
                 bookingDate: booking.bookingDate
             }
         });
+
     } catch (err) {
-        console.error("Error fetching details:", err);
-        res.status(500).json({ success: false });
+        console.error("[Critical Billing Error]:", err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 // GET: Fetch all Billing History for the Master List
@@ -582,10 +548,7 @@ const otpSchema = new mongoose.Schema({
         index: { expires: 300 } // This deletes the code automatically after 5 minutes
     }
 });
-
-// This creates the 'OTPModel' variable that was missing
 const OTPModel = mongoose.model('OTP', otpSchema);
-// 1. Configure the Email Transporter
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -593,20 +556,13 @@ const transporter = nodemailer.createTransport({
         pass: process.env.EMAIL_PASS
     }
 });
-
 const accountSid = process.env.TWILIO_SID;; 
 const authToken = process.env.TWILIO_TOKEN; 
-
 const client = twilio(accountSid, authToken);
-
-// 2. Generate a 6-Digit OTP
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
-
-// 3. API Route to Send OTP
 app.post('/api/auth/send-otp', async (req, res) => {
     const { target, type } = req.body;
     const otp = generateOTP();
-
     try {
         if (type === 'email') {
             await transporter.sendMail({
@@ -624,15 +580,10 @@ app.post('/api/auth/send-otp', async (req, res) => {
                 body: `Your EventHub verification code is: ${otp}`
             });
         }
-        
         await OTPModel.create({ target, otp });
         res.json({ success: true, message: "OTP sent!" });
-
     } catch (error) {
-        // This log will appear in your TERMINAL
         console.error("CRITICAL SERVER ERROR:", error.message);
-        
-        // This sends the error message to your BROWSER console
         res.status(500).json({ success: false, error: error.message });
     }
 });
@@ -657,28 +608,17 @@ app.post('/api/auth/verify-otp', async (req, res) => {
 app.post('/api/auth/forgot-password-otp', async (req, res) => {
     try {
         const { email } = req.body;
-
-        // 1. Check if the user exists in your User database
-        // (Assuming your user model is called 'User')
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(404).json({ success: false, message: "Email not registered." });
         }
-
-        // 2. Generate a 6-digit OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-        // 3. Clean up old OTPs for this email and save the new one
-        // We use 'target' to match your Schema
         await OTPModel.deleteMany({ target: email });
-
         const newOtpEntry = new OTPModel({
             target: email, 
             otp: otp
         });
         await newOtpEntry.save();
-
-        // 4. Send Email using your Transporter
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: email,
@@ -698,15 +638,12 @@ app.post('/api/auth/forgot-password-otp', async (req, res) => {
 app.post('/api/auth/verify-reset-otp', async (req, res) => {
     try {
         const { email, otp } = req.body;
-
-        // Use 'OTPModel' to match your send-otp logic and definition
         const otpRecord = await OTPModel.findOne({ 
             target: email, 
             otp: otp 
         });
 
         if (!otpRecord) {
-            // If no record is found, it's either the wrong code or it expired (TTL deleted it)
             return res.status(400).json({ 
                 success: false, 
                 message: "Invalid or expired OTP. Please request a new one." 
@@ -719,25 +656,18 @@ app.post('/api/auth/verify-reset-otp', async (req, res) => {
 
     } catch (error) {
         console.error("Verification Error:", error);
-        // Returning JSON prevents the "Unexpected token <" error on the frontend
         res.status(500).json({ success: false, message: "Internal server error." });
     }
 });
 app.post('/api/auth/reset-password', async (req, res) => {
     try {
         const { email, newPassword } = req.body;
-
-        // 1. Find user
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found." });
         }
-
-        // 2. Hash the new password before saving
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-        // 3. Update and Save
         user.password = hashedPassword;
         await user.save();
 

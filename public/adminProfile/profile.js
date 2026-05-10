@@ -41,10 +41,10 @@ async function updatePhotoPreview(event) {
     const file = event.target.files[0];
     if (!file) return;
 
-    const savedId = localStorage.getItem('userId');
+    const savedId = localStorage.getItem('adminId');
 
     if (!savedId) {
-        alert("Session error: User ID not found. Please login again.");
+        alert("Session error: Admin ID not found. Please login again.");
         return;
     }
     const reader = new FileReader();
@@ -54,7 +54,7 @@ async function updatePhotoPreview(event) {
     reader.readAsDataURL(file);
     const formData = new FormData();
     formData.append('adminPhoto', file); 
-    formData.append('userId', savedId);  
+    formData.append('adminId', savedId);  
 
     try {
         const response = await fetch('/api/admin/upload-photo', {
@@ -65,7 +65,7 @@ async function updatePhotoPreview(event) {
         const result = await response.json();
         
         if (result.success) {
-            alert("Profile photo saved to MongoDB Atlas!");
+            alert("Profile photo Saved.");
             // Optional: update the source with the actual server path
             if (result.imagePath) {
                 document.getElementById('profileDisplay').src = result.imagePath;
@@ -79,16 +79,16 @@ async function updatePhotoPreview(event) {
     }
 }
 async function saveAdminData() {
-    // 1. Get the dynamic userId from localStorage
-    const savedId = localStorage.getItem('userId');
+    // 1. Get the dynamic adminId from localStorage
+    const savedId = localStorage.getItem('adminId');
 
     if (!savedId) {
-        alert("Session error: User ID not found. Please login again.");
+        alert("Session error: Admin ID not found. Please login again.");
         return;
     }
 
     const adminData = {
-        userId: savedId, 
+        adminId: savedId, 
         gst: document.getElementById('editGst').value,
         aadhar: document.getElementById('editAadhar').value,
         fssai: document.getElementById('editFssai').value,
@@ -115,7 +115,7 @@ async function saveAdminData() {
             document.getElementById('adminCurrentAddress').innerText = adminData.gps;
 
             exitEditMode();
-            alert("Admin records successfully updated in Atlas database.");
+            alert("Admin records successfully Updated.");
         } else {
             alert("Update failed: " + result.message);
         }
@@ -156,17 +156,17 @@ async function getFullAddressFromCoords(coordsString) {
 }
 
 async function loadAdminProfile() {
-    const savedId = localStorage.getItem('userId');
+    const savedId = localStorage.getItem('adminId');
     loadPerformanceStats();
     if (!savedId) {
-        console.error("No userId found in storage.");
-        window.location.href = '../auth.html';
+        console.error("No adminId found in storage.");
+        window.location.href = '../home/home.html';
         return;
     }
 
     try {
         // Fetch specific admin data using the ID from your MongoDB Atlas cluster
-        const response = await fetch(`/api/admin/get-profile?id=${savedId}`);
+        const response = await fetch(`/api/admin/get-profile?adminId=${savedId}`);
         const result = await response.json();
 
         if (result.success && result.data) {
@@ -208,11 +208,11 @@ async function loadAdminProfile() {
     }
 }
 async function loadPerformanceStats() {
-    const userId = localStorage.getItem('userId');
-    if (!userId) return;
+    const adminId = localStorage.getItem('adminId');
+    if (!adminId) return;
 
     try {
-        const response = await fetch(`/api/admin/dashboard-stats?userId=${userId}`);
+        const response = await fetch(`/api/admin/dashboard-stats?adminId=${adminId}`);
         const data = await response.json();
 
         if (data.success) {

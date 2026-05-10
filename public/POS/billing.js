@@ -4,7 +4,7 @@ let currentCustomerId = null;
 let currentVenueId = null;
 let fetchedBills = [];
 // Priority: localStorage, but we can fallback if the API provides a specific adminId
-let currentAdminId = localStorage.getItem('userId');
+let currentAdminId = localStorage.getItem('adminId');
 
 document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);

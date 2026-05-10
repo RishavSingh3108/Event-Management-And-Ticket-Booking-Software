@@ -9,7 +9,6 @@ function openModal(role) {
         dropdownContent.classList.remove('show');
         document.body.style.overflow = "hidden";
         role = portalTypeDisplay.innerText;
-        console.log(role);
     }
 }
 function closeModal() {
@@ -94,8 +93,6 @@ window.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const action = urlParams.get('action'); 
     const role = urlParams.get('role') || 'User'; 
-    console.log("Action detected:", action);
-    console.log("Role detected:", role);
 
     if (action === 'login') {
         openModal(role);

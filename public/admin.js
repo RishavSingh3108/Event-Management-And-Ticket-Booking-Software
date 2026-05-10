@@ -6,10 +6,10 @@ const addVenueForm = document.getElementById('addVenueForm');
 
 // 1. Function to check profile status
 async function checkProfileAndOpenModal() {
-    const userId = localStorage.getItem('userId');
+    const adminId = localStorage.getItem('adminId');
 
     try {
-        const response = await fetch(`/api/admin/dashboard-stats?userId=${userId}`);
+        const response = await fetch(`/api/admin/dashboard-stats?adminId=${adminId}`);
         const data = await response.json();
         
         // This will now see the strings from businessDetails
@@ -62,7 +62,7 @@ window.addEventListener('click', (e) => {
 
 addVenueForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const savedId = localStorage.getItem('userId');
+    const savedId = localStorage.getItem('adminId');
 
     // 1. Data Collection
     const venueData = {
@@ -79,7 +79,7 @@ addVenueForm.addEventListener('submit', async (e) => {
     };
 
     if (!savedId) {
-        alert("Error: User session not found. Please log in again.");
+        alert("Error: Admin session not found. Please log in again.");
         return;
     }
 
@@ -91,8 +91,6 @@ addVenueForm.addEventListener('submit', async (e) => {
         url = `/api/venues/${currentEditId}`;
         method = 'PUT';
     }
-
-    console.log(`Attempting ${method} to ${url}`); // Look at F12 console for this!
 
     try {
         const response = await fetch(url, {
@@ -120,7 +118,7 @@ addVenueForm.addEventListener('submit', async (e) => {
 async function loadVenues() {
     const container = document.getElementById('venueContainer');
     if (!container) return;
-    const myId = localStorage.getItem('userId'); // added this
+    const myId = localStorage.getItem('adminId'); // added this
 
     try {
         const response = await fetch(`/api/venues?adminId=${myId}`); // added this
@@ -262,10 +260,8 @@ async function editVenue(id) {
         alert("Error: No ID found for this venue.");
         return;
     }
-    console.log("Entering Edit Mode for ID:", id);
     isEditMode = true;
     currentEditId = id;
-    console.log("Switching to Edit Mode. ID:", currentEditId);
 
     try {
         const response = await fetch('/api/venues');
