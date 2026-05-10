@@ -118,7 +118,7 @@ async function initiateBooking(venueId, venueAdminId, venueCost = null, venueDat
     if (savedId && savedId !== "undefined" && savedId !== "null") {
         try {
             // 3. Fetch user details from your new ID-based API route
-            const response = await fetch(`/api/user-by-id/${savedId}`);
+            const response = await fetch(`/api/user/user-by-id/${savedId}`);
             const data = await response.json();
 
             if (data.success) {
@@ -172,7 +172,7 @@ async function confirmBooking() {
     // 2. Session & Payment Validation
     if (!savedUserId) {
         alert("Authentication required. Please log in again.");
-        window.location.href = 'auth.html';
+        window.location.href = '/home/home.html';
         return;
     }
 
@@ -224,10 +224,8 @@ async function confirmBooking() {
 
     try {
         // 5. Send to API
-        const response = await fetch('/api/bookings', {
+        const response = await fetch('/api/user/bookings', {
             method: 'POST',
-            // DO NOT set headers for Content-Type here. 
-            // The browser will handle the boundary for FormData automatically.
             body: formData 
         });
 
@@ -319,7 +317,7 @@ async function openTrackModal() {
     container.innerHTML = "<div class='loading'>Loading your dossier...</div>";
 
     try {
-        const response = await fetch(`/api/my-bookings-by-id/${savedId}`);
+        const response = await fetch(`/api/user/my-bookings-by-id/${savedId}`);
         const data = await response.json();
 
         if (data.success && data.bookings.length > 0) {
@@ -483,7 +481,7 @@ async function submitDateUpdate() {
     if (!newDate) return alert("Select a date first.");
 
     try {
-        const response = await fetch(`/api/bookings/update-date/${activeBookingId}`, {
+        const response = await fetch(`/api/user/bookings/update-date/${activeBookingId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ newDate: newDate })
@@ -708,7 +706,7 @@ async function deleteBookingRecord(bookingId) {
 
     try {
 
-        const response = await fetch(`/api/bookings/${bookingId}`, {
+        const response = await fetch(`/api/user/bookings/${bookingId}`, {
             method: 'DELETE'
         });
         if (!response.ok) {

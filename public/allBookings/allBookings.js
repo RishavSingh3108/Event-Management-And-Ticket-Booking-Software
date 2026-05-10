@@ -10,7 +10,7 @@ async function fetchAdminBookings() {
     const myId = localStorage.getItem('adminId'); // added this
 
     try {
-        const response = await fetch(`/api/admin/bookings?adminId=${myId}`); // added this
+        const response = await fetch(`/api/admin/particularAdmin/bookings?adminId=${myId}`); // added this
         const data = await response.json();
 
         if (data.success && data.bookings.length > 0) {
@@ -22,7 +22,6 @@ async function fetchAdminBookings() {
                 else totalCost = book.paymentAmount; // 100% paid
 
                 const balance = totalCost - book.paymentAmount;
-                // console.log(book.venueId._id);
 
                 return `
                 <tr class="status-row ${book.status.toLowerCase()}">
@@ -82,7 +81,7 @@ async function updateStatus(id, newStatus) {
     if (!confirm(`Are you sure you want to mark this booking as ${newStatus}?`)) return;
 
     try {
-        const response = await fetch(`/api/bookings/status/${id}`, {
+        const response = await fetch(`/api/admin/bookings/status/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: newStatus })

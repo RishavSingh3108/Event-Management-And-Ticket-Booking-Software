@@ -224,7 +224,7 @@ async function fetchBillingHistory() {
 
     try {
         // Pass the bookingId to the API
-        const response = await fetch(`http://localhost:3000/api/billing/history?bookingId=${currentBookingId}`);
+        const response = await fetch(`http://localhost:3000/api/admin/billing/history?bookingId=${currentBookingId}`);
         const data = await response.json();
         
         if (data.success) {

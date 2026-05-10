@@ -84,11 +84,13 @@ addVenueForm.addEventListener('submit', async (e) => {
     }
 
     // 2. Logic Switch (The fix is here)
-    let url = '/api/venues';
+    // let url = '/api/venues';
+    let url = '/api/admin/add-venue';
     let method = 'POST';
 
     if (isEditMode && currentEditId) {
-        url = `/api/venues/${currentEditId}`;
+        // url = `/api/venues/${currentEditId}`;
+        url = `/api/admin/venues/${currentEditId}`;
         method = 'PUT';
     }
 
@@ -122,7 +124,6 @@ async function loadVenues() {
 
     try {
         const response = await fetch(`/api/venues?adminId=${myId}`); // added this
-        // const response = await fetch('/api/venues');
         if (!response.ok) throw new Error('Network response was not ok');
         
         const venues = await response.json();
@@ -234,7 +235,7 @@ async function deleteVenue(venueId) {
 
     try {
         // MUST use backticks ` for ${variable} to work
-        const response = await fetch(`/api/venues/${venueId}`, { 
+        const response = await fetch(`/api/admin/venues/${venueId}`, { 
             method: 'DELETE'
         });
 

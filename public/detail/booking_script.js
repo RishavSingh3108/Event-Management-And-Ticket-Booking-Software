@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!bookingId) return;
 
     try {
-        const response = await fetch(`/api/bookings/single/${bookingId}`);
+        const response = await fetch(`/api/admin/bookings/single/${bookingId}`);
         const booking = await response.json();
 
         if (booking) {
