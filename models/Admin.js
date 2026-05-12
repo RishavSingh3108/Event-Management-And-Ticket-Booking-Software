@@ -2,15 +2,17 @@ const mongoose = require('mongoose');
 
 const adminSchema = new mongoose.Schema({
     name: { type: String, required: true },
-    dob: { type: Date, required: true }, // Added this line
+    dob: { type: Date, required: true },
     email: { type: String, required: true, unique: true },
     phone: { type: String, required: true },
     password: { type: String, required: true },
     role: { type: String, default: 'Admin' },
-    // Admins might have special business details
     businessDetails: {
         gstNumber: String,
         aadharNumber: String,
+        aadharVerified: { type: Boolean, default: false },
+        aadharName: String, // Official name as per the ID card
+        aadharPhoto: String, // You can store the base64 string or URL of the ID photo
         foodLicense: String,
         gpsLocation: String
     },

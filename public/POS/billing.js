@@ -120,10 +120,6 @@ async function saveInvoiceToDB() {
     }
 }
 
-// ... rest of helper functions (calculateTotal, addDefaultVenueRow, etc.) remain the same
-
-// --- EXISTING FUNCTIONS (KEEP AS IS) ---
-
 function addDefaultVenueRow(venueName, cost, date) {
     const tbody = document.getElementById('invoiceItems');
     const row = document.createElement('tr');
@@ -212,9 +208,6 @@ function calculateTotal() {
     document.getElementById('finalBalance').innerText = `₹${balance.toLocaleString()}`;
 }
 
-// 1. DATA FETCHING & SYNC
-// Inside billing.js
-
 async function fetchBillingHistory() {
     // Get bookingId from URL parameters (e.g., billing.html?id=69f4ab...)
     const urlParams = new URLSearchParams(window.location.search);
@@ -235,8 +228,6 @@ async function fetchBillingHistory() {
         console.error("Fetch Error:", error);
     }
 }
-
-// 2. RENDERING THE LIST
 function renderMasterList(bills) {
     const historyBody = document.getElementById('historyBody');
     historyBody.innerHTML = ''; // Clear existing rows
@@ -264,7 +255,6 @@ function renderMasterList(bills) {
         historyBody.appendChild(row);
     });
 }
-
 // 3. SEARCH FUNCTIONALITY
 document.getElementById('historySearch').addEventListener('input', function(e) {
     const searchTerm = e.target.value.toLowerCase();
@@ -280,7 +270,6 @@ document.getElementById('historySearch').addEventListener('input', function(e) {
         }
     });
 });
-
 // 4. SYNC BUTTON ACTION
 function toggleBillingHistory() {
     const syncBtn = document.querySelector('.sync-btn');
@@ -304,89 +293,137 @@ function toggleBillingHistory() {
     });
 }
 function viewPastBill(billId) {
-    // Use .toString() to ensure a perfect string match
-    const bill = fetchedBills.find(b => b._id.toString() === billId.toString());
+    const bill = fetchedBills.find(
+        b => b._id.toString() === billId.toString()
+    );
     if (!bill) {
         console.error("Bill not found!");
         return;
     }
+    closeHistoryModal();
     lockUI();
-    // 2. Sync with your HTML IDs (e.g., 'invNum' instead of 'invoiceNumber')
-    if(document.getElementById('invNum')) document.getElementById('invNum').innerText = bill.invoiceNumber;
-    if(document.getElementById('invDate')) document.getElementById('invDate').innerText = `Date: ${bill.invoiceDate}`;
-
-    // 3. Populate Customer Info specifically
+    const invNum = document.getElementById('invNum');
+    const invDate = document.getElementById('invDate');
+    if(invNum){
+        invNum.innerText = bill.invoiceNumber;
+    }
+    if(invDate){
+        invDate.innerText = `Date: ${bill.invoiceDate}`;
+    }
     document.getElementById('custName').innerText = bill.customerDetail.name;
     document.getElementById('custEmail').innerText = bill.customerDetail.email;
     document.getElementById('custPhone').innerText = bill.customerDetail.phone;
-
-    // 4. Reconstruct Table (Matching your payload property names: serviceCost, gstPercentage, rowTotal)
     const tbody = document.getElementById('invoiceItems');
-    tbody.innerHTML = ''; 
-
+    tbody.innerHTML = '';
     bill.billingTable.forEach((item, index) => {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td class="sn">${index + 1}</td>
             <td>
-                <strong>${item.description}</strong><br>
-                <small>Event Date: ${bill.bookingDate || 'N/A'}</small>
+                <strong>${item.description}</strong>
             </td>
-            <td><input type="number" class="row-cost" value="${item.serviceCost}" readonly></td>
+            <td>
+                <input
+                    type="number"
+                    class="row-cost"
+                    value="${item.serviceCost}"
+                    readonly>
+            </td>
             <td>
                 <select class="row-gst" disabled>
                     <option>${item.gstPercentage}%</option>
                 </select>
             </td>
-            <td class="text-right row-total">₹${item.rowTotal.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-            <td class="no-print"></td> 
+            <td class="row-total">
+                ₹${item.rowTotal.toLocaleString(
+                    undefined,
+                    {minimumFractionDigits: 2}
+                )}
+            </td>
+            <td>
+            </td>
         `;
         tbody.appendChild(row);
     });
+    document.getElementById('subtotal').innerText =`₹${bill.summary.subtotal.toLocaleString()}`;
 
-    // 5. Update Summary (Using the IDs from your DOM: subtotal, finalBalance)
-    document.getElementById('subtotal').innerText = `₹${bill.summary.subtotal.toLocaleString()}`;
-    document.getElementById('paidAmount').innerText = `-₹${bill.summary.advancePaid.toLocaleString()}`;
-    document.getElementById('finalBalance').innerText = `₹${bill.summary.balanceDue.toLocaleString()}`;
+    document.getElementById('paidAmount').innerText =`₹${bill.summary.advancePaid.toLocaleString()}`;
 
-    // 6. UI Adjustments
-    const saveBtn = document.getElementById('saveBtn');
-    if(saveBtn) saveBtn.style.display = 'none'; // Hide save to prevent duplicates
-    if (returnBtn) returnBtn.style.display = 'flex';
-    
+    document.getElementById('finalBalance').innerText =`₹${bill.summary.balanceDue.toLocaleString()}`;
     const printBtn = document.getElementById('printBtn');
-    if(printBtn) {
+    if(printBtn){
+        printBtn.style.display = 'inline-flex';
         printBtn.disabled = false;
-        printBtn.classList.add('print-btn-active');
     }
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const refreshBtn = document.getElementById('refreshBtn');
+    if(refreshBtn){
+        refreshBtn.style.display = 'inline-flex';
+        refreshBtn.onclick = () => {
+            window.location.reload();
+        };
+    }
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
 }
 function lockUI(){
-    // 1. SELECT BUTTONS & TOOLS
     const saveBtn = document.getElementById('saveBtn');
     const printBtn = document.getElementById('printBtn');
     const refreshBtn = document.getElementById('refreshBtn');
-    const tableActions = document.querySelector('.table-actions'); // Add/Clear container
-    const deleteIcons = document.querySelectorAll('.no-print'); // Trash icons
-
-    // 2. HIDE EDITING TOOLS
-    if (saveBtn) saveBtn.style.display = 'none';
-    if (tableActions) tableActions.style.display = 'none';
-    deleteIcons.forEach(icon => icon.style.display = 'none');
-
-    // 3. SHOW PRINT & REFRESH (Force display)
-    if (printBtn) {
-        printBtn.style.setProperty('display', 'flex', 'important');
+    const addServiceBtn = document.getElementById('addServiceBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const deleteIcons = document.querySelectorAll('.delete-btn');
+    const editableInputs = document.querySelectorAll(
+        '.row-desc, .row-cost, .row-gst'
+    );
+    if(saveBtn){
+        saveBtn.style.display = 'none';
+    }
+    if(addServiceBtn){
+        addServiceBtn.style.display = 'none';
+    }
+    if(clearBtn){
+        clearBtn.style.display = 'none';
+    }
+    deleteIcons.forEach(icon => {
+        icon.style.display = 'none';
+    });
+    editableInputs.forEach(input => {
+        input.disabled = true;
+        input.style.background = '#f5f5f5';
+        input.style.cursor = 'not-allowed';
+    });
+    if(printBtn){
+        printBtn.style.setProperty(
+            'display',
+            'inline-flex',
+            'important'
+        );
         printBtn.disabled = false;
     }
-    if (refreshBtn) {
-        refreshBtn.style.setProperty('display', 'flex', 'important');
-    }
+    if(refreshBtn){
+        refreshBtn.style.setProperty(
+            'display',
+            'inline-flex',
+            'important'
+        );
+        refreshBtn.innerHTML = `
+            <i class='bx bx-wallet'></i>
+            POS
+        `;
+        refreshBtn.onclick = () => {
+            window.location.reload();
 
-    // Refresh history list visually without a page reload
+        };
+    }
+}
+function openHistoryModal(){
+    const modal = document.getElementById('historyModal');
+    modal.classList.add('active');
     fetchBillingHistory();
 }
-
-// Initial load
-document.addEventListener('DOMContentLoaded', fetchBillingHistory);
+function closeHistoryModal(){
+    const modal = document.getElementById('historyModal');
+    modal.classList.remove('active');
+}

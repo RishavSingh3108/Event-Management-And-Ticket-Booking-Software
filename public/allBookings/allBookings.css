@@ -363,26 +363,59 @@ body {
     from { transform: translateY(20px) scale(0.95); opacity: 0; }
     to { transform: translateY(0) scale(1); opacity: 1; }
 }
-.billing-btn {
-    background-color: #ff9a00; /* Saffron tone */
-    color: white;
+.billing-btn{
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: #fff;
     border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
+    padding: 10px 16px;
+    border-radius: 10px;
     cursor: pointer;
-    font-size: 0.85rem;
-    display: flex;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
     align-items: center;
-    gap: 5px;
-    transition: 0.3s;
+    gap: 6px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(230, 126, 34, 0.25);
 }
 
-.billing-btn:hover {
-    background-color: #e68a00;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+.billing-btn:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(230, 126, 34, 0.35);
 }
 
-.billing-btn i {
-    font-size: 1rem;
+.billing-btn:active{
+    transform: scale(0.96);
+}
+
+.billing-btn i{
+    font-size: 16px;
+}
+.refund-btn{
+    background: linear-gradient(135deg, #ff4d4d, #d63031);
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(214, 48, 49, 0.25);
+}
+
+.refund-btn:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(214, 48, 49, 0.35);
+}
+
+.refund-btn:active{
+    transform: scale(0.96);
+}
+
+.refund-btn i{
+    font-size: 16px;
 }

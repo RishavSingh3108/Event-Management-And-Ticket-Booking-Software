@@ -1,144 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice | Event Management System</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>POS Billing System</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="billing.css">
 </head>
 <body>
-
-    <!-- TOP NAVIGATION: Fixed to top -->
-    <nav class="top-nav ">
-        <div class="nav-container">
-            <!-- TOP LEFT: Save and Print -->
-            <div class="final-controls">
-                <button type="button" id="saveBtn" class="save-btn" onclick="saveInvoiceToDB()">
-                    <i class='bx bx-save'></i> Save Invoice
+    <div class="billing-wrapper">
+        <div class="billing-top">
+            <div class="page-title">
+                <i class='bx bx-credit-card-front'></i>
+                <h1>POS System</h1>
+            </div>
+            <div class="top-actions">
+                <button class="transaction-btn" onclick="openHistoryModal()">
+                    <i class='bx bx-history'></i>
+                    Transactions
                 </button>
-                <button type="button" id="printBtn" class="print-btn" onclick="window.print()">
-                    <i class='bx bx-printer'></i> Print Invoice
+                <button
+                    type="button"
+                    id="refreshBtn"
+                    class="refresh-btn"
+                    style="display:none;">
+                    <i class='bx bx-wallet'></i>
+                    POS
                 </button>
-                <button class="refresh-btn" id="refreshBtn"  onclick="window.location.reload()">
-                    <i class='bx bx-undo'></i> POS
+                <button type="button"
+                    id="saveBtn"
+                    class="save-btn"
+                    onclick="saveInvoiceToDB()">
+                    <i class='bx bx-save'></i>
+                    Save Invoice
+                </button>
+                <button type="button"
+                    id="printBtn"
+                    class="print-btn"
+                    onclick="window.print()">
+                    <i class='bx bx-printer'></i>
+                    Print Invoice
+                </button>
+                <button type="button"
+                    class="return-btn"
+                    onclick="location.href='/allBookings/allBookings.html'">
+                    <i class='bx bx-arrow-back'></i>
+                    Back to Dashboard
                 </button>
             </div>
-
-            <!-- TOP RIGHT: Return Button -->
-            <button type="button" class="return-btn no-print" onclick="location.href='/allBookings/allBookings.html'">
-                <i class='bx bx-arrow-back'></i> Back to Dashboard
-            </button>
         </div>
-    </nav>
-    <div class="main-content-wrapper">
-
-        <!-- MAIN INVOICE CARD -->
-        <div class="invoice-card" id="invoice">
-            <div class="watermark">Official</div>
-            
-            <header class="invoice-header">
-                <div class="brand-section">
-                    <h1>TAX INVOICE</h1>
+        <div class="billing-card">
+            <div class="invoice-header">
+                <div class="invoice-left">
+                    <h2>TAX INVOICE</h2>
                     <p>Event Management Hub</p>
                 </div>
-                <div class="invoice-meta">
+                <div class="invoice-right">
                     <div id="invNum"></div>
                     <div id="invDate"></div>
                 </div>
-            </header>
-
-            <div class="invoice-body">
-                <div class="info-grid">
-                    <div class="info-block">
-                        <h3>CLIENT INFORMATION</h3>
-                        <div id="custName" class="highlight-text">-</div>
-                        <div id="custEmail">-</div>
-                        <div id="custPhone">-</div>
-                    </div>
-                    <div class="info-block text-right">
-                        <h3>VENUE DETAILS</h3>
-                        <div id="venueName" class="highlight-text">-</div>
-                        <div id="venueAddr">-</div>
-                        <div id="venueGst">-</div>
-                        <div id="venuefssai">-</div>
-                        <div id="venueSupport"></div>
-                    </div>
+            </div>
+            <div class="info-grid">
+                <div class="info-box">
+                    <h3>CLIENT INFORMATION</h3>
+                    <div id="custName" class="highlight-text">-</div>
+                    <div id="custEmail">-</div>
+                    <div id="custPhone">-</div>
                 </div>
-
-                <!-- DYNAMIC BILLING TABLE -->
-                <table class="billing-table" id="billingTable">
-                    <thead>
-                        <tr>
-                            <th>S.N.</th>
-                            <th>Description</th>
-                            <th width="150">Service Cost</th>
-                            <th width="120">GST %</th>
-                            <th class="text-right" width="150">Total</th>
-                            <th class="no-print" width="50">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="invoiceItems">
-                        <!-- Default Venue Row will be injected here via JS -->
-                    </tbody>
-                </table>
-
-                <!-- TABLE EDITING ACTIONS -->
-                <div class="action-bar no-print">
-                    <button type="button" class="add-row-btn" onclick="addNewRow()">
-                        <i class='bx bx-plus'></i> Add Extra Service
-                    </button>
-                    <button type="button" class="clear-btn" onclick="clearFullInvoice()">
-                        <i class='bx bx-trash'></i> Clear All
-                    </button>
+                <div class="info-box">
+                    <h3>VENUE DETAILS</h3>
+                    <div id="venueName" class="highlight-text">-</div>
+                    <div id="venueAddr">-</div>
+                    <div id="venueGst">-</div>
+                    <div id="venuefssai">-</div>
+                    <div id="venueSupport"></div>
                 </div>
-
-                <div class="summary-wrapper">
-                    <div class="summary-row">
-                        <span>Subtotal:</span>
-                        <span id="subtotal">₹0</span>
-                    </div>
-                    <div class="summary-row paid">
-                        <span>Amount Paid (Advance):</span>
-                        <span id="paidAmount">-₹0</span>
-                    </div>
-                    <div class="summary-row total-row">
-                        <span>Balance Due:</span>
-                        <span id="finalBalance">₹0</span>
-                    </div>
+            </div>
+            <table class="master-table" id="billingTable">
+                <thead>
+                    <tr>
+                        <th>S.N.</th>
+                        <th>Description</th>
+                        <th width="150">Service Cost</th>
+                        <th width="150">GST %</th>
+                        <th width="150">Total</th>
+                        <th width="75">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="invoiceItems">
+                </tbody>
+            </table>
+            <div class="action-bar">
+                <button type="button"
+                    class="add-row-btn"
+                    id="addServiceBtn"
+                    onclick="addNewRow()">
+                    <i class='bx bx-plus'></i>
+                    Add Extra Service
+                </button>
+                <button type="button"
+                    class="clear-btn"
+                    id="clearBtn"
+                    onclick="clearFullInvoice()">
+                    <i class='bx bx-trash'></i>
+                    Clear All
+                </button>
+            </div>
+            <div class="summary-box">
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span id="subtotal">₹0</span>
                 </div>
-
-                <div class="footer-note">
-                    <p><strong>Thank you for choosing our Venue for your Event!</strong></p>
-                    <p>This is a computer-generated invoice for the services rendered at our Venue.</p>
-                    <p>Please clear the balance due before the commencement of the event.</p>
+                <div class="summary-row paid">
+                    <span>Advance Paid</span>
+                    <span id="paidAmount">₹0</span>
                 </div>
+                <div class="summary-row total">
+                    <span>Balance Due</span>
+                    <span id="finalBalance">₹0</span>
+                </div>
+            </div>
+            <div class="footer-note">
+                <p>
+                    <strong>
+                        Thank you for choosing our Venue for your Event!
+                    </strong>
+                </p>
+                <p>
+                    This is a computer-generated invoice for the services rendered at our Venue.
+                </p>
+                <p>
+                    Please clear the balance due before the commencement of the event.
+                </p>
             </div>
         </div>
-
-        <div class="history-sidebar no-print">
-            <div class="sidebar-header">
-                <div class="header-top">
-                    <h3><i class='bx bxs-book-content'></i> Booking & Payment Master List</h3>
-                    <div class="header-actions">
-                        <div class="search-box">
-                            <input type="text" placeholder="Search records..." id="historySearch">
-                        </div>
-                        <button class="sync-btn" onclick="toggleBillingHistory()">
-                            <i class='bx bx-refresh'></i> Sync Data
-                        </button>
-                    </div>
-                </div>
+    </div>
+    <div class="history-modal" id="historyModal">
+        <div class="history-content">
+            <div class="modal-top">
+                <h2>
+                    <i class='bx bx-history'></i>
+                    Billing Transactions
+                </h2>
+                <button class="close-btn" onclick="closeHistoryModal()">
+                    <i class='bx bx-x'></i>
+                </button>
             </div>
-            
-            <div class="history-container">
+            <div class="modal-actions">
+                <div class="search-box">
+                    <input
+                        type="text"
+                        placeholder="Search transactions..."
+                        id="historySearch"
+                    >
+                </div>
+                <button class="sync-btn" onclick="fetchBillingHistory()">
+                    <i class='bx bx-refresh'></i>
+                    Sync Data
+                </button>
+            </div>
+            <div class="history-table-wrapper">
                 <table class="master-table">
                     <thead>
                         <tr>
                             <th>SUBMITTED</th>
                             <th>CLIENT</th>
                             <th>TOTAL</th>
-                            <th class="text-danger">BALANCE</th>
+                            <th>BALANCE</th>
                             <th>ACTION</th>
                         </tr>
                     </thead>
@@ -147,7 +175,6 @@
             </div>
         </div>
     </div>
-
     <script src="billing.js"></script>
 </body>
 </html>

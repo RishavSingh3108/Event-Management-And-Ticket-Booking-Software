@@ -7,6 +7,7 @@ const multer = require('multer');
 const path = require('path');
 const mongoose = require('mongoose');
 const Billing = require('../models/Billing');
+const AadharService = require('../services/aadharService');
 // add venue
 router.post('/add-venue', async (req, res) => {
     try {
@@ -149,6 +150,64 @@ router.post('/upload-photo', uploadAdmin.single('adminPhoto'), async (req, res) 
         res.status(500).json({ success: false, error: err.message });
     }
 });
+// Step 1: User clicks "Validate" -> Triggers SMS for AADHAR verification
+router.post('/aadhar/verify-init', async (req, res) => {
+    try {
+        const { aadharNumber } = req.body;
+        console.log(aadharNumber);
+        if (!aadharNumber || aadharNumber.length !== 12) {
+            return res.status(400).json({ success: false, message: "Valid 12-digit ID is required." });
+        }
+        console.log("1");
+        const result = await AadharService.generateOTP(aadharNumber);
+        console.log("2");
+        // SurePass returns data inside result.data
+        res.json({ 
+            success: true, 
+            client_id: result.data.client_id, 
+            message: "OTP sent to your linked mobile number." 
+        });
+    } catch (err) {
+        console.log("Here it is!");
+        console.error("Init Error:", err.message);
+        res.status(400).json({ success: false, message: err.message });
+    }
+});
+
+// Step 2: User enters OTP in Popup -> Final Verification
+router.post('/aadhar/verify-confirm', async (req, res) => {
+    try {
+        const { otp, client_id, adminId } = req.body;
+
+        if (!otp || !client_id) {
+            return res.status(400).json({ success: false, message: "OTP and Session ID are required." });
+        }
+
+        const result = await AadharService.verifyOTP(otp, client_id);
+
+        if (result.success) {
+            // result.data contains full_name, aadhaar_number (masked), dob, etc.
+            await Admin.findByIdAndUpdate(adminId, {
+                'businessDetails.aadharVerified': true,
+                'businessDetails.aadharName': result.data.full_name,
+                // Best practice: store the masked version returned by the API
+                'businessDetails.aadharNumber': result.data.aadhaar_number 
+            });
+
+            res.json({ 
+                success: true, 
+                message: "Identity Verified!", 
+                data: {
+                    fullName: result.data.full_name,
+                    isVerified: true
+                }
+            });
+        }
+    } catch (err) {
+        console.error("Confirm Error:", err.message);
+        res.status(400).json({ success: false, message: err.message });
+    }
+});
 // Update Business Credentials
 router.put('/update-profile', async (req, res) => {
     try {
@@ -265,17 +324,41 @@ router.post('/save-invoice', async (req, res) => {
     }
 });
 // Fetch Billing History
+// router.get('/billing/history', async (req, res) => {
+//     try {
+//         const { adminId } = req.query;
+//         const query = adminId ? { adminId: adminId } : {};
+//         const bills = await Billing.find(query).sort({ createdAt: -1 });
+//         res.status(200).json({
+//             success: true,
+//             bills: bills
+//         });
+//     } catch (err) {
+//         console.error("Master List Fetch Error:", err.message);
+//         res.status(500).json({
+//             success: false,
+//             message: "Failed to fetch billing history: " + err.message
+//         });
+//     }
+// });
 router.get('/billing/history', async (req, res) => {
     try {
-        const { adminId } = req.query;
-        const query = adminId ? { adminId: adminId } : {};
-        const bills = await Billing.find(query).sort({ createdAt: -1 });
+        const { bookingId } = req.query;
+
+        // Filter by bookingId
+        const query = bookingId ? { bookingId } : {};
+
+        const bills = await Billing.find(query)
+            .sort({ createdAt: -1 });
+
         res.status(200).json({
             success: true,
-            bills: bills
+            bills
         });
+
     } catch (err) {
         console.error("Master List Fetch Error:", err.message);
+
         res.status(500).json({
             success: false,
             message: "Failed to fetch billing history: " + err.message

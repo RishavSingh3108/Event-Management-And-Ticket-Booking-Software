@@ -112,74 +112,174 @@ document.getElementById('editFssai').addEventListener('input', function (e) {
         fssaiInput.style.borderColor = "red"; 
     }
 });
-// Function to validate AADHAR structure so that it can be send to UIDAI for further verification's
+// Verhoeff Algorithm Tables
+function validateVerhoeff(idNumber) {
+    // Multiplication Table (d)
+    const d_table = [
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 4, 0, 6, 7, 8, 9, 5],
+        [2, 3, 4, 0, 1, 7, 8, 9, 5, 6], [3, 4, 0, 1, 2, 8, 9, 5, 6, 7],
+        [4, 0, 1, 2, 3, 9, 5, 6, 7, 8], [5, 9, 8, 7, 6, 0, 4, 3, 2, 1],
+        [6, 5, 9, 8, 7, 1, 0, 4, 3, 2], [7, 6, 5, 9, 8, 2, 1, 0, 4, 3],
+        [8, 7, 6, 5, 9, 3, 2, 1, 0, 4], [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+    ];
+
+    // Permutation Table (p)
+    const p_table = [
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 5, 7, 6, 2, 8, 3, 0, 9, 4],
+        [5, 8, 0, 3, 7, 9, 6, 1, 4, 2], [8, 9, 1, 6, 0, 4, 3, 5, 2, 7],
+        [9, 4, 5, 3, 1, 2, 6, 8, 7, 0], [4, 2, 8, 6, 5, 7, 3, 9, 0, 1],
+        [2, 7, 9, 3, 8, 0, 6, 4, 1, 5], [7, 0, 4, 6, 9, 1, 3, 2, 5, 8]
+    ];
+
+    let check = 0;
+    // Reverse the digits and convert to numbers
+    let digits = idNumber.split('').map(Number).reverse();
+
+    for (let i = 0; i < digits.length; i++) {
+        check = d_table[check][p_table[i % 8][digits[i]]];
+    }
+
+    return check === 0;
+}
+
+// Updated Event Listener
 document.getElementById('editAadhar').addEventListener('input', function (e) {
-    const aadharInput = e.target;
-    const verifyBtn = document.getElementById('verifyAadharBtn'); // Get your Validate button
+    const inputField = e.target;
+    const verifyBtn = document.getElementById('verifyAadharBtn');
     
-    aadharInput.value = aadharInput.value.replace(/\D/g, ''); 
-    const val = aadharInput.value;
-    const aadharRegex = /^\d{12}$/;
+    // Clean input and limit to 12 digits
+    let val = inputField.value.replace(/\D/g, '').slice(0, 12); 
+    inputField.value = val;
 
     if (val.length === 12) {
-        if (aadharRegex.test(val)) {
-            aadharInput.style.borderColor = "#4CAF50"; 
-            // ENABLE BUTTON
+        if (validateVerhoeff(val)) {
+            // SUCCESS
+            inputField.style.borderColor = "#4CAF50"; 
             verifyBtn.disabled = false;
             verifyBtn.style.opacity = "1";
             verifyBtn.style.cursor = "pointer";
         } else {
-            aadharInput.style.borderColor = "red";
+            // FAILED CHECKSUM
+            console.warn("Invalid ID Checksum detected.");
+            inputField.style.borderColor = "red";
             verifyBtn.disabled = true;
+            verifyBtn.style.opacity = "0.5";
         }
     } else {
-        if (val.length > 12) aadharInput.value = val.slice(0, 12);
-        aadharInput.style.borderColor = "#ffa500";
-        // DISABLE BUTTON
+        inputField.style.borderColor = "#ffa500";
         verifyBtn.disabled = true;
         verifyBtn.style.opacity = "0.5";
-        verifyBtn.style.cursor = "not-allowed";
     }
 });
+// Global variable to hold the session ID from the provider
+// Global variable to hold the session ID from the provider
+let aadharClientId = null; 
 
-let currentAadharOTP = null;
+async function sendAadharOTP() {
+    const aadharInput = document.getElementById('editAadhar');
+    const verifyBtn = document.getElementById('verifyAadharBtn');
+    const aadharNumber = aadharInput.value;
 
-// This runs when the Validate button is clicked
-function sendAadharOTP() {
-    // 1. Generate a random 6-digit code
-    currentAadharOTP = Math.floor(100000 + Math.random() * 900000).toString();
-    
-    // 2. Alert the user (Simulating the SMS)
-    alert(`OTP sent to Aadhaar-linked mobile: ${currentAadharOTP}`);
-    
-    // 3. Show the modal
-    document.getElementById('otpModal').classList.remove('hidden');
+    // 1. Show Loading State
+    verifyBtn.disabled = true;
+    const originalContent = verifyBtn.innerHTML;
+    verifyBtn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Sending...";
+
+    try {
+        const response = await fetch('/api/admin/aadhar/verify-init', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ aadharNumber: aadharNumber })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            aadharClientId = result.client_id;
+
+            // 4. Open Modal & Focus on input
+            const modal = document.getElementById('otpModal');
+            modal.classList.remove('hidden');
+            document.getElementById('aadharOtpInput').focus(); 
+            
+            verifyBtn.innerHTML = "Validate";
+            verifyBtn.disabled = false;
+        } else {
+            alert("Error: " + (result.message || "Could not trigger OTP"));
+            verifyBtn.innerHTML = originalContent;
+            verifyBtn.disabled = false;
+        }
+    } catch (error) {
+        console.error("Aadhar Request Error:", error);
+        alert("Server connection failed. Check your network.");
+        verifyBtn.innerHTML = originalContent;
+        verifyBtn.disabled = false;
+    }
 }
 
 function closeOtpModal() {
     document.getElementById('otpModal').classList.add('hidden');
+    document.getElementById('aadharOtpInput').value = "";
 }
 
-function confirmAadharOTP() {
-    const enteredOtp = document.getElementById('aadharOtpInput').value;
-    const aadharInput = document.getElementById('editAadhar');
-    const verifyBtn = document.getElementById('verifyAadharBtn');
+async function confirmAadharOTP() {
+    const otpInput = document.getElementById('aadharOtpInput');
+    const confirmBtn = document.querySelector('#otpModal button[onclick="confirmAadharOTP()"]');
+    const otp = otpInput.value;
+    const adminId = localStorage.getItem('adminId');
 
-    if (enteredOtp === currentAadharOTP) {
-        alert("✅ Aadhaar Verified Successfully!");
-        
-        // Lock the field so it can't be edited anymore
-        aadharInput.readOnly = true;
-        aadharInput.style.backgroundColor = "#f8f8f8";
-        
-        // Style the button as 'Verified'
-        verifyBtn.innerHTML = "<i class='bx bxs-check-shield'></i> Verified";
-        verifyBtn.style.backgroundColor = "#4CAF50";
-        verifyBtn.disabled = true;
-        
-        closeOtpModal();
-    } else {
-        alert("❌ Invalid OTP. Please try again.");
+    if (otp.length !== 6) {
+        alert("Please enter a 6-digit OTP");
+        return;
+    }
+
+    // Show loading on the modal button
+    const originalText = confirmBtn.innerText;
+    confirmBtn.innerText = "Verifying...";
+    confirmBtn.disabled = true;
+
+    try {
+        const response = await fetch('/api/admin/aadhar/verify-confirm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                otp: otp, 
+                client_id: aadharClientId,
+                adminId: adminId 
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert("✅ Verification Successful! Welcome " + result.data.fullName);
+            
+            // 1. Lock the field & Update main page Button
+            const aadharInput = document.getElementById('editAadhar');
+            const verifyBtn = document.getElementById('verifyAadharBtn');
+            
+            aadharInput.readOnly = true;
+            aadharInput.style.backgroundColor = "#e9ecef";
+            aadharInput.style.borderColor = "#28a745";
+            
+            verifyBtn.innerHTML = "<i class='bx bxs-check-shield'></i> Verified";
+            verifyBtn.style.backgroundColor = "#28a745";
+            verifyBtn.style.color = "white";
+            verifyBtn.disabled = true;
+
+            // 2. Close Modal
+            closeOtpModal();
+        } else {
+            alert("Verification Failed: " + result.message);
+            confirmBtn.innerText = originalText;
+            confirmBtn.disabled = false;
+            otpInput.value = ""; // Clear on failure
+            otpInput.focus();
+        }
+    } catch (error) {
+        alert("Error during verification. Try again.");
+        confirmBtn.innerText = originalText;
+        confirmBtn.disabled = false;
     }
 }
 async function saveAdminData() {

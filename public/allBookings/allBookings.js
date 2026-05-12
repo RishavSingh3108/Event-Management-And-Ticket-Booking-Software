@@ -57,13 +57,24 @@ async function fetchAdminBookings() {
                                 <button class="no-btn" onclick="updateStatus('${book._id}', 'Rejected')" title="Reject">
                                     <i class='bx bx-x'></i>
                                 </button>
-                            ` : `<small style="color:#aaa;">Finalized</small>`}
+                            ` : `<small style="color:${book.status === 'Approved' ? 'green' : 'red'}; font-weight:800;"> ${book.status}</small>   
+                            `}
                         </div>
                     </td>
                     <td>
-                        <button class="billing-btn" onclick="goToBilling('${book._id}' , '${book.userId}' , '${book.venueId._id}')">
-                            <i class='bx bx-receipt'></i> Generate Bill
-                        </button>
+                        ${book.status === 'Approved' ? `
+                                <button class="billing-btn"
+                                    onclick="goToBilling('${book._id}' , '${book.userId}' , '${book.venueId._id}')">
+                                    <i class='bx bx-receipt'></i> Generate Bill
+                                </button>
+                            `
+                            : (book.status === 'Rejected' || book.status === 'Cancelled') ? `
+                                <button class="refund-btn"
+                                    onclick="refundBooking('${book._id}')">
+                                    <i class='bx bx-undo'></i> Refund
+                                </button>
+                            `
+                            : ``}
                     </td>
                 </tr>`;
             }).join('');

@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
@@ -11,7 +13,6 @@ const upload = multer({
     storage: storage,
     limits: { fileSize: 5 * 1024 * 1024 } 
 });
-require('dotenv').config();
 
 const app = express();
 
@@ -61,8 +62,13 @@ app.get('/api/venues', async (req, res) => {
 app.get('/api/bookings/venue/:venueId', async (req, res) => {
     try {
         const { venueId } = req.params;
-        const bookings = await Booking.find({ venueId: venueId });
+
+        const bookings = await Booking.find({
+            venueId: venueId,
+            status: { $in: ['Pending', 'Approved'] }
+        });
         res.status(200).json(bookings);
+
     } catch (err) {
         console.error("Error fetching bookings for venue:", err);
         res.status(500).json({ success: false, message: "Server Error" });
