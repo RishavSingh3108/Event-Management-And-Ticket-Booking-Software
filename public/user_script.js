@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadUserVenues();
     setupSearch();
 });
-let activeBookingId = null; // Globally tracks which booking is currently open
 async function loadUserVenues() {
     const showcase = document.querySelector('.venue-showcase');
     
@@ -60,10 +59,10 @@ function renderVenues(venues) {
 
                 <div class="card-actions-row">
                     <div class="spacer"></div> 
-                    <button class="btn-view-availability" onclick="openCalendar('${venue._id}', '${venue.name}','${venue.cost}','${venue.adminId}')">
+                    <button class="btn-view-availability" onclick="openCalendar('${venue._id}', '${venue.status}', '${venue.name}','${venue.cost}','${venue.adminId}')">
                         <i class='bx bx-calendar-event'></i> View Availability
                     </button>
-                    <button class="action-btn book-now-btn" onclick="initiateBooking('${venue._id}','${venue.adminId}','${venue.cost}')">
+                    <button class="action-btn book-now-btn" onclick="initiateBooking('${venue._id}','${venue.adminId}','${venue.status}','${venue.cost}')">
                         💝 Book Now
                     </button>
                 </div>
@@ -101,11 +100,17 @@ let selectedVenue = null;
 let selectedDate = null;
 let basePrice = null;
 let selectedVenueAdminId = null;
-async function initiateBooking(venueId, venueAdminId, venueCost = null, venueDate = null) {
+async function initiateBooking(venueId, venueAdminId, venueStatus, venueCost = null, venueDate = null) {
+    console.log(venueStatus);
+    if (venueStatus !== "ACTIVE") {
+        alert("This venue is currently unavailable for booking.");
+        return; // Stop the function here
+    }
     selectedVenue = venueId;
     selectedDate = venueDate;
     basePrice = venueCost;
     selectedVenueAdminId = venueAdminId;
+
 
     // 1. Set the date in the input field
     if (venueDate) {
@@ -416,14 +421,21 @@ function filterBy(type) {
 }
 
 
+// Add these at the very top of your user_script.js file
+let activeBookingId = null; 
+let currentActiveVenueId = null; 
+let occupiedDates = []; 
+
 function openManageModal(encodedData) {
-    // 1. Decode the data from the button click
     const book = JSON.parse(decodeURIComponent(encodedData));
-    activeBookingId = book._id; // Store ID for the Cancel/Update actions
+    activeBookingId = book._id; 
     
     const venue = book.venueId || {};
 
-    // 2. Fill the Static HTML (The code you put in user.html)
+    // --- NEW LINE HERE ---
+    // This ensures toggleDateChange knows which venue to fetch dates for
+    currentActiveVenueId = venue._id || venue; 
+
     document.getElementById("m-venueName").innerText = venue.name || "Venue Details";
     document.getElementById("m-address").innerText = venue.address || "N/A";
     document.getElementById("m-contact").innerText = venue.phone || "N/A";
@@ -431,16 +443,14 @@ function openManageModal(encodedData) {
     document.getElementById("m-guests").innerText = book.guests || "0";
     document.getElementById("m-paid").innerText = `₹${book.paymentAmount || 0}`;
     
-    // Update Status Pill
     const statusPill = document.getElementById("m-status-pill");
     statusPill.innerText = book.status;
     statusPill.className = `status-pill ${book.status.toLowerCase()}`;
 
-    // Load the Payment Screenshot
     document.getElementById("m-proofImg").src = `/api/bookings/screenshot/${book._id}`;
 
-    // 3. Reset UI states
     document.getElementById("dateEditBox").style.display = "none";
+    document.getElementById("bookingActionModal").style.display = "flex";
     document.getElementById("bookingActionModal").style.display = "flex";
 }
 
@@ -449,11 +459,6 @@ function closeManageModal() {
     document.getElementById("bookingActionModal").style.display = "none";
 }
 
-// Toggle the date picker panel
-function toggleDateChange() {
-    const box = document.getElementById("dateEditBox");
-    box.style.display = box.style.display === "none" ? "flex" : "none";
-}
 // Function to handle Booking Cancellation
 async function handleCancellation() {
     if (!confirm("Are you sure you want to cancel this booking?")) return;
@@ -475,6 +480,49 @@ async function handleCancellation() {
         alert("Failed to cancel booking.");
     }
 }
+async function toggleDateChange() {
+    const box = document.getElementById("dateEditBox");
+    const dateInput = document.getElementById("newDateSelect");
+
+    if (box.style.display === "none" || box.style.display === "") {
+        if (!currentActiveVenueId) return alert("Venue error. Please reopen the modal.");
+
+        // 1. Set Min Date (Tomorrow)
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        dateInput.setAttribute('min', tomorrow.toISOString().split('T')[0]);
+
+        // 2. Fetch occupied dates
+        try {
+            const response = await fetch(`/api/user/venue/${currentActiveVenueId}/booked-dates`);
+            
+            // Check for valid JSON to avoid the <!DOCTYPE error
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                const data = await response.json();
+                if (data.success) {
+                    occupiedDates = data.bookedDates;
+                }
+            }
+        } catch (err) {
+            console.error("Availability check failed:", err);
+        }
+
+        box.style.display = "flex";
+    } else {
+        box.style.display = "none";
+        dateInput.value = "";
+    }
+}
+
+// 3. Add the Listener (Only add this ONCE in your script)
+document.getElementById("newDateSelect").addEventListener("change", function(e) {
+    if (occupiedDates.includes(e.target.value)) {
+        alert("This date is already occupied. Please pick another.");
+        e.target.value = ""; 
+    }
+});
 
 async function submitDateUpdate() {
     const newDate = document.getElementById("newDateSelect").value;
@@ -510,7 +558,7 @@ function closeTrackModal() {
 let venueBookings = [];
 let selectedVenueId = null;
 
-async function openCalendar(venueId, venueName, venueCost, venueAdminId) {
+async function openCalendar(venueId, venueStatus, venueName, venueCost, venueAdminId) {
     selectedVenueId = venueId;
     document.getElementById('calVenueName').innerText = venueName;
     const modal = document.getElementById('calendarModal');
@@ -521,7 +569,7 @@ async function openCalendar(venueId, venueName, venueCost, venueAdminId) {
         venueBookings = await response.json();
 
         // 2. Setup the Dropdown (Current month + next 5)
-        setupMonthDropdown(venueId, venueCost, venueAdminId);
+        setupMonthDropdown(venueId, venueStatus, venueCost, venueAdminId);
 
         // 3. Show the Modal
         modal.style.display = 'flex'; 
@@ -529,11 +577,11 @@ async function openCalendar(venueId, venueName, venueCost, venueAdminId) {
         console.error("Calendar Load Error:", err);
         // Fallback: If API fails, show empty calendar
         venueBookings = [];
-        setupMonthDropdown(venueId, venueCost, venueAdminId);
+        setupMonthDropdown(venueId, venueStatus, venueAdminId);
         modal.style.display = 'flex';
     }
 }
-function setupMonthDropdown(venueId, venueCost, venueAdminId) {
+function setupMonthDropdown(venueId, venueStatus, venueCost, venueAdminId) {
     const monthSelect = document.getElementById('monthSelect');
     const yearSelect = document.getElementById('yearSelect'); // Grab your new year dropdown
     if (!monthSelect || !yearSelect) return;
@@ -572,7 +620,7 @@ function setupMonthDropdown(venueId, venueCost, venueAdminId) {
     const refreshGrid = () => {
         const selectedYear = yearSelect.value;
         const selectedMonth = monthSelect.value;
-        renderCalendarGrid(`${selectedYear}-${selectedMonth}`, venueId, venueCost, venueAdminId);
+        renderCalendarGrid(`${selectedYear}-${selectedMonth}`, venueId, venueStatus, venueCost, venueAdminId);
     };
 
     // 4. Update grid whenever EITHER dropdown changes
@@ -583,7 +631,7 @@ function setupMonthDropdown(venueId, venueCost, venueAdminId) {
     refreshGrid();
 }
 
-function renderCalendarGrid(yearMonth, venueId, venueCost, venueAdminId) {
+function renderCalendarGrid(yearMonth, venueId, venueStatus, venueCost, venueAdminId) {
     const grid = document.getElementById('calendarGrid');
     if (!grid) return;
     grid.innerHTML = ''; 
@@ -631,7 +679,7 @@ function renderCalendarGrid(yearMonth, venueId, venueCost, venueAdminId) {
             day.className = "day-box free";
             day.style.cursor = 'pointer';
             day.onclick = () => {
-                initiateBooking(venueId, venueAdminId, venueCost, formattedDate);
+                initiateBooking(venueId, venueAdminId, venueStatus, venueCost, formattedDate);
                 closeCalendar();
             };
         }
@@ -729,4 +777,227 @@ async function deleteBookingRecord(bookingId) {
         console.error("Deletion Error:", error);
         alert("Could not delete. Check the console for details.");
     }
+}
+// ==========================================================================
+// User Profile PopUp & Payout Handlers
+// ==========================================================================
+
+let hideTimeout;
+
+async function fetchAndPopulateProfileData() {
+    // Read the active logged-in userId from localStorage
+    const userId = localStorage.getItem('userId'); 
+    
+    if (!userId) {
+        console.error("No active user session identifier located.");
+        return;
+    }
+
+    try {
+        // Hit our updated router endpoint
+        const response = await fetch(`/api/user/user-by-id/${userId}`);
+        
+        // Safety check to handle accidental HTML fallback templates
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("text/html")) {
+            throw new Error("Server returned an HTML document structure instead of JSON data.");
+        }
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || "Failed to retrieve user profile data.");
+        }
+
+        // 1. Generate text initials avatar dynamically from the user's name
+        const fullName = result.name || "Guest";
+        const nameParts = fullName.trim().split(" ");
+        let initials = "GS";
+        if (nameParts.length > 1) {
+            initials = `${nameParts[0].charAt(0)}${nameParts[nameParts.length - 1].charAt(0)}`.toUpperCase();
+        } else if (nameParts[0]) {
+            initials = nameParts[0].substring(0, 2).toUpperCase();
+        }
+
+        // 2. Format the database ISO Date stamp into a clean, human-readable format
+        let formattedDob = "Not Set";
+        if (result.dob) {
+            const dateObj = new Date(result.dob);
+            formattedDob = dateObj.toLocaleDateString('en-GB', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
+            }); // Produces "31 Aug 2005" format
+        }
+
+        // 3. Map values across identity DOM fields
+        document.getElementById('userInitials').textContent = initials;
+        document.getElementById('userName').textContent = fullName;
+        document.getElementById('userEmail').textContent = result.email || "—";
+        document.getElementById('userPhone').textContent = result.phone || "—";
+        document.getElementById('userDob').textContent = formattedDob;
+
+        // 4. Safely pull down saved payment objects
+        const pMethod = result.preferredPayment || 'bank';
+        const pData = result.paymentData || { upiId: '', bankAccount: '', ifscCode: '' };
+
+        // 5. Populate payment inputs
+        document.getElementById('upi-id').value = pData.upiId || '';
+        document.getElementById('acno').value = pData.bankAccount || '';
+        document.getElementById('acno2').value = pData.bankAccount || ''; // Match the confirm input field as well
+        document.getElementById('ifsc').value = pData.ifscCode || '';
+
+        // 6. Switch layout visualization tab to active system variant ('bank' or 'upi')
+        switchPayoutMethod(pMethod);
+
+    } catch (error) {
+        console.error("Profile Synchronization Defect:", error);
+        alert(`Could not load profile details: ${error.message}`);
+    }
+}
+function toggleProfilePopup(show) {
+    const popup = document.getElementById('userProfilePopup');
+    if (!popup) return;
+
+    if (show) {
+        fetchAndPopulateProfileData();
+        clearTimeout(hideTimeout);
+        popup.classList.add('active');
+    } else {
+        // Subtle delay to allow moving mouse cleanly between chip and card
+        hideTimeout = setTimeout(() => {
+            popup.classList.remove('active');
+        }, 200);
+    }
+}
+
+// Ensure popup doesn't close prematurely when user hovers directly over the popup card itself
+document.getElementById('userProfilePopup').addEventListener('mouseenter', () => {
+    clearTimeout(hideTimeout);
+});
+document.getElementById('userProfilePopup').addEventListener('mouseleave', () => {
+    toggleProfilePopup(false);
+});
+
+/**
+ * Toggles internal editable input status fields for payout management components.
+ */
+function enablePayoutEdit() {
+    const editBtn = document.getElementById('payoutEditBtn');
+    const updateBtn = document.getElementById('updatePayoutBtn');
+    const methodBtns = document.querySelectorAll('.method-btn');
+    const inputs = document.querySelectorAll('#payoutInputsArea input');
+
+    // Toggle interactive states
+    methodBtns.forEach(btn => btn.disabled = false);
+    updateBtn.style.display = 'block';
+    editBtn.style.display = 'none';
+
+    inputs.forEach(input => {
+        input.removeAttribute('readonly');
+        input.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+    });
+}
+
+/**
+ * Toggles layout arrays between alternative electronic transaction mechanisms (UPI vs Bank).
+ */
+function switchPayoutMethod(method) {
+    const upiFields = document.getElementById('upi-fields');
+    const bankFields = document.getElementById('bank-fields');
+    const upiBtn = document.getElementById('method-upi');
+    const bankBtn = document.getElementById('method-bank');
+
+    if (method === 'upi') {
+        upiFields.style.display = 'block';
+        bankFields.style.display = 'none';
+        upiBtn.classList.add('active');
+        bankBtn.classList.remove('active');
+    } else {
+        upiFields.style.display = 'none';
+        bankFields.style.display = 'block';
+        bankBtn.classList.add('active');
+        upiBtn.classList.remove('active');
+    }
+}
+async function savePayoutDetails() {
+    const editBtn = document.getElementById('payoutEditBtn');
+    const updateBtn = document.getElementById('updatePayoutBtn');
+    const methodBtns = document.querySelectorAll('.method-btn');
+    const inputs = document.querySelectorAll('#payoutInputsArea input');
+
+    // Determine which payment system layout tab is currently flagged active
+    const isUpiActive = document.getElementById('method-upi').classList.contains('active');
+    const selectedMethod = isUpiActive ? 'upi' : 'bank';
+
+    // 1. Validate matching confirmation inputs if Bank is selected
+    if (!isUpiActive) {
+        const acNum = document.getElementById('acno').value.trim();
+        const acConfirm = document.getElementById('acno2').value.trim();
+        if (acNum !== acConfirm) {
+            alert("Account numbers do not match!");
+            return;
+        }
+    }
+
+    // 2. Build out Request Payload
+    const payload = {
+        userId: localStorage.getItem('userId'), // Ensure your login script sets this parameter on local session initialization
+        preferredPayment: selectedMethod,
+        paymentData: {
+            upiId: document.getElementById('upi-id').value.trim(),
+            bankAccount: document.getElementById('acno').value.trim(),
+            ifscCode: document.getElementById('ifsc').value.trim()
+        }
+    };
+
+    // UI Feedback: Show progress state inside action button
+    const defaultBtnText = updateBtn.textContent;
+    updateBtn.textContent = "Saving to Database...";
+    updateBtn.disabled = true;
+
+    try {
+        // 3. Send AJAX payload tracking data directly to back-end controllers
+        const response = await fetch('/api/user/payout-details', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                // Optional: Pass authorization tokens if using protected route middlewares
+                'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || "Failed to update target database registers.");
+        }
+
+        alert("Success! Details safely recorded.");
+
+        methodBtns.forEach(btn => btn.disabled = true);
+        updateBtn.style.display = 'none';
+        editBtn.style.display = 'block';
+
+        inputs.forEach(input => {
+            input.setAttribute('readonly', true);
+            input.style.border = '1px solid transparent';
+            input.style.borderBottom = 'none';
+        });
+
+    } catch (error) {
+        console.error("API Network Sync Breakdown:", error);
+        alert(`Error: ${error.message}`);
+    } finally {
+        updateBtn.textContent = defaultBtnText;
+        updateBtn.disabled = false;
+    }
+}
+
+/**
+ * Fallback global tracking links
+ */
+function openRefundHistory() {
+    alert("Navigating to secure refund data ledgers...");
 }

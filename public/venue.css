@@ -210,9 +210,14 @@
 .remove-btn:hover i { transform: scale(1.2); }
 
 /* --- Click Effect --- */
-.view-bookings-btn:active, .edit-btn:active, .remove-btn:active {
+.view-bookings-btn:active, .edit-btn:active{
     transform: scale(0.95) translateY(0);
 }
+/* Active state: Danger/Deactivate */
+.remove-btn.active { background-color: #ff4d4d; color: white; }
+
+/* Inactive state: Success/Activate */
+.remove-btn.inactive { background-color: #2ecc71; color: white; }
 
 .right-actions {
     display: flex;

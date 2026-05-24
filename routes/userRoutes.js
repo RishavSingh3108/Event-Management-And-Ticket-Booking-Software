@@ -12,22 +12,81 @@ router.get('/user-by-id/:id', async (req, res) => {
     try {
         const userId = req.params.id;
 
-        // Use findById to get the user, excluding the password
-        const user = await User.findById(userId).select('name phone email');
+        // UPDATED: Include dob, preferredPayment, and paymentData in the query projection
+        const user = await User.findById(userId).select('name dob phone email preferredPayment paymentData');
 
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
+        // Return all fields to the frontend layout
         res.status(200).json({
             success: true,
             name: user.name,
+            dob: user.dob, // ISO format from MongoDB
             phone: user.phone,
-            email: user.email
+            email: user.email,
+            preferredPayment: user.preferredPayment || 'bank',
+            paymentData: user.paymentData || { upiId: '', bankAccount: '', ifscCode: '' }
         });
     } catch (err) {
         console.error("Error fetching by ID:", err);
         res.status(500).json({ success: false, message: "Server Error" });
+    }
+});
+// PUT route to update user payment credentials inside MongoDB
+router.put('/payout-details', async (req, res) => {
+    try {
+        const userId = req.user ? req.user.id : req.body.userId; 
+
+        if (!userId) {
+            return res.status(400).json({ success: false, message: "User ID is required to update details." });
+        }
+
+        const { preferredPayment, paymentData } = req.body;
+
+        // 1. Basic Server-Side Validation Check
+        if (preferredPayment === 'bank') {
+            if (!paymentData.bankAccount || !paymentData.ifscCode) {
+                return res.status(400).json({ success: false, message: "Bank Account number and IFSC code are required." });
+            }
+        } else if (preferredPayment === 'upi') {
+            if (!paymentData.upiId) {
+                return res.status(400).json({ success: false, message: "UPI ID string cannot be blank." });
+            }
+        }
+
+        // 2. Find User by ID and update fields using atomic $set operator
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            {
+                $set: {
+                    preferredPayment: preferredPayment,
+                    'paymentData.upiId': paymentData.upiId || '',
+                    'paymentData.bankAccount': paymentData.bankAccount || '',
+                    'paymentData.ifscCode': paymentData.ifscCode || ''
+                }
+            },
+            { new: true, runValidators: true } // Returns the newly updated document back
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ success: false, message: "User profile target records not found." });
+        }
+
+        // 3. Return a success response to the client
+        return res.status(200).json({
+            success: true,
+            message: "Payment details successfully saved to the database.",
+            data: {
+                preferredPayment: updatedUser.preferredPayment,
+                paymentData: updatedUser.paymentData
+            }
+        });
+
+    } catch (error) {
+        console.error("Database Save Operation Error Trace:", error);
+        return res.status(500).json({ success: false, message: "Internal server error saving payment details." });
     }
 });
 
@@ -60,9 +119,16 @@ router.post('/bookings', upload.single('screenshot'), async (req, res) => {
         }
 
         // 2. Check for duplicate bookings
-        const existingBooking = await Booking.findOne({ venueId, bookingDate });
+        const existingBooking = await Booking.findOne({
+            venueId,
+            bookingDate,
+            status: { $in: ["Pending", "Approved"] }
+        });
         if (existingBooking) {
-            return res.status(400).json({ success: false, message: "Date already reserved." });
+            return res.status(400).json({
+                success: false,
+                message: "Date already reserved."
+            });
         }
 
         // 3. Create new booking with the file buffer
@@ -102,6 +168,28 @@ router.post('/bookings', upload.single('screenshot'), async (req, res) => {
     } catch (err) {
         console.error("SAVE ERROR:", err);
         res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+});
+// This route will handle GET /api/user/venue/:id/booked-dates
+router.get('/venue/:id/booked-dates', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Find bookings for this venue that aren't cancelled
+        const bookings = await Booking.find({
+            venueId: id,
+            status: { $nin: ['Cancelled', 'Rejected'] }
+        }).select('bookingDate');
+
+        const dates = bookings.map(b => b.bookingDate);
+
+        res.json({ 
+            success: true, 
+            bookedDates: dates 
+        });
+    } catch (err) {
+        console.error("Error fetching booked dates:", err);
+        res.status(500).json({ success: false, message: "Internal server error" });
     }
 });
 // Change Booking Date

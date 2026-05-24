@@ -176,10 +176,14 @@ async function loadVenues() {
                             
                             <div class="right-actions">
                                 <button class="action-btn edit-btn" onclick="editVenue('${venue._id}')">
-                                    <span class="btn-icon">✏️</span> Edit
+                                    <span class="btn-icon">✏️</span> Modify Venue
                                 </button>
-                                <button class="action-btn remove-btn" onclick="deleteVenue('${venue._id}')">
-                                    <span class="btn-icon">🗑️</span> Remove
+                                <button 
+                                    class="remove-btn" 
+                                    data-id="${venue._id}" 
+                                    onclick="toggleStatus('${venue._id}', this)"
+                                >
+                                    ${venue.status === "ACTIVE" ? "Deactivate" : "Activate"}
                                 </button>
                             </div>
                         </div>
@@ -227,33 +231,6 @@ function setupAdminSearch() {
     });
 }
 
-
-// The logic to delete particular venue
-
-async function deleteVenue(venueId) {
-    if (!confirm("Are you sure? You want to delete this venue!")) return;
-
-    try {
-        // MUST use backticks ` for ${variable} to work
-        const response = await fetch(`/api/admin/venues/${venueId}`, { 
-            method: 'DELETE'
-        });
-
-        // Add this check to stop the "Unexpected Token" error
-        if (!response.headers.get("content-type")?.includes("application/json")) {
-            throw new Error("The server sent back HTML instead of JSON. Check your API route!");
-        }
-
-        const result = await response.json();
-        if (result.success) {
-            location.reload();
-        }
-    } catch (err) {
-        console.error("Delete Error:", err);
-        alert(err.message);
-    }
-}
-
 // The logic to Edit particular venue
 
 async function editVenue(id) {
@@ -289,6 +266,43 @@ async function editVenue(id) {
         }
     } catch (err) {
         console.error("Error fetching venue for edit:", err);
+    }
+}
+// Add 'btn' to the function parameters
+async function toggleStatus(id, btn) {
+    // If btn wasn't passed, try to find it via data-id as a backup
+    const targetBtn = btn || document.querySelector(`button[data-id="${id}"]`);
+
+    if (!targetBtn) {
+        console.error("Button not found for ID:", id);
+        return;
+    }
+
+    targetBtn.disabled = true;
+
+    try {
+        const response = await fetch(`/api/admin/venue/${id}/status`, {
+            method: "PATCH"
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Update the button UI directly
+            targetBtn.textContent = data.status === "ACTIVE" ? "Deactivate" : "Activate";
+            
+            // Optional: Toggle a class for color feedback
+            targetBtn.classList.toggle('active', data.status === "ACTIVE");
+            
+            alert(data.message);
+        } else {
+            alert("Error: " + data.message);
+        }
+    } catch (error) {
+        console.error("Request failed:", error);
+        alert("Server error. Please try again.");
+    } finally {
+        targetBtn.disabled = false;
     }
 }
 

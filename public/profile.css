@@ -1,0 +1,274 @@
+/* ==========================================================================
+   User Profile PopUp Card Styling
+   ========================================================================== */
+
+/* The main container - positioned absolute relative to the viewport/nav */
+.premium-profile-card {
+    position: fixed;
+    top: 80px; /* Adjust based on your nav height */
+    right: 20px;
+    width: 350px;
+    background: rgba(22, 22, 26, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 1000;
+    font-family: 'Space Grotesk', sans-serif;
+    color: #ffffff;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+}
+
+/* Active state triggered by JavaScript */
+.premium-profile-card.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Decorative profile banner */
+.profile-banner {
+    height: 80px;
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    opacity: 0.8;
+}
+
+/* Content wrapper */
+.profile-content {
+    padding: 0 24px 24px 24px;
+    position: relative;
+}
+
+/* Avatar layout overlapping the banner */
+.avatar-wrapper {
+    position: relative;
+    width: 76px;
+    height: 76px;
+    margin-top: -38px;
+    margin-bottom: 12px;
+}
+
+.avatar-initials {
+    width: 100%;
+    height: 100%;
+    background: #242630;
+    border: 3px solid #16161a;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 700;
+    color: #00f2fe;
+}
+
+.status-indicator {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 12px;
+    height: 12px;
+    background: #00e676;
+    border: 2px solid #16161a;
+    border-radius: 50%;
+}
+
+/* Header Text */
+.profile-header-text .user-name {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+}
+
+.profile-header-text .user-sub {
+    font-size: 13px;
+    color: #a0a5b5;
+    margin: 0;
+}
+
+.divider-line {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 16px 0;
+}
+
+/* Info Items (Email, Phone, DOB) */
+.info-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.info-icon {
+    margin-right: 12px;
+    font-size: 16px;
+}
+
+.info-item .label {
+    color: #a0a5b5;
+    width: 60px;
+}
+
+.info-item .value {
+    color: #ffffff;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+}
+
+/* Payments Box styling */
+.payments-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 16px;
+}
+
+.box-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.box-head h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #a0a5b5;
+}
+
+.edit-link {
+    background: none;
+    border: none;
+    color: #00f2fe;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0;
+}
+
+/* Payment Method Switches */
+.payment-method-selector {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.method-btn {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: #a0a5b5;
+    padding: 6px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.method-btn.active {
+    background: rgba(0, 242, 254, 0.1);
+    border-color: #00f2fe;
+    color: #00f2fe;
+}
+
+.method-btn:disabled {
+    cursor: default;
+    opacity: 0.6;
+}
+
+/* Premium Inputs */
+.inputs-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.premium-input {
+    width: 100%;
+    box-sizing: border-box;
+    background: #111216;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.premium-input[readonly] {
+    background: transparent;
+    border-color: transparent;
+    padding-left: 4px;
+    color: #d1d5db;
+}
+
+.premium-input:not([readonly]):focus {
+    border-color: #4facfe;
+}
+
+/* Action Buttons */
+.update-details-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    border: none;
+    color: #16161a;
+    padding: 10px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: transform 0.1s ease;
+}
+
+.update-details-btn:active {
+    transform: scale(0.98);
+}
+
+.refund-history-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    padding: 10px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.refund-history-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+}

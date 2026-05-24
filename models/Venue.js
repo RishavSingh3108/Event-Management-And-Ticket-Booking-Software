@@ -15,6 +15,11 @@ const VenueSchema = new mongoose.Schema({
     type: String,
     size: Number,
     cost: Number,
+    status: { 
+        type: String, 
+        enum: ['ACTIVE', 'INACTIVE'], 
+        default: 'ACTIVE' 
+    },
     createdAt: { type: Date, default: Date.now }
 });
 

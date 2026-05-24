@@ -29,6 +29,36 @@ router.get('/bookings/single/:id', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+// update status of venue
+router.patch("/venue/:id/status", async (req, res) => {
+    try {
+        const venue = await Venue.findById(req.params.id);
+
+        if (!venue) {
+            return res.status(404).json({
+                message: "Venue not found"
+            });
+        }
+
+        // Toggle status
+        venue.status =
+            venue.status === "ACTIVE"
+                ? "INACTIVE"
+                : "ACTIVE";
+
+        await venue.save();
+
+        res.json({
+            message: "Venue status updated",
+            status: venue.status
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+});
 // edit a venue
 router.put('/venues/:id', async (req, res) => {
     try {
@@ -47,18 +77,6 @@ router.put('/venues/:id', async (req, res) => {
         res.json({ success: true, message: "Update successful" });
     } catch (err) {
         console.error("❌ Server Error during PUT:", err);
-        res.status(500).json({ success: false, error: err.message });
-    }
-});
-// delete a venue
-router.delete('/venues/:id', async (req, res) => {
-    try {
-        const result = await Venue.findByIdAndDelete(req.params.id);
-        if (!result) {
-            return res.status(404).json({ success: false, message: "Venue not found" });
-        }
-        res.status(200).json({ success: true, message: "Deleted" });
-    } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
 });
