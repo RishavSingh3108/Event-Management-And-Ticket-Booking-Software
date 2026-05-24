@@ -1,3 +1,6 @@
+let currentRefundBookingId = null;
+let currentRefundMethod = "upi";
+
 document.addEventListener('DOMContentLoaded', () => {
     fetchAdminBookings();
 });
@@ -70,7 +73,7 @@ async function fetchAdminBookings() {
                             `
                             : (book.status === 'Rejected' || book.status === 'Cancelled') ? `
                                 <button class="refund-btn"
-                                    onclick="refundBooking('${book._id}')">
+                                    onclick="openRefundModal('${book._id}')">
                                     <i class='bx bx-undo'></i> Refund
                                 </button>
                             `
@@ -158,4 +161,122 @@ function goToBilling(bookingId, customerId, venueId) {
     console.log(customerId);
     console.log(venueId);
     window.location.href = `/POS/billing.html?id=${bookingId}&cid=${customerId}&vid=${venueId}`;
+}
+// 5. Open Refund Modal
+async function openRefundModal(bookingId) {
+    currentRefundBookingId = bookingId;
+
+    try {
+        const response = await fetch(`/api/admin/bookings/particular/${bookingId}`);
+        const data = await response.json();
+        const book = data.booking;
+
+        // Calculate refund amount (what was paid)
+        const amountPaid = book.paymentAmount;
+
+        // Populate user details
+        document.getElementById('refUserName').innerText = book.bookedBy || '-';
+        document.getElementById('refUserPhone').innerText = book.contact || '-';
+        document.getElementById('refUserEmail').innerText = book.email || '-';
+        document.getElementById('refAmountDisplay').innerText = `₹${amountPaid.toLocaleString()}`;
+        document.getElementById('refundAmountRaw').value = amountPaid;
+        document.getElementById('refundBookingId').value = bookingId;
+
+        // Populate UPI / Bank details (from user profile if available)
+        document.getElementById('refUserUpi').innerText = book.upiId || 'Not provided';
+        document.getElementById('refAccName').innerText = book.bookedBy || '-';
+        document.getElementById('refAccNumber').innerText = book.accountNumber || '-';
+        document.getElementById('refIfsc').innerText = book.ifscCode || '-';
+
+        // Generate QR code for UPI payment
+        generateQRCode(book.upiId, amountPaid);
+
+        // Reset to UPI view
+        togglePaymentFields('UPI');
+
+        // Show modal
+        document.getElementById('refundModal').style.display = 'flex';
+
+    } catch (err) {
+        console.error("Refund Modal Error:", err);
+        alert("Failed to load booking details for refund.");
+    }
+}
+
+// 6. Close Refund Modal
+function closeRefundModal() {
+    document.getElementById('refundModal').style.display = 'none';
+    document.getElementById('refundForm').reset();
+    currentRefundBookingId = null;
+}
+
+// 7. Toggle UPI vs Bank fields
+function togglePaymentFields(mode) {
+    currentRefundMethod = mode;
+    const upiContainer = document.getElementById('upiFieldContainer');
+    const bankContainer = document.getElementById('bankFieldContainer');
+
+    if (mode === 'UPI') {
+        upiContainer.style.display = 'block';
+        bankContainer.style.display = 'none';
+    } else {
+        upiContainer.style.display = 'none';
+        bankContainer.style.display = 'block';
+    }
+}
+
+// 8. Generate QR Code (uses free QR API — no library needed)
+function generateQRCode(upiId, amount) {
+    const container = document.getElementById('qrcodeContainer');
+
+    if (!upiId || upiId === 'Not provided') {
+        container.innerHTML = `<span style="color:#999; font-size:13px;">No UPI ID available</span>`;
+        return;
+    }
+
+    // UPI deep link format
+    const upiString = `upi://pay?pa=${upiId}&am=${amount}&cu=INR`;
+    const encodedUpi = encodeURIComponent(upiString);
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodedUpi}`;
+
+    container.innerHTML = `<img src="${qrUrl}" alt="UPI QR Code" style="width:160px; height:160px; border-radius:6px;">`;
+}
+
+// 9. Submit Refund with screenshot upload
+async function submitRefund(event) {
+    event.preventDefault();
+
+    const bookingId = document.getElementById('refundBookingId').value;
+    const screenshotFile = document.getElementById('refundScreenshot').files[0];
+
+    if (!screenshotFile) {
+        alert("Please attach a payment receipt screenshot.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('bookingId', bookingId);
+    formData.append('refundMethod', currentRefundMethod);
+    formData.append('refundAmount', document.getElementById('refundAmountRaw').value);
+    formData.append('screenshot', screenshotFile);
+
+    try {
+        const response = await fetch(`/api/bookings/refund/${bookingId}`, {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert("Refund submitted successfully!");
+            closeRefundModal();
+            fetchAdminBookings(); // Refresh table
+        } else {
+            alert("Error: " + result.message);
+        }
+    } catch (err) {
+        console.error("Refund Submit Error:", err);
+        alert("Failed to submit refund.");
+    }
 }

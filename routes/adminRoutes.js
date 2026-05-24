@@ -29,6 +29,41 @@ router.get('/bookings/single/:id', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+router.get('/bookings/particular/:id', async (req, res) => {
+    try {
+        const booking = await Booking
+            .findById(req.params.id)
+            .populate('userId');
+        if (!booking) {
+            return res.status(404).json({
+                success: false,
+                message: "Booking not found"
+            });
+        }
+        res.json({
+            success: true,
+            booking: {
+                _id: booking._id,
+                bookedBy: booking.bookedBy,
+                email: booking.email,
+                contact: booking.contact,
+                paymentAmount: booking.paymentAmount,
+                bookingDate: booking.bookingDate,
+                status: booking.status,
+                upiId: booking.userId?.paymentData?.upiId || '',
+                accountNumber: booking.userId?.paymentData?.bankAccount || '',
+                ifscCode: booking.userId?.paymentData?.ifscCode || '',
+                preferredPayment: booking.userId?.paymentData?.preferredPayment || ''
+            }
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+    }
+});
 // update status of venue
 router.patch("/venue/:id/status", async (req, res) => {
     try {

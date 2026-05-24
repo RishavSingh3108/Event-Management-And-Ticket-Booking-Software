@@ -419,3 +419,444 @@ body {
 .refund-btn i{
     font-size: 16px;
 }
+/* ============================================
+   REFUND MODAL — Admin Panel Stylesheet
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  --primary:        #d9534f;
+  --primary-light:  #fdf2f2;
+  --accent-blue:    #4b6cb7;
+  --accent-dark:    #2c3e50;
+  --success:        #27ae60;
+  --success-light:  #eafaf1;
+  --muted:          #6b7280;
+  --border:         #e5e7eb;
+  --bg-soft:        #f8f9fa;
+  --text-main:      #1a1a2e;
+  --text-secondary: #555;
+  --shadow-sm:      0 2px 8px rgba(0,0,0,0.06);
+  --shadow-md:      0 8px 32px rgba(0,0,0,0.14);
+  --shadow-lg:      0 20px 60px rgba(0,0,0,0.22);
+  --radius:         10px;
+  --radius-sm:      6px;
+  --font:           'DM Sans', sans-serif;
+  --font-mono:      'DM Mono', monospace;
+  --transition:     0.2s ease;
+}
+
+/* ── Overlay ── */
+.refund-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 15, 30, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+  animation: overlayIn 0.2s ease forwards;
+  font-family: var(--font);
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Modal Card ── */
+.refund-content {
+  background: #ffffff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 550px;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  animation: modalSlideIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);    }
+}
+
+/* ── Header ── */
+.refund-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px 16px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(135deg, #1a1a2e 0%, #2c3e50 100%);
+  color: #fff;
+}
+
+.refund-header h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+}
+
+.refund-header h3 i {
+  font-size: 20px;
+  color: #a8c5ff;
+}
+
+.close-refund-proof {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  color: rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.1);
+  transition: background var(--transition), color var(--transition), transform var(--transition);
+  user-select: none;
+}
+
+.close-refund-proof:hover {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  transform: rotate(90deg);
+}
+
+/* ── Scrollable body ── */
+#refundForm > div {
+  padding: 20px 22px !important;
+  overflow-y: auto;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+#refundForm > div::-webkit-scrollbar { width: 5px; }
+#refundForm > div::-webkit-scrollbar-track { background: transparent; }
+#refundForm > div::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 99px;
+}
+
+/* ── Section headings ── */
+#refundForm h4 {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.8px !important;
+  text-transform: uppercase !important;
+  color: var(--muted) !important;
+  border-bottom: 1px solid var(--border) !important;
+  padding-bottom: 8px !important;
+  margin-bottom: 14px !important;
+}
+
+/* ── User Details Grid ── */
+#refundForm > div > div[style*="grid-template-columns: 1fr 1fr"] {
+  background: var(--bg-soft);
+  border-radius: var(--radius);
+  padding: 14px 16px !important;
+  gap: 10px !important;
+  border: 1px solid var(--border);
+}
+
+#refundForm > div > div[style*="grid-template-columns: 1fr 1fr"] div {
+  font-size: 13.5px;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+#refundForm > div > div[style*="grid-template-columns: 1fr 1fr"] strong {
+  color: var(--muted);
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+/* Refund amount highlight */
+#refundForm > div > div[style*="grid-template-columns: 1fr 1fr"] div[style*="font-size: 16px"] {
+  background: var(--primary-light);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px !important;
+  border: 1px solid rgba(217, 83, 79, 0.2);
+  font-size: 15px !important;
+}
+
+#refAmountDisplay {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* ── Payment Mode Radio Toggles ── */
+#refundForm div[style*="display: flex; gap: 15px"] {
+  display: flex !important;
+  gap: 12px !important;
+  margin-bottom: 18px !important;
+}
+
+#refundForm div[style*="display: flex; gap: 15px"] label {
+  flex: 1;
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 16px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border);
+  background: #fff;
+  cursor: pointer;
+  font-weight: 600 !important;
+  font-size: 14px;
+  color: var(--text-secondary);
+  transition: border-color var(--transition), background var(--transition), color var(--transition), box-shadow var(--transition);
+}
+
+#refundForm div[style*="display: flex; gap: 15px"] label:hover {
+  border-color: var(--accent-blue);
+  background: #f0f4ff;
+  color: var(--accent-blue);
+}
+
+#refundForm div[style*="display: flex; gap: 15px"] input[type="radio"] {
+  accent-color: var(--accent-blue);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* ── UPI Container ── */
+#upiFieldContainer > div[style*="background: #f9f9f9"] {
+  background: #f0f4ff !important;
+  border-left: 4px solid var(--accent-blue) !important;
+  padding: 12px 16px !important;
+  border-radius: var(--radius-sm) !important;
+  font-size: 14px;
+  color: var(--text-main);
+  margin-bottom: 14px !important;
+}
+
+#upiFieldContainer > div[style*="background: #f9f9f9"] strong {
+  color: var(--muted);
+  margin-right: 4px;
+}
+
+#refUserUpi {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--accent-blue);
+  font-size: 13px;
+}
+
+/* QR Code Box */
+#upiFieldContainer > div[style*="text-align: center"] {
+  background: #fff !important;
+  border: 1.5px dashed #c5d0e6 !important;
+  border-radius: var(--radius) !important;
+  padding: 20px 15px !important;
+  transition: border-color var(--transition);
+}
+
+#upiFieldContainer > div[style*="text-align: center"]:hover {
+  border-color: var(--accent-blue);
+}
+
+#upiFieldContainer p {
+  font-size: 12px !important;
+  color: var(--muted) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  margin-bottom: 12px !important;
+}
+
+#qrcodeContainer {
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#qrcodeContainer span {
+  font-size: 13px;
+  color: #bbb;
+  font-style: italic;
+}
+
+/* ── Bank Details Container ── */
+#bankFieldContainer {
+  background: #f5f7f9 !important;
+  border-left: 4px solid var(--accent-dark) !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 16px !important;
+  margin-bottom: 18px !important;
+}
+
+#bankFieldContainer > div {
+  gap: 10px !important;
+}
+
+#bankFieldContainer div > div {
+  font-size: 13.5px;
+  color: var(--text-main);
+  padding: 4px 0;
+}
+
+#bankFieldContainer strong {
+  color: var(--muted);
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+#refAccNumber {
+  font-family: var(--font-mono);
+  letter-spacing: 1.5px;
+  font-size: 13px;
+}
+
+#refIfsc {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent-dark);
+  font-weight: 500;
+}
+
+/* ── File Upload ── */
+#refundForm h4 + div label {
+  font-size: 12px !important;
+  color: var(--muted) !important;
+  font-weight: 500 !important;
+  display: block;
+  margin-bottom: 6px !important;
+}
+
+#refundScreenshot {
+  width: 100%;
+  padding: 9px 12px !important;
+  border: 1.5px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  font-size: 13px;
+  font-family: var(--font);
+  background: #fff;
+  cursor: pointer;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  color: var(--text-main);
+}
+
+#refundScreenshot:hover {
+  border-color: var(--accent-blue);
+}
+
+#refundScreenshot:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(75, 108, 183, 0.12);
+}
+
+/* ── Footer Buttons ── */
+.proof-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 22px !important;
+  border-top: 1px solid var(--border) !important;
+  background: var(--bg-soft);
+}
+
+/* Shared button base */
+.view-btn,
+.refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 20px;
+  border-radius: var(--radius-sm);
+  border: none;
+  font-family: var(--font);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter var(--transition), transform var(--transition), box-shadow var(--transition);
+  letter-spacing: 0.1px;
+}
+
+.view-btn:hover,
+.refresh-btn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.view-btn:active,
+.refresh-btn:active {
+  transform: translateY(0);
+  filter: brightness(0.96);
+}
+
+/* Cancel */
+.view-btn[style*="background: #aaa"] {
+  background: #e5e7eb !important;
+  color: #555 !important;
+}
+
+.view-btn[style*="background: #aaa"]:hover {
+  background: #d1d5db !important;
+}
+
+/* Submit */
+.refresh-btn {
+  background: var(--success) !important;
+  border-color: var(--success) !important;
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(39, 174, 96, 0.3);
+}
+
+.refresh-btn:hover {
+  box-shadow: 0 5px 16px rgba(39, 174, 96, 0.4) !important;
+}
+
+.refresh-btn i {
+  font-size: 16px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 560px) {
+  .refund-content {
+    border-radius: 12px;
+    max-height: 96vh;
+  }
+
+  .refund-header {
+    padding: 15px 16px;
+  }
+
+  #refundForm > div {
+    padding: 16px !important;
+  }
+
+  .proof-footer {
+    padding: 12px 16px !important;
+  }
+
+  #refundForm div[style*="display: flex; gap: 15px"] {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  #refundForm > div > div[style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+}

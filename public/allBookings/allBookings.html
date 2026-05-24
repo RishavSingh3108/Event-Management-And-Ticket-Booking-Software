@@ -62,6 +62,86 @@
             </div>
         </div>
     </div>
+
+    <div id="refundModal" class="refund-modal" style="display: none;" onclick="closeRefundModal()">
+        <div class="refund-content" onclick="event.stopPropagation()" style="max-width: 550px;">
+            <div class="refund-header">
+                <h3><i class='bx bx-undo'></i> Process Refund</h3>
+                <span class="close-refund-proof" onclick="closeRefundModal()">&times;</span>
+            </div>
+            
+            <form id="refundForm" onsubmit="submitRefund(event)">
+                <!-- Hidden inputs to track booking state -->
+                <input type="hidden" id="refundBookingId">
+                <input type="hidden" id="refundAmountRaw">
+
+                <div style="padding: 15px 0; max-height: 70vh; overflow-y: auto;">
+                    
+                    <!-- Section 1: User Profile Details -->
+                    <h4 style="margin-bottom: 10px; color: #555; border-bottom: 1px solid #eee; padding-bottom: 5px;">User Details</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; font-size: 14px;">
+                        <div><strong>Name:</strong> <span id="refUserName">-</span></div>
+                        <div><strong>Phone:</strong> <span id="refUserPhone">-</span></div>
+                        <div style="grid-column: span 2;"><strong>Email:</strong> <span id="refUserEmail">-</span></div>
+                        <div style="grid-column: span 2; font-size: 16px; color: var(--primary, #d9534f); margin-top: 5px;">
+                            <strong>Refund Amount:</strong> <span id="refAmountDisplay">₹0</span>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Payment Mode Selection Toggles -->
+                    <h4 style="margin-bottom: 10px; color: #555; border-bottom: 1px solid #eee; padding-bottom: 5px;">Choose Payout Mode</h4>
+                    <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                        <label style="cursor: pointer; font-weight: 600;">
+                            <input type="radio" name="paymentMode" value="UPI" checked onclick="togglePaymentFields('UPI')"> UPI Transfer
+                        </label>
+                        <label style="cursor: pointer; font-weight: 600;">
+                            <input type="radio" name="paymentMode" value="BANK" onclick="togglePaymentFields('BANK')"> Bank Account Details
+                        </label>
+                    </div>
+
+                    <!-- Section 3: Dynamic Field Views (UPI vs Bank) -->
+                    <!-- UPI Layout View -->
+                    <div id="upiFieldContainer" style="margin-bottom: 20px;">
+                        <div style="background: #f9f9f9; padding: 12px; border-radius: 6px; border-left: 4px solid #4b6cb7; margin-bottom: 15px;">
+                            <strong>User UPI ID:</strong> <span id="refUserUpi">-</span>
+                        </div>
+                        
+                        <!-- Dynamic QR Code Container Block -->
+                        <div style="text-align: center; background: #fff; padding: 15px; border: 1px dashed #ccc; border-radius: 8px;">
+                            <p style="margin: 0 0 10px 0; font-size: 13px; color: #666; font-weight: 600;">Scan QR Code to Pay Fast</p>
+                            <div id="qrcodeContainer" style="min-height: 150px; display: flex; align-items: center; justify-content: center;">
+                                <span style="color: #999; font-size: 13px;">Generating dynamic QR engine...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bank Account Details Layout View -->
+                    <div id="bankFieldContainer" style="display: none; margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 6px; border-left: 4px solid #2c3e50;">
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 8px; font-size: 14px;">
+                            <div><strong>Account Holder:</strong> <span id="refAccName">-</span></div>
+                            <div><strong>Account Number:</strong> <span id="refAccNumber">-</span></div>
+                            <div><strong>IFSC Code:</strong> <span id="refIfsc">-</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Receipt Document Upload Block -->
+                    <h4 style="margin-bottom: 10px; color: #555; border-bottom: 1px solid #eee; padding-bottom: 5px;">Upload Transaction Confirmation</h4>
+                    <div style="margin-bottom: 15px;">
+                        <label for="refundScreenshot" style="display: block; margin-bottom: 5px; font-size: 13px; color: #666;">Attach payment receipt image or screenshot:</label>
+                        <input type="file" id="refundScreenshot" accept="image/*" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+
+                </div>
+
+                <div class="proof-footer" style="justify-content: flex-end; gap: 10px; border-top: 1px solid #eee; padding-top: 15px;">
+                    <button type="button" class="view-btn" onclick="closeRefundModal()" style="background: #aaa;">Cancel</button>
+                    <button type="submit" class="refresh-btn" style="background: #27ae60; border-color: #27ae60;">
+                        <i class='bx bx-cloud-upload'></i> Submit Refund Proof
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
     <script src="allBookings.js"></script>
 </body>
 </html>
