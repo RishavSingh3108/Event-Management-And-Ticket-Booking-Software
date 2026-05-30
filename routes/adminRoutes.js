@@ -428,6 +428,7 @@ router.post('/bookings/refund/:bookingId', uploadRefund.single('refundScreenshot
         const { bookingId } = req.params;
         const {
             adminId,
+            userId,
             payoutMode,
             amountRefunded,
             userName,
@@ -454,6 +455,7 @@ router.post('/bookings/refund/:bookingId', uploadRefund.single('refundScreenshot
         const refundData = {
             bookingId: bookingId,
             adminId: adminId,
+            userId: userId,
             userName: userName,
             userEmail: userEmail,
             userPhone: userPhone,

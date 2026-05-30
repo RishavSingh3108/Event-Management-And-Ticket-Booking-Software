@@ -73,7 +73,7 @@ async function fetchAdminBookings() {
                             `
                             : (book.status === 'Rejected' || book.status === 'Cancelled') ? `
                                 <button class="refund-btn"
-                                    onclick="openRefundModal('${book._id}')">
+                                    onclick="openRefundModal('${book._id}', '${book.userId ? (book.userId._id || book.userId) : ''}')">
                                     <i class='bx bx-undo'></i> Refund
                                 </button>
                             `
@@ -163,7 +163,9 @@ function goToBilling(bookingId, customerId, venueId) {
     window.location.href = `/POS/billing.html?id=${bookingId}&cid=${customerId}&vid=${venueId}`;
 }
 // 5. Open Refund Modal
-async function openRefundModal(bookingId) {
+let activeUserId = null;
+async function openRefundModal(bookingId, UserId) {
+    activeUserId = UserId;
     currentRefundBookingId = bookingId;
 
     try {
@@ -206,7 +208,9 @@ async function openRefundModal(bookingId) {
 // 6. Close Refund Modal
 function closeRefundModal() {
     document.getElementById('refundModal').style.display = 'none';
-    document.getElementById('refundForm').reset();
+    const formElement = document.getElementById('refundForm'); //  Defined formElement
+    formElement.reset();
+    activeUserId = null; //  Reset global variable
     currentRefundBookingId = null;
 }
 
@@ -266,6 +270,7 @@ async function submitRefund(event) {
     const formData = new FormData();
     formData.append('bookingId', bookingId);
     formData.append('adminId', adminId);
+    formData.append('userId', activeUserId); // <--- Added payload parameter link
     formData.append('payoutMode', payoutMode);
     formData.append('amountRefunded', document.getElementById('refundAmountRaw').value);
     

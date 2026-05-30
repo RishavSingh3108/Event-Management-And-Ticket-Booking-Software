@@ -995,9 +995,74 @@ async function savePayoutDetails() {
     }
 }
 
-/**
- * Fallback global tracking links
- */
-function openRefundHistory() {
-    alert("Navigating to secure refund data ledgers...");
+// ==========================================
+// USER HISTORY POPUP LEDGER VIEW
+// ==========================================
+// Open the dedicated Refund History Modal
+async function openRefundHistory() {
+    const targetUserId = localStorage.getItem('userId'); 
+
+    if (!targetUserId || targetUserId === "undefined" || targetUserId === "null") {
+        alert("Cannot load ledger history: You must be logged in to view your refund history.");
+        return;
+    }
+
+    const modal = document.getElementById('refundHistoryModal');
+    const tbody = document.getElementById('modalRefundHistoryTableBody');
+    
+    // Display the dedicated popup modal container instantly
+    modal.style.display = 'flex';
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:#555;"><i class='bx bx-loader-alt bx-spin'></i> Syncing cloud records...</td></tr>`;
+
+    try {
+        const response = await fetch(`/api/user/refunds/user-history?userId=${targetUserId}`);
+        const data = await response.json();
+
+        if (data.success && data.refunds && data.refunds.length > 0) {
+            tbody.innerHTML = data.refunds.map(ref => {
+                // Safely grab the Venue Name and Admin Name from populated data objects
+                const venueName = ref.bookingId?.venueId?.name || "N/A (Venue Deleted)";
+                const adminName = ref.adminId?.name || ref.adminId?.username || "System Admin";
+                
+                // Formulate clear transaction channel logs
+                const modeSummary = ref.payoutMode === 'UPI' 
+                    ? `UPI (${ref.upiDetails?.upiId || 'N/A'})` 
+                    : `Bank (...${ref.bankDetails?.accountNumber?.slice(-4) || 'Account'})`;
+
+                return `
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 12px 10px; white-space: nowrap;">
+                        ${new Date(ref.processedAt).toLocaleDateString()}
+                    </td>
+                    <td style="padding: 12px 10px; font-weight: 500; color: #333;">
+                        ${venueName}
+                    </td>
+                    <td style="padding: 12px 10px; color: #666;">
+                        ${adminName}
+                    </td>
+                    <td style="padding: 12px 10px; font-weight: 700; color: #e74c3c;">
+                        ₹${ref.amountRefunded.toLocaleString()}
+                    </td>
+                    <td style="padding: 12px 10px; color: #555;">
+                        ${modeSummary}
+                    </td>
+                    <td style="padding: 12px 10px; text-align: center;">
+                        <a href="${ref.screenshotProofPath}" target="_blank" style="color: #4b6cb7; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                            <i class='bx bx-show-alt' style="font-size: 16px;"></i> View
+                        </a>
+                    </td>
+                </tr>`;
+            }).join('');
+        } else {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:#999;"><i class='bx bx-info-circle' style="font-size: 20px; vertical-align: middle;"></i> No previous refund entries associated with this account.</td></tr>`;
+        }
+    } catch (err) {
+        console.error("User History Interface Failure:", err);
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#e74c3c; padding:20px;">Failed to fetch database historical trails.</td></tr>`;
+    }
+}
+
+// Close the dedicated Refund History Modal
+function closeRefundHistoryModal() {
+    document.getElementById('refundHistoryModal').style.display = 'none';
 }

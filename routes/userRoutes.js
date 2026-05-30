@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const Booking = require('../models/Booking'); 
 const User = require('../models/User'); 
+const Refund = require('../models/Refund');
 
 // Setup Multer for memory storage (for binary buffer)
 const storage = multer.memoryStorage();
@@ -236,6 +237,49 @@ router.delete('/bookings/:id', async (req, res) => {
     } catch (error) {
         console.error("Delete Error:", error);
         res.status(500).json({ success: false, message: "Server error during deletion" });
+    }
+});
+
+// ==========================================
+// USER ROUTE: FETCH ENRICHED REFUND HISTORY FOR A PARTICULAR USER
+// ==========================================
+router.get('/refunds/user-history', async (req, res) => {
+    try {
+        const { userId } = req.query;
+
+        if (!userId) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Missing userId query parameter context mapping identifier." 
+            });
+        }
+
+        const mongoose = require('mongoose');
+        const cleanUserId = new mongoose.Types.ObjectId(userId);
+
+        // Fetch user refunds and deeply populate fields out of connected collections
+        const trackingListLogs = await Refund.find({ userId: cleanUserId })
+            .populate({
+                path: 'bookingId',
+                populate: {
+                    path: 'venueId', // Grabs Venue model parameters
+                    select: 'name'   // Fetches only the field we need
+                }
+            })
+            .populate('adminId', 'name username') // Grabs the name of the clearing Admin officer
+            .sort({ processedAt: -1 });
+
+        return res.status(200).json({
+            success: true,
+            refunds: trackingListLogs
+        });
+
+    } catch (err) {
+        console.error("User Refund History Fetch Failure:", err);
+        return res.status(500).json({ 
+            success: false, 
+            message: "Database query error: " + err.message 
+        });
     }
 });
 

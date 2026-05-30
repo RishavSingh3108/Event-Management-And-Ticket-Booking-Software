@@ -7,6 +7,11 @@ const RefundSchema = new mongoose.Schema({
         ref: 'Booking',
         required: true
     },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
     // Track which admin processed this transaction
     adminId: {
         type: mongoose.Schema.Types.ObjectId,
