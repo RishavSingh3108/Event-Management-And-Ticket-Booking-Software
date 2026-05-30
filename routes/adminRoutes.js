@@ -8,6 +8,24 @@ const path = require('path');
 const mongoose = require('mongoose');
 const Billing = require('../models/Billing');
 const AadharService = require('../services/aadharService');
+const Refund = require('../models/Refund');
+
+// Configuration for Refund Receipts storage engine
+const refundStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadDir = 'public/uploads/refunds/';
+        const fs = require('fs'); // Ensure fs is available to check directory states
+        // Dynamically create folder path if it does not exist locally
+        if (!fs.existsSync(uploadDir)){
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        cb(null, 'refund-receipt-' + Date.now() + path.extname(file.originalname));
+    }
+});
+const uploadRefund = multer({ storage: refundStorage });
 // add venue
 router.post('/add-venue', async (req, res) => {
     try {
@@ -376,24 +394,7 @@ router.post('/save-invoice', async (req, res) => {
         });
     }
 });
-// Fetch Billing History
-// router.get('/billing/history', async (req, res) => {
-//     try {
-//         const { adminId } = req.query;
-//         const query = adminId ? { adminId: adminId } : {};
-//         const bills = await Billing.find(query).sort({ createdAt: -1 });
-//         res.status(200).json({
-//             success: true,
-//             bills: bills
-//         });
-//     } catch (err) {
-//         console.error("Master List Fetch Error:", err.message);
-//         res.status(500).json({
-//             success: false,
-//             message: "Failed to fetch billing history: " + err.message
-//         });
-//     }
-// });
+
 router.get('/billing/history', async (req, res) => {
     try {
         const { bookingId } = req.query;
@@ -419,7 +420,81 @@ router.get('/billing/history', async (req, res) => {
     }
 });
 
+// ==========================================
+// ADMIN ROUTE: PROCESS AND SAVE REFUNDS TO DB (MONGODB ATLAS)
+// ==========================================
+router.post('/bookings/refund/:bookingId', uploadRefund.single('refundScreenshot'), async (req, res) => {
+    try {
+        const { bookingId } = req.params;
+        const {
+            adminId,
+            payoutMode,
+            amountRefunded,
+            userName,
+            userEmail,
+            userPhone,
+            upiId,
+            accountHolder,
+            accountNumber,
+            ifscCode
+        } = req.body;
+
+        // Verify if file has reached the storage engine safely
+        if (!req.file) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Transaction confirmation screenshot is required." 
+            });
+        }
+
+        // Standardize the screenshot accessibility URL path
+        const screenshotUrlPath = `/uploads/refunds/${req.file.filename}`;
+
+        // Construct document payload structure for your MongoDB Atlas cluster
+        const refundData = {
+            bookingId: bookingId,
+            adminId: adminId,
+            userName: userName,
+            userEmail: userEmail,
+            userPhone: userPhone,
+            amountRefunded: parseFloat(amountRefunded),
+            payoutMode: payoutMode,
+            screenshotProofPath: screenshotUrlPath
+        };
+
+        // Conditionally set routing parameters matching your active payout toggles
+        if (payoutMode === 'UPI') {
+            refundData.upiDetails = { upiId };
+        } else if (payoutMode === 'BANK') {
+            refundData.bankDetails = {
+                accountHolder,
+                accountNumber,
+                ifscCode
+            };
+        }
+
+        // Save parameters into your independent Refund schema
+        const newRefund = new Refund(refundData);
+        await newRefund.save();
+
+        // Cross-update main booking record status to state execution resolve
+        await Booking.findByIdAndUpdate(bookingId, { status: 'Refunded' });
+
+        res.status(201).json({
+            success: true,
+            message: "Refund logged successfully in MongoDB Atlas database."
+        });
+
+    } catch (err) {
+        console.error("MDB Atlas Refund Storage Failure:", err);
+        res.status(500).json({ 
+            success: false, 
+            message: "Database Save Error: " + err.message 
+        });
+    }
+});
 
 
 
 module.exports = router;
+

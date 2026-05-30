@@ -243,10 +243,14 @@ function generateQRCode(upiId, amount) {
 }
 
 // 9. Submit Refund with screenshot upload
+
+
 async function submitRefund(event) {
     event.preventDefault();
 
+    // 1. Get Core Fields
     const bookingId = document.getElementById('refundBookingId').value;
+    const adminId = localStorage.getItem('adminId'); // Vital for tracing who processed it
     const screenshotFile = document.getElementById('refundScreenshot').files[0];
 
     if (!screenshotFile) {
@@ -254,29 +258,52 @@ async function submitRefund(event) {
         return;
     }
 
+    // 2. Get Selected Payout Mode dynamically from the radio buttons
+    const checkedRadio = document.querySelector('input[name="paymentMode"]:checked');
+    const payoutMode = checkedRadio ? checkedRadio.value : 'UPI';
+
+    // 3. Initialize Multipart FormData
     const formData = new FormData();
     formData.append('bookingId', bookingId);
-    formData.append('refundMethod', currentRefundMethod);
-    formData.append('refundAmount', document.getElementById('refundAmountRaw').value);
-    formData.append('screenshot', screenshotFile);
+    formData.append('adminId', adminId);
+    formData.append('payoutMode', payoutMode);
+    formData.append('amountRefunded', document.getElementById('refundAmountRaw').value);
+    
+    // Append User Profile Logs for your separate DB model
+    formData.append('userName', document.getElementById('refUserName').innerText);
+    formData.append('userEmail', document.getElementById('refUserEmail').innerText);
+    formData.append('userPhone', document.getElementById('refUserPhone').innerText);
 
+    // 4. Conditionally Append Details based on active selection
+    if (payoutMode === 'UPI') {
+        formData.append('upiId', document.getElementById('refUserUpi').innerText);
+    } else {
+        formData.append('accountHolder', document.getElementById('refAccName').innerText);
+        formData.append('accountNumber', document.getElementById('refAccNumber').innerText);
+        formData.append('ifscCode', document.getElementById('refIfsc').innerText);
+    }
+
+    // Append the binary file stream (Matches your 'refundScreenshot' multer configuration)
+    formData.append('refundScreenshot', screenshotFile);
+
+    // 5. Asynchronous Server Request Transmission
     try {
-        const response = await fetch(`/api/bookings/refund/${bookingId}`, {
+        const response = await fetch(`/api/admin/bookings/refund/${bookingId}`, {
             method: 'POST',
-            body: formData
+            body: formData // Let the browser set the multi-part boundaries automatically
         });
 
         const result = await response.json();
 
         if (result.success) {
-            alert("Refund submitted successfully!");
+            alert("Refund submitted and archived successfully!");
             closeRefundModal();
-            fetchAdminBookings(); // Refresh table
+            fetchAdminBookings(); // Automatically re-sync and reload table
         } else {
             alert("Error: " + result.message);
         }
     } catch (err) {
         console.error("Refund Submit Error:", err);
-        alert("Failed to submit refund.");
+        alert("Failed to submit refund due to a network or server communication error.");
     }
 }
